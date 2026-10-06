@@ -1,0 +1,50 @@
+﻿@model List<SigortaDernegi.Controllers.NewsItem>
+
+@{
+    ViewData["Title"] = "Haberler & Duyurular";
+}
+
+<div class="container py-3">
+    <!-- Başlık -->
+    <div class="text-center mb-5">
+        <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-2">Güncel Gelişmeler</span>
+        <h1 class="fw-bold text-dark display-6">Haberler, Duyurular & Mevzuat</h1>
+        <p class="text-muted col-md-8 mx-auto">
+            Sigorta araştırmacılığı, saha denetimleri, Yargıtay emsal kararları ve dernek faaliyetlerimizle ilgili tüm güncel haberler.
+        </p>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+            <div class="alert alert-info text-center rounded-4 p-4">
+                Henüz eklenmiş bir haber veya duyuru bulunmuyor.
+            </div>
+    }
+    else
+    {
+            <!-- Haber Kartları Grid -->
+            <div class="row g-4 mb-5">
+            @foreach (var item in Model)
+            {
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                                <div class="p-4 position-relative text-white" style="background-color: #0d233a;">
+                                    <i class="bi bi-newspaper display-5 text-warning"></i>
+                                    <span class="badge @item.BadgeClass position-absolute top-0 end-0 m-3">@item.Category</span>
+                                </div>
+                                <div class="card-body p-4 d-flex flex-column">
+                                    <small class="text-muted mb-2"><i class="bi bi-calendar3 me-1"></i> @item.Date</small>
+                                    <h5 class="fw-bold text-dark card-title mb-3">@item.Title</h5>
+                                    <p class="card-text text-muted small lh-lg mb-4">
+                                @item.Summary
+                                    </p>
+                                    <a asp-controller="News" asp-action="Detail" asp-route-id="@item.Id" class="btn btn-outline-primary rounded-pill mt-auto fw-semibold">
+                                        Devamını Oku <i class="bi bi-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+            }
+            </div>
+    }
+</div>

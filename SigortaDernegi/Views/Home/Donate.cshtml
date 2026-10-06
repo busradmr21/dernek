@@ -1,0 +1,53 @@
+@model Donation
+@{
+    ViewData["Title"] = "Bağış Yap";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="h3 fw-bold">Bağış Bildirimi</h1>
+                <p class="text-muted">Yaptığınız bağışı kayıt altına almak için formu doldurun.</p>
+                @if (TempData["SuccessMessage"] is string successMessage)
+                {
+                    <div class="alert alert-success" role="alert">@successMessage</div>
+                }
+                <form asp-action="Donate" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="DonorName" class="form-label">Bağışçı Adı</label>
+                        <input asp-for="DonorName" class="form-control" />
+                        <span asp-validation-for="DonorName" class="text-danger"></span>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Amount" class="form-label">Tutar (₺)</label>
+                            <input asp-for="Amount" class="form-control" min="1" step="0.01" />
+                            <span asp-validation-for="Amount" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PaymentMethod" class="form-label">Ödeme Yöntemi</label>
+                            <select asp-for="PaymentMethod" class="form-select">
+                                <option value="">Seçiniz</option>
+                                <option>Havale / EFT</option>
+                                <option>Kredi Kartı</option>
+                                <option>Nakit</option>
+                            </select>
+                            <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label">Açıklama</label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success rounded-pill px-4">Bağışı Kaydet</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

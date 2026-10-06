@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Yönetim Paneli";
+}
+
+<div class="container py-4">
+    <h1 class="h3 fw-bold mb-4">Yönetim Paneli</h1>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <a asp-action="Volunteers" class="card h-100 border-0 shadow-sm rounded-4 text-decoration-none text-dark">
+                <div class="card-body p-4">
+                    <i class="bi bi-people-fill fs-1 text-danger"></i>
+                    <h2 class="h5 fw-bold mt-3">Gönüllü Başvuruları</h2>
+                    <p class="text-muted mb-0">Gönderilen gönüllü başvurularını görüntüleyin.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a asp-action="Donations" class="card h-100 border-0 shadow-sm rounded-4 text-decoration-none text-dark">
+                <div class="card-body p-4">
+                    <i class="bi bi-cash-coin fs-1 text-success"></i>
+                    <h2 class="h5 fw-bold mt-3">Bağış Kayıtları</h2>
+                    <p class="text-muted mb-0">Kaydedilen bağış bildirimlerini görüntüleyin.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>

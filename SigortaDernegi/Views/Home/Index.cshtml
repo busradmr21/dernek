@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+
+<!-- Hero / Karşılama Alanı -->
+<div class="bg-navy text-white rounded-4 p-5 mb-5 shadow-sm position-relative overflow-hidden" style="background-color: #0d233a;">
+    <div class="row align-items-center position-relative z-1">
+        <div class="col-lg-8">
+            <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-3">Sigorta Araştırmacıları ve Uzmanları Derneği</span>
+            <h1 class="display-5 fw-bold mb-3">Hi Sigorta Portalına Hoş Geldiniz</h1>
+            <p class="lead text-light mb-4">
+                Sigorta sektöründe şeffaflık, güvenilirlik ve suistimallerle mücadele amacıyla geliştirilmiş resmi uzman ve araştırma platformu.
+            </p>
+            <div class="d-flex gap-3 flex-wrap">
+                <a asp-controller="Membership" asp-action="Apply" class="btn btn-warning btn-lg fw-bold rounded-pill px-4">
+                    <i class="bi bi-person-plus-fill me-2"></i> Derneğe Üye Ol
+                </a>
+                <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                    <i class="bi bi-shield-exclamation me-2"></i> Şüpheli Hasar Bildir
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Öne Çıkan Bilgilendirme Alanı -->
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="text-primary fs-1 mb-2"><i class="bi bi-shield-check"></i></div>
+            <h5 class="fw-bold text-dark">Saha İnceleme Standartları</h5>
+            <p class="text-muted small mb-0">Uzman kadromuz ile kasko, trafik ve yangın hasarlarında mevzuata uygun araştırma standartları sunuyoruz.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="text-warning fs-1 mb-2"><i class="bi bi-person-vcard"></i></div>
+            <h5 class="fw-bold text-dark">Uzman & Üye Rehberi</h5>
+            <p class="text-muted small mb-0">Sektörde aktif görev yapan akredite sigorta araştırmacıları ve ekspertiz kadromuzu inceleyin.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="text-danger fs-1 mb-2"><i class="bi bi-lock"></i></div>
+            <h5 class="fw-bold text-dark">Güvenli İhbar Hattı</h5>
+            <p class="text-muted small mb-0">Organize suistimal ve şüpheli vakaları 256-bit SSL korumasıyla tamamen anonim olarak bildirin.</p>
+        </div>
+    </div>
+</div>

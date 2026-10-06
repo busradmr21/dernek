@@ -1,0 +1,132 @@
+﻿@{
+    ViewData["Title"] = "Online Üyelik Başvurusu";
+}
+
+<div class="container py-3">
+    <!-- Başlık -->
+    <div class="text-center mb-4">
+        <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-2">Aramıza Katılın</span>
+        <h1 class="fw-bold text-dark display-6">Hi Sigorta Online Üyelik Başvurusu</h1>
+        <p class="text-muted col-md-8 mx-auto">
+            Aşağıdaki formu eksiksiz doldurarak Hi Sigorta (Sigorta Araştırmacıları ve Uzmanları Derneği) üyelik ön başvurunuzu iletebilirsiniz.
+        </p>
+    </div>
+
+    <!-- Başarılı Mesaj Bildirimi -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+            <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm border-0 mb-4" role="alert">
+                <i class="bi bi-check-circle-fill me-2 fs-5 align-middle"></i>
+                <strong>Başarılı!</strong> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
+                <form asp-action="Apply" method="post" enctype="multipart/form-data">
+
+                    <!-- 1. Üyelik Tipi Seçimi -->
+                    <h5 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                        <i class="bi bi-card-checklist me-2"></i>1. Üyelik Tipi
+                    </h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="form-check card p-3 border rounded-3 cursor-pointer">
+                                <input class="form-check-input ms-1" type="radio" name="MembershipType" id="typeBireysel" value="Bireysel" checked>
+                                <label class="form-check-label ms-2 fw-semibold text-dark" for="typeBireysel">
+                                    Bireysel Üyelik (Uzman / Saha Araştırmacısı)
+                                </label>
+                                <small class="text-muted d-block ms-2 mt-1">Saha araştırmacıları, ekspertiz ve hasar denetim uzmanları için.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check card p-3 border rounded-3 cursor-pointer">
+                                <input class="form-check-input ms-1" type="radio" name="MembershipType" id="typeKurumsal" value="Kurumsal">
+                                <label class="form-check-label ms-2 fw-semibold text-dark" for="typeKurumsal">
+                                    Kurumsal Üyelik (Şirket / Kurum)
+                                </label>
+                                <small class="text-muted d-block ms-2 mt-1">Sigorta şirketleri, reasürans ve araştırma büroları için.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Kişisel / Kurumsal Bilgiler -->
+                    <h5 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                        <i class="bi bi-person-vcard me-2"></i>2. Kimlik ve İletişim Bilgileri
+                    </h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Ad Soya / Kurum Ünvanı *</label>
+                            <input type="text" class="form-control rounded-3" name="FullName" required placeholder="Örn: Ahmet Yılmaz / ABC Araştırma Ltd.">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">T.C. Kimlik No / Vergi No *</label>
+                            <input type="text" class="form-control rounded-3" name="IdentityNumber" required maxlength="11" placeholder="11 haneli T.C. veya Vergi No">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">E-Posta Adresi *</label>
+                            <input type="email" class="form-control rounded-3" name="Email" required placeholder="ahmet@example.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Telefon Numarası *</label>
+                            <input type="tel" class="form-control rounded-3" name="Phone" required placeholder="05XX XXX XX XX">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Uzmanlık / Faaliyet Alanı</label>
+                            <select class="form-select rounded-3" name="Specialty">
+                                <option value="">Seçiniz...</option>
+                                <option value="Hasar Inceleme">Hasar İnceleme ve Denetim</option>
+                                <option value="Saha Arastirmasi">Saha Araştırması ve Suistimal Tespiti</option>
+                                <option value="Oto Ekspertiz">Oto & Kasko Hasarları</option>
+                                <option value="Yangin ve Bilesik">Yangın, Doğal Afet ve Mühendislik</option>
+                                <option value="Sigorta Hukuku">Sigorta Hukuku & Danışmanlık</option>
+                                <option value="Kurumsal">Kurumsal Temsilci</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Şehir *</label>
+                            <input type="text" class="form-control rounded-3" name="City" required placeholder="Örn: İstanbul">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Adres</label>
+                            <textarea class="form-control rounded-3" name="Address" rows="2" placeholder="Açık adresiniz..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 3. Belge Yükleme ve Onaylar -->
+                    <h5 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                        <i class="bi bi-file-earmark-arrow-up me-2"></i>3. Belge ve Onaylar
+                    </h5>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Özgeçmiş / Faaliyet Belgesi (Opsiyonel)</label>
+                        <input type="file" class="form-control rounded-3" name="DocumentFile" accept=".pdf,.doc,.docx,.jpg,.png">
+                        <small class="text-muted">PDF, Word veya Görsel formatında belge yükleyebilirsiniz.</small>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                        <label class="form-check-label small text-muted" for="termsCheck">
+                            Hi Sigorta Derneği <a asp-controller="About" asp-action="Bylaws" class="text-primary text-decoration-none fw-semibold">Tüzüğü ve Etik İlkeler Beyannamesi</a>'ni okudum, kabul ediyorum. *
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="kvkkCheck" required>
+                        <label class="form-check-label small text-muted" for="kvkkCheck">
+                            Ki̇şisel Verilerin Korunması Kanunu (KVKK) kapsamında verilerimin işlenmesini onaylıyorum. *
+                        </label>
+                    </div>
+
+                    <!-- Gönder Butonu -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning btn-lg fw-bold text-dark rounded-3 shadow-sm">
+                            <i class="bi bi-send-check me-2"></i>Başvuruyu Gönder
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

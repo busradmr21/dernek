@@ -1,0 +1,124 @@
+﻿@{
+    ViewData["Title"] = "Uzman ve Üye Rehberi";
+}
+
+<div class="container py-3">
+    <!-- Sayfa Başlığı -->
+    <div class="text-center mb-5">
+        <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-2">Sektörel Doğrulama</span>
+        <h1 class="fw-bold text-dark display-6">Hi Sigorta Uzman & Üye Rehberi</h1>
+        <p class="text-muted col-md-8 mx-auto">
+            Hi Sigorta etik ilkelerine bağlı, Dernek Yönetim Kurulu tarafından onaylanmış faal saha araştırmacıları, hasar denetim uzmanları ve kurumsal üye listesi.
+        </p>
+    </div>
+
+    <!-- Arama ve Filtreleme Kartı -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-light">
+        <form class="row g-3">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0" placeholder="Üye Adı, Sicil No veya Şirket Ünvanı...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select">
+                    <option value="">Tüm Uzmanlık Alanları</option>
+                    <option value="1">Hasar İnceleme ve Denetim</option>
+                    <option value="2">Saha Araştırması & Suistimal</option>
+                    <option value="3">Oto & Kasko Hasarları</option>
+                    <option value="4">Yangın & Mühendislik</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select">
+                    <option value="">Tüm Şehirler</option>
+                    <option value="34">İstanbul</option>
+                    <option value="06">Ankara</option>
+                    <option value="35">İzmir</option>
+                    <option value="16">Bursa</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-warning w-100 fw-bold text-dark">
+                    <i class="bi bi-funnel me-1"></i> Filtrele
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Üye Liste Kartları -->
+    <div class="row g-4">
+        <!-- Örnek Kart 1: Bireysel Uzman -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4 me-3" style="width: 55px; height: 55px;">
+                        AY
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-dark">Ahmet YILMAZ</h6>
+                        <small class="text-muted"><i class="bi bi-shield-check text-success me-1"></i>Onaylı Uzman</small>
+                    </div>
+                </div>
+                <div class="small lh-lg mb-3">
+                    <div><strong>Sicil No:</strong> <span class="badge bg-secondary">HS-2024-089</span></div>
+                    <div><strong>Uzmanlık:</strong> Saha Araştırması & Suistimal Tespiti</div>
+                    <div><strong>Bölge / Şehir:</strong> İstanbul (Marmara Bölgesi)</div>
+                </div>
+                <div class="mt-auto border-top pt-2 d-flex justify-content-between align-items-center">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">Faal Üye</span>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Detay / İletişim</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Örnek Kart 2: Kurumsal Üye -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-dark text-warning rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4 me-3" style="width: 55px; height: 55px;">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-dark">Lider Sigorta Araştırma A.Ş.</h6>
+                        <small class="text-muted"><i class="bi bi-patch-check-fill text-warning me-1"></i>Kurumsal Üye</small>
+                    </div>
+                </div>
+                <div class="small lh-lg mb-3">
+                    <div><strong>Sicil No:</strong> <span class="badge bg-secondary">HS-K-2023-012</span></div>
+                    <div><strong>Faaliyet:</strong> Hasar Denetimi & Risk İnceleme</div>
+                    <div><strong>Merkez:</strong> Ankara</div>
+                </div>
+                <div class="mt-auto border-top pt-2 d-flex justify-content-between align-items-center">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">Faal Üye</span>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Detay / İletişim</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Örnek Kart 3: Bireysel Uzman -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4 me-3" style="width: 55px; height: 55px;">
+                        MÇ
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-dark">Mehmet ÇELİK</h6>
+                        <small class="text-muted"><i class="bi bi-shield-check text-success me-1"></i>Onaylı Uzman</small>
+                    </div>
+                </div>
+                <div class="small lh-lg mb-3">
+                    <div><strong>Sicil No:</strong> <span class="badge bg-secondary">HS-2025-104</span></div>
+                    <div><strong>Uzmanlık:</strong> Oto & Kasko Hasarları Denetimi</div>
+                    <div><strong>Bölge / Şehir:</strong> İzmir (Ege Bölgesi)</div>
+                </div>
+                <div class="mt-auto border-top pt-2 d-flex justify-content-between align-items-center">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">Faal Üye</span>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Detay / İletişim</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

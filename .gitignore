@@ -1,0 +1,36 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+**/bin/
+**/obj/
+[Dd]ebug/
+[Rr]elease/
+
+# Local .NET files
+artifacts/
+TestResults/
+*.nupkg
+*.snupkg
+
+# Local databases and application data
+App_Data/
+*.db
+*.db-shm
+*.db-wal
+*.mdf
+*.ldf
+
+# User-specific service configuration
+*.local.json.user
+serviceDependencies.local.json
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,86 @@
+﻿@{
+    ViewData["Title"] = "Üyelik Koşulları ve Üye Tipleri";
+}
+
+<div class="container py-3">
+    <!-- Sayfa Üst Başlığı -->
+    <div class="text-center mb-5">
+        <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-2">Hi Sigorta Ailesine Katılın</span>
+        <h1 class="fw-bold text-dark display-6">Hi Sigorta Üyelik Koşulları ve Tipleri</h1>
+        <p class="text-muted col-md-8 mx-auto lead fs-6">
+            Dernekler Kanunu şartlarını taşıyan; sigorta sektöründe hasar inceleme, saha araştırması, suistimal tespiti veya yönetimi alanında çalışan tüm uzman ve kurumlar Hi Sigorta'ya üye olabilir.
+        </p>
+    </div>
+
+    <!-- Üyelik Tipleri -->
+    <div class="row g-4 mb-5">
+        <!-- Araştırmacı & Uzman Üyeliği -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 d-flex flex-column">
+                <div class="text-center mb-4">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="bi bi-search-heart fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Uzman & Saha Araştırmacısı</h4>
+                    <p class="text-muted small">Hasar denetimi, saha araştırması ve suistimal incelemesi yapan bireysel uzmanlar için.</p>
+                </div>
+
+                <h6 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-check2-circle text-primary me-2"></i>Başvuru Şartları</h6>
+                <ul class="list-unstyled text-muted small lh-lg mb-4 flex-grow-1">
+                    <li><i class="bi bi-dot text-primary"></i> T.C. Kimlik Belgesi / Biyometrik Fotoğraf</li>
+                    <li><i class="bi bi-dot text-primary"></i> Adli Sicil Kaydı (Temiz)</li>
+                    <li><i class="bi bi-dot text-primary"></i> Sektörel Çalışma Belgesi veya Özgeçmiş</li>
+                    <li><i class="bi bi-dot text-primary"></i> Hi Sigorta Etik İlkeler Beyannamesi Onayı</li>
+                </ul>
+
+                <a asp-action="Apply" class="btn btn-outline-primary w-100 rounded-3 fw-semibold">Bireysel Başvuru</a>
+            </div>
+        </div>
+
+        <!-- Kurumsal Üyelik -->
+        <div class="col-lg-4">
+            <div class="card border-warning border-2 shadow rounded-4 p-4 h-100 d-flex flex-column position-relative">
+                <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold">Kurumsal Katılım</span>
+                <div class="text-center mb-4 mt-2">
+                    <div class="bg-dark text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="bi bi-shield-check fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Kurumsal Üyelik</h4>
+                    <p class="text-muted small">Sigorta Şirketleri, Reasürans Firmaları, Eksperlik Şirketleri ve Araştırma Büroları için.</p>
+                </div>
+
+                <h6 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-check2-circle text-warning me-2"></i>Gerekli Evraklar</h6>
+                <ul class="list-unstyled text-muted small lh-lg mb-4 flex-grow-1">
+                    <li><i class="bi bi-dot text-warning"></i> Ticaret Sicil Gazetesi & Vergi Levhası</li>
+                    <li><i class="bi bi-dot text-warning"></i> Şirket İmza Sirküleri</li>
+                    <li><i class="bi bi-dot text-warning"></i> Yönetim Kurulu Üyelik / Temsilci Kararı</li>
+                    <li><i class="bi bi-dot text-warning"></i> Yetkili Temsilci Bildirim Formu</li>
+                </ul>
+
+                <a asp-action="Apply" class="btn btn-warning w-100 rounded-3 fw-bold text-dark">Kurumsal Başvuru</a>
+            </div>
+        </div>
+
+        <!-- Fahri & Akademik Üyelik -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 d-flex flex-column">
+                <div class="text-center mb-4">
+                    <div class="bg-secondary-subtle text-secondary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                        <i class="bi bi-mortarboard fs-2"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Fahri & Akademik Üyelik</h4>
+                    <p class="text-muted small">Sigorta hukuku, ceza hukuku ve aktüerya alanında sektöre katkı sağlayan akademisyenler için.</p>
+                </div>
+
+                <h6 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-check2-circle text-secondary me-2"></i>Kabul Esasları</h6>
+                <ul class="list-unstyled text-muted small lh-lg mb-4 flex-grow-1">
+                    <li><i class="bi bi-dot text-secondary"></i> Hi Sigorta Yönetim Kurulu Teklifi</li>
+                    <li><i class="bi bi-dot text-secondary"></i> Akademik veya Sektörel Duayenlik</li>
+                    <li><i class="bi bi-dot text-secondary"></i> Aidat Muaflığı Bulunmaktadır</li>
+                </ul>
+
+                <button class="btn btn-outline-secondary w-100 rounded-3 fw-semibold" disabled>Yönetim Onayı İle</button>
+            </div>
+        </div>
+    </div>
+</div>

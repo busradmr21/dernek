@@ -1,0 +1,99 @@
+﻿@{
+    ViewData["Title"] = "Tüzük ve Etik İlkeler";
+}
+
+<div class="container py-3">
+    <!-- Sayfa Başlığı -->
+    <div class="text-center mb-5">
+        <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-2">Mevzuat & Standartlar</span>
+        <h1 class="fw-bold text-dark display-6">Dernek Tüzüğü ve Etik İlkeler</h1>
+        <p class="text-muted col-md-8 mx-auto">
+            Hi Sigorta üyelerinin mesleki faaliyetlerinde uymakla yükümlü olduğu temel kurallar, etik değerler ve dernek tüzüğü.
+        </p>
+    </div>
+
+    <div class="row g-4">
+       <!-- Sol Menü / Kısayollar -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-3 sticky-top" style="top: 20px;">
+            <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">Hızlı Erişim</h6>
+            <div class="list-group list-group-flush small">
+                <a href="#tuzuk" class="list-group-item list-group-item-action fw-semibold border-0 text-primary">
+                    <i class="bi bi-file-text me-2"></i>Dernek Tüzüğü Özeti
+                </a>
+                <a href="#etik" class="list-group-item list-group-item-action fw-semibold border-0 text-primary">
+                    <i class="bi bi-patch-check me-2"></i>Saha Uzmanı Etik Kuralları
+                </a>
+                <a href="#gizlilik" class="list-group-item list-group-item-action fw-semibold border-0 text-primary">
+                    <i class="bi bi-shield-lock me-2"></i>Sır Saklama & KVKK
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sağ İçerik Alanı -->
+    <div class="col-md-8">
+        <!-- Tüzük Bölümü -->
+        <div id="tuzuk" class="mb-5 pt-2">
+            <h4 class="fw-bold text-dark mb-3"><i class="bi bi-file-text text-warning me-2"></i>Dernek Tüzüğü Özeti</h4>
+            <p class="text-muted lh-lg">
+                Hi Sigorta Derneği, sigorta araştırmacıları ve uzmanlarının mesleki standartlarını yükseltmek, saha inceleme süreçlerinde etik ve hukuki kuralları hâkim kılmak amacıyla kurulmuştur.
+            </p>
+        </div>
+
+        <!-- Etik Kurallar Bölümü -->
+        <div id="etik" class="mb-5 pt-2">
+            <h4 class="fw-bold text-dark mb-3"><i class="bi bi-patch-check text-warning me-2"></i>Saha Uzmanı Etik Kuralları</h4>
+            <p class="text-muted lh-lg">
+                Araştırmacılar; tarafsızlık, şeffaflık, dürüstlük ve mesleki bağımsızlık ilkelerine bağlı kalarak saha çalışmalarını yürütür.
+            </p>
+        </div>
+
+        <!-- Sır Saklama & KVKK Bölümü (Hedef Alan) -->
+        <div id="gizlilik" class="mb-5 pt-2">
+            <h4 class="fw-bold text-dark mb-3"><i class="bi bi-shield-lock text-warning me-2"></i>Sır Saklama & KVKK</h4>
+            <p class="text-muted lh-lg">
+                Sigorta araştırmacıları, saha incelemeleri ve veri toplama süreçlerinde elde ettikleri tüm kişisel verileri 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) uyarınca korumakla yükümlüdür. Elde edilen bilgi ve belgeler üçüncü kişilerle paylaşılamaz ve ticari sır kapsamında gizli tutulur.
+            </p>
+        </div>
+    </div>
+</div>
+        <!-- Sağ İçerik -->
+        <div class="col-md-8">
+            <!-- Tüzük Kartı -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" id="tuzuk">
+                <h4 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                    <i class="bi bi-journal-bookmark text-warning me-2"></i>Dernek Tüzüğü
+                </h4>
+                <p class="text-muted small lh-lg">
+                    Hi Sigorta (Sigorta Araştırmacıları ve Uzmanları Derneği), 5253 sayılı Dernekler Kanunu'na uygun olarak kurulmuştur. Derneğin amacı; sigorta sektöründe hasar inceleme, risk tespiti ve suistimal araştırması yapan kişileri tek çatı altında toplamak, mesleki standartları yükseltmektir.
+                </p>
+                <div class="alert alert-light border rounded-3 small text-muted">
+                    <i class="bi bi-download me-2 text-primary"></i>
+                    Dernek tüzüğünün tamamını PDF formatında indirmek için <a href="#" class="fw-bold text-primary">buraya tıklayınız</a>.
+                </div>
+            </div>
+
+            <!-- Etik İlkeler Kartı -->
+            <div class="card border-0 shadow-sm rounded-4 p-4" id="etik">
+                <h4 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                    <i class="bi bi-award text-primary me-2"></i>Mesleki Etik İlkeler
+                </h4>
+                <ul class="list-unstyled lh-lg text-muted small">
+                    <li class="mb-2">
+                        <strong class="text-dark"><i class="bi bi-check-circle-fill text-success me-2"></i>1. Tarafsızlık ve Doğruluk:</strong> 
+                        Saha araştırmacıları elde ettikleri bulguları hiçbir baskı altında kalmadan, objektif ve somut delillere dayanarak raporlar.
+                    </li>
+                    <li class="mb-2">
+                        <strong class="text-dark"><i class="bi bi-check-circle-fill text-success me-2"></i>2. Gizlilik ve Bilgi Güvenliği:</strong> 
+                        İnceleme sürecinde elde edilen sigortalı ve şirket bilgileri üçüncü şahıslarla paylaşılamaz.
+                    </li>
+                    <li class="mb-2">
+                        <strong class="text-dark"><i class="bi bi-check-circle-fill text-success me-2"></i>3. Çıkar Çatışmasının Önlenmesi:</strong> 
+                        Uzmanlar, doğrudan veya dolaylı menfaat ilişkisi bulunan dosyalarda inceleme görevi üstlenemezler.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

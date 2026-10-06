@@ -1,0 +1,58 @@
+﻿@model SigortaDernegi.Controllers.NewsItem
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+
+            <!-- Geri Dön Butonu -->
+            <a asp-controller="News" asp-action="Index" class="btn btn-outline-secondary rounded-pill mb-4 btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Tüm Haberlere Dön
+            </a>
+
+            <!-- Haber Kartı Detay -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+
+                <!-- Başlık Alanı (Koyu Arka Plan) -->
+                <div class="p-4 p-md-5 text-white" style="background-color: #0d233a;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge @Model.BadgeClass px-3 py-2">@Model.Category</span>
+                        <small class="text-white-50"><i class="bi bi-calendar3 me-1"></i> @Model.Date</small>
+                        <small class="text-white-50 ms-auto"><i class="bi bi-person-fill me-1"></i> @Model.Author</small>
+                    </div>
+                    <h2 class="fw-bold mb-0 lh-base">@Model.Title</h2>
+                </div>
+
+                <!-- Haber İçeriği -->
+                <div class="card-body p-4 p-md-5 bg-white">
+                    <p class="lead fw-semibold text-dark mb-4 border-start border-4 border-primary ps-3">
+                        @Model.Summary
+                    </p>
+                    <hr class="my-4 text-muted opacity-25" />
+
+                    <div class="text-secondary lh-lg fs-6 style-content">
+                        @foreach (var paragraph in Model.Content.Split(new[] { "\n\n", "\r\n\r\n" }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                                <p>@paragraph</p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Alt Paylaşım & Bilgi Kartı -->
+                <div class="card-footer bg-light p-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <span class="text-muted small">
+                        <i class="bi bi-shield-check me-1 text-success"></i> Sigorta Araştırmacıları ve Uzmanları Derneği Resmi Duyurusudur.
+                    </span>
+                    <a asp-controller="News" asp-action="Index" class="btn btn-primary rounded-pill px-4">
+                        Diğer Haberleri İncele
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
