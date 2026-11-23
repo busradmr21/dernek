@@ -1,0 +1,155 @@
+@using System.Globalization
+@using SigortaDernegi.Models
+@model MemberDuesViewModel
+
+@{
+    ViewData["Title"] = "Aidatlarım";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+<div class="member-page-heading">
+    <div>
+        <span class="member-eyebrow">ÜYELİK VE ÖDEME</span>
+        <h1>Aidatlarım</h1>
+        <p>Size tahakkuk ettirilen aidatları, son ödeme tarihlerini ve ödeme geçmişinizi görüntüleyin.</p>
+    </div>
+    <a asp-area="Member"
+       asp-controller="Dues"
+       asp-action="Payments"
+       class="btn btn-outline-primary">
+        <i class="bi bi-clock-history"></i>
+        Ödeme Geçmişim
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success rounded-4 border-0 shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @successMessage
+    </div>
+}
+
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger rounded-4 border-0 shadow-sm" role="alert">
+        <i class="bi bi-x-circle-fill me-2"></i>
+        @errorMessage
+    </div>
+}
+
+<section class="member-dues-summary" aria-label="Aidat özeti">
+    <article>
+        <span>Ödenmemiş Toplam</span>
+        <strong>@Model.OutstandingAmount.ToString("N2", culture) ₺</strong>
+        <small>@Model.UnpaidCount bekleyen aidat</small>
+    </article>
+    <article>
+        <span>Ödenen Toplam</span>
+        <strong>@Model.PaidAmount.ToString("N2", culture) ₺</strong>
+        <small>Tamamlanan aidat ödemeleri</small>
+    </article>
+    <article class="@(Model.OverdueCount > 0 ? "member-dues-summary--warning" : null)">
+        <span>Gecikmiş Aidat</span>
+        <strong>@Model.OverdueCount</strong>
+        <small>Son ödeme tarihi geçen kayıtlar</small>
+    </article>
+</section>
+
+@if (Model.Items.Count == 0)
+{
+    <section class="member-panel member-empty">
+        <i class="bi bi-wallet2"></i>
+        <p>Henüz adınıza tahakkuk ettirilmiş bir aidat bulunmuyor.</p>
+    </section>
+}
+else
+{
+    <section class="member-dues-list" aria-label="Aidat kayıtları">
+        @foreach (var due in Model.Items)
+        {
+            var statusText = due.IsOverdue ? "Gecikmiş" : due.Status;
+            var statusClass = due.Status == MemberDueStatuses.Paid
+                ? "member-due-card--paid"
+                : due.IsOverdue
+                    ? "member-due-card--overdue"
+                    : due.Status == MemberDueStatuses.Exempt
+                        ? "member-due-card--exempt"
+                        : "member-due-card--unpaid";
+
+            <article class="member-due-card @statusClass">
+                <header>
+                    <div>
+                        <span>@due.PeriodType</span>
+                        <h2>@due.PeriodName</h2>
+                    </div>
+                    <strong class="member-due-card__status">@statusText</strong>
+                </header>
+
+                <div class="member-due-card__content">
+                    <div class="member-due-card__amount">
+                        <span>Ödenecek sabit tutar</span>
+                        <strong>@due.Amount.ToString("N2", culture) ₺</strong>
+                        <small>Tutar üye tarafından değiştirilemez.</small>
+                    </div>
+                    <dl>
+                        <div><dt>Dönem</dt><dd>@due.StartDate.ToString("dd.MM.yyyy") – @due.EndDate.ToString("dd.MM.yyyy")</dd></div>
+                        <div><dt>Son ödeme</dt><dd>@due.DueDate.ToString("dd.MM.yyyy")</dd></div>
+                        @if (due.PaidAtUtc.HasValue)
+                        {
+                            <div><dt>Ödeme tarihi</dt><dd>@TurkeyDateTime.FromUtc(due.PaidAtUtc.Value).ToString("dd.MM.yyyy HH:mm")</dd></div>
+                            <div><dt>Ödeme yöntemi</dt><dd>@(due.PaymentMethod ?? "Belirtilmedi")</dd></div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(due.ReferenceNumber))
+                        {
+                            <div><dt>Referans</dt><dd>@due.ReferenceNumber</dd></div>
+                        }
+                    </dl>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(due.Description))
+                {
+                    <p class="member-due-card__description">@due.Description</p>
+                }
+
+                @if (due.PaymentId.HasValue)
+                {
+                    <footer>
+                        <span>
+                            <i class="bi bi-file-earmark-check"></i>
+                            Tamamlanan işlemin ödeme belgesini görüntüleyebilir ve yazdırabilirsiniz.
+                        </span>
+
+                        <a asp-area="Member"
+                           asp-controller="Dues"
+                           asp-action="PaymentReceipt"
+                           asp-route-id="@due.PaymentId.Value"
+                           class="btn btn-outline-primary">
+                            <i class="bi bi-receipt"></i>
+                            Ödeme Belgesini Görüntüle
+                        </a>
+                    </footer>
+                }
+                else if (due.Status == MemberDueStatuses.Unpaid)
+                {
+                    <footer>
+                        <span>
+                            <i class="bi bi-shield-lock"></i>
+                            PayTR ödeme akışını demo olarak test edebilirsiniz.
+                            Bu işlemde gerçek para çekilmez.
+                        </span>
+
+                        <a asp-area="Member"
+                           asp-controller="DemoPayment"
+                           asp-action="Checkout"
+                           asp-route-dueId="@due.Id"
+                           class="btn btn-primary">
+                            <i class="bi bi-credit-card"></i>
+                            PayTR Demo Ödemesini Başlat
+                        </a>
+                    </footer>
+                }
+            </article>
+        }
+    </section>
+}

@@ -1,0 +1,142 @@
+@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Hesap Girişi";
+}
+
+<main class="identity-login-page">
+    <section class="identity-login-card" aria-labelledby="login-title">
+        <!-- Mobil Sekmeler (Yalnızca mobilde d-lg-none ile görünür, masaüstünde tamamen gizlidir) -->
+        <div class="member-portal-mobile-tabs d-lg-none">
+            <a asp-area="Identity" asp-page="/Account/Login" class="member-portal-mobile-tab is-active" aria-current="page">
+                <i class="bi bi-lock-fill"></i>
+                <span>Giriş Yap</span>
+            </a>
+            <a asp-area="" asp-controller="Membership" asp-action="Apply" class="member-portal-mobile-tab">
+                <i class="bi bi-person-plus-fill"></i>
+                <span>Üye Ol</span>
+            </a>
+        </div>
+
+        <div class="identity-brand-header">
+            <div class="identity-brand-icon">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <div class="identity-brand-text">
+                <span class="identity-brand-kicker">ELSADER ÜYE PORTALI</span>
+                <span class="identity-brand-subtitle">Elazığ Sigorta Acenteleri Derneği</span>
+            </div>
+        </div>
+        <h1 id="login-title">Hesabınıza giriş yapın</h1>
+        <p class="identity-login-intro">
+            Kayıtlı e-posta adresiniz ve şifrenizle güvenli hesabınıza erişebilirsiniz.
+        </p>
+
+        <form id="account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger identity-validation" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">E-posta adresi</label>
+                <div class="identity-input-wrapper">
+                    <i class="bi bi-envelope identity-input-icon"></i>
+                    <input asp-for="Input.Email"
+                           class="form-control identity-form-control"
+                           autocomplete="username"
+                           aria-required="true"
+                           placeholder="ornek@eposta.com" />
+                </div>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label">Şifre</label>
+                <div class="identity-input-wrapper">
+                    <i class="bi bi-shield-lock identity-input-icon"></i>
+                    <input asp-for="Input.Password"
+                           id="identityLoginPassword"
+                           class="form-control identity-form-control"
+                           autocomplete="current-password"
+                           aria-required="true"
+                           placeholder="Şifrenizi girin" />
+                    <button type="button"
+                            class="identity-password-toggle"
+                            id="identityPasswordToggle"
+                            aria-label="Şifreyi göster veya gizle"
+                            title="Şifreyi Göster / Gizle">
+                        <i class="bi bi-eye" id="identityPasswordToggleIcon"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="identity-login-options">
+                <label asp-for="Input.RememberMe" class="form-check-label">
+                    <input class="form-check-input" asp-for="Input.RememberMe" />
+                    @Html.DisplayNameFor(model => model.Input.RememberMe)
+                </label>
+                <a id="forgot-password" asp-page="./ForgotPassword">Şifremi unuttum</a>
+            </div>
+
+            <button id="login-submit" type="submit" class="btn identity-login-submit">
+                <span>Giriş Yap</span>
+                <i class="bi bi-box-arrow-in-right"></i>
+            </button>
+
+            <div class="identity-security-badge">
+                <i class="bi bi-shield-fill-check"></i>
+                <span>256-Bit SSL ile uçtan uca güvenli oturum</span>
+            </div>
+        </form>
+    </section>
+
+    <aside class="identity-login-info" aria-label="Giriş bilgileri">
+        <span class="identity-info-badge">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Otomatik Yönlendirme</span>
+        </span>
+        <h2>Doğru alana yönlendirilirsiniz</h2>
+        <p>
+            Normal üyeler yalnızca kendilerine ait üye paneline; yetkili yönetim kurulu
+            kullanıcıları ise görevleri kapsamında yönetim alanına yönlendirilir.
+        </p>
+        <div class="identity-login-divider"></div>
+        <h3>Henüz üye değil misiniz?</h3>
+        <p>
+            Sisteme doğrudan hesap açmak yerine üyelik başvurusu yapmanız gerekir.
+            Başvurunuz yönetim tarafından onaylandığında giriş hesabınız oluşturulur.
+        </p>
+        <a class="btn btn-outline-primary" asp-area="" asp-controller="Membership" asp-action="Apply">
+            Üyelik Başvurusu Yap
+        </a>
+    </aside>
+</main>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/member-portal.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var toggleBtn = document.getElementById("identityPasswordToggle");
+            var passwordInput = document.getElementById("identityLoginPassword");
+            var toggleIcon = document.getElementById("identityPasswordToggleIcon");
+
+            if (toggleBtn && passwordInput && toggleIcon) {
+                toggleBtn.addEventListener("click", function () {
+                    if (passwordInput.type === "password") {
+                        passwordInput.type = "text";
+                        toggleIcon.classList.remove("bi-eye");
+                        toggleIcon.classList.add("bi-eye-slash");
+                    } else {
+                        passwordInput.type = "password";
+                        toggleIcon.classList.remove("bi-eye-slash");
+                        toggleIcon.classList.add("bi-eye");
+                    }
+                });
+            }
+        });
+    </script>
+}

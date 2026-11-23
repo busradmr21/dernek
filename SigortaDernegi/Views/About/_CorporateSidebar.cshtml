@@ -1,0 +1,27 @@
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var corporateLinks = new[]
+    {
+        new { Action = "Index", Label = "Hakkımızda" },
+        new { Action = "Bylaws", Label = "Tüzük ve Etik İlkeler" },
+        new { Action = "Legislation", Label = "Mevzuat" },
+        new { Action = "Board", Label = "Yönetim Kurulu" },
+        new { Action = "Committees", Label = "Komisyonlar" }
+    };
+}
+
+<nav class="corporate-managed-nav" aria-label="Kurumsal sayfalar">
+    <span class="corporate-managed-nav__title">Kurumsal</span>
+    @foreach (var link in corporateLinks)
+    {
+        var isActive = string.Equals(currentAction, link.Action, StringComparison.OrdinalIgnoreCase);
+
+        <a asp-area=""
+           asp-controller="About"
+           asp-action="@link.Action"
+           class="@(isActive ? "is-active" : null)">
+            <span>@link.Label</span>
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </a>
+    }
+</nav>

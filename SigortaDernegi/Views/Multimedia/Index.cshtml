@@ -1,0 +1,454 @@
+@using System.Globalization
+@model SigortaDernegi.ViewModels.MultimediaIndexViewModel
+
+@{
+    ViewData["Title"] = "Multimedya";
+    var culture = new CultureInfo("tr-TR");
+}
+
+<section class="about-hero corporate-managed-hero about-hero--overview">
+    <div class="container">
+        <h1>Multimedya</h1>
+        <p>
+            Sigorta acenteliği, saha incelemeleri, mesleki buluşmalar
+            ve derneğimizin basındaki yansımalarını inceleyin.
+        </p>
+    </div>
+</section>
+
+<main class="multimedia-page py-5">
+    <div class="container">
+
+        <!-- Multimedya Sekme Geçişi (Foto Galeri / Basında Biz) -->
+        <nav class="d-flex flex-wrap gap-2 mb-4" aria-label="Multimedya sekmeleri" id="multimediaNavTabs">
+            <button type="button"
+                    class="btn event-register-button rounded-pill px-4 multimedia-tab-btn is-active"
+                    id="tabBtnGallery"
+                    data-target="fotograflar"
+                    aria-controls="fotograflar"
+                    aria-selected="true">
+                Foto Galeri
+            </button>
+
+            <button type="button"
+                    class="btn btn-outline-secondary rounded-pill px-4 multimedia-tab-btn"
+                    id="tabBtnPress"
+                    data-target="basinda-biz"
+                    aria-controls="basinda-biz"
+                    aria-selected="false">
+                Basında Biz
+            </button>
+        </nav>
+
+        <!-- BÖLÜM 1: FOTO GALERİ -->
+        <section id="fotograflar" class="scroll-margin-top multimedia-tab-pane" aria-labelledby="photoGalleryTitle">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mb-4">
+                <div>
+                    <span class="multimedia-section-label">GÖRSEL ARŞİV</span>
+                    <h2 id="photoGalleryTitle" class="fw-bold text-dark mb-0">Foto Galeri</h2>
+                </div>
+                <small class="text-secondary">
+                    <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                    Görseller dernek faaliyet alanlarını ve etkinliklerini yansıtmaktadır.
+                </small>
+            </div>
+
+            @if (Model.GalleryItems.Count == 0)
+            {
+                <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+                    <i class="bi bi-images fs-1 text-secondary mb-3"></i>
+                    <h3 class="h5 fw-bold text-dark">Henüz görsel bulunmuyor</h3>
+                    <p class="text-secondary mb-0">Fotoğraf galerisi yakında güncellenecektir.</p>
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+                    @for (var index = 0; index < Model.GalleryItems.Count; index++)
+                    {
+                        var item = Model.GalleryItems[index];
+                        var modalId = $"galleryModal{index}";
+
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <article class="event-card-modern gallery-card-modern">
+                                <div class="event-card__media">
+                                    <img src="@item.ImageUrl"
+                                         class="event-card__img"
+                                         alt="@item.Title"
+                                         loading="lazy" />
+
+                                    <!-- Sol Üst: Fotoğraf Rozeti -->
+                                    <div class="event-card__date-stamp event-card__date-stamp--gallery" aria-hidden="true">
+                                        <i class="bi bi-camera-fill text-primary fs-5 py-2"></i>
+                                    </div>
+
+                                    <!-- Sağ Üst: Büyüt Rozeti -->
+                                    <div class="event-card__floating-badges">
+                                        <button type="button"
+                                                class="event-badge event-badge--online border-0"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#@modalId"
+                                                aria-label="@item.Title görselini büyüt">
+                                            <i class="bi bi-arrows-fullscreen me-1" aria-hidden="true"></i>Büyüt
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="event-card__body">
+                                    <div class="event-card__type-row">
+                                        <span class="event-card__type-pill">
+                                            <i class="bi bi-image me-1" aria-hidden="true"></i>
+                                            Görsel Arşiv
+                                        </span>
+                                    </div>
+
+                                    <h3 class="event-card__title">
+                                        <a href="javascript:void(0)"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#@modalId"
+                                           title="@item.Title">
+                                            @item.Title
+                                        </a>
+                                    </h3>
+
+                                    <p class="event-card__summary">
+                                        @item.Summary
+                                    </p>
+
+                                    <div class="mt-auto pt-2">
+                                        <button type="button"
+                                                class="event-card__btn w-100"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#@modalId">
+                                            <span>Fotoğrafı Büyüt</span>
+                                            <i class="bi bi-zoom-in" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <!-- Fotoğraf Büyütme Modalı -->
+                        <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@(modalId)Title" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content border-0 rounded-4 overflow-hidden shadow-lg">
+                                    <div class="modal-header border-0 pb-0">
+                                        <h2 class="modal-title h5 fw-bold text-dark" id="@(modalId)Title">@item.Title</h2>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                                    </div>
+                                    <div class="modal-body p-4">
+                                        <div class="multimedia-modal-media-box rounded-3 overflow-hidden mb-3">
+                                            <img src="@item.ImageUrl"
+                                                 class="img-fluid w-100 d-block"
+                                                 style="max-height: 70vh; object-fit: contain; background: #0c243c;"
+                                                 alt="@item.Title" />
+                                        </div>
+                                        <p class="text-secondary mb-0">@item.Summary</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+
+        <!-- BÖLÜM 2: BASINDA BİZ -->
+        <section id="basinda-biz" class="scroll-margin-top multimedia-tab-pane" style="display: none;" aria-labelledby="pressTitle">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+                <div>
+                    <span class="multimedia-section-label">BASIN ARŞİVİ</span>
+                    <h2 id="pressTitle" class="fw-bold text-dark mb-2">Basında Biz</h2>
+                    <p class="text-secondary mb-0 multimedia-press-intro">
+                        ELSADER’in sigorta acenteliği, hasar incelemeleri ve
+                        mesleki standartlara ilişkin ulusal ve yerel basın dosyaları.
+                    </p>
+                </div>
+
+                <a asp-controller="Contact"
+                   asp-action="Index"
+                   class="btn multimedia-contact-button rounded-pill px-4 py-2 align-self-start align-self-lg-auto">
+                    <i class="bi bi-envelope me-2" aria-hidden="true"></i>
+                    Basın İletişimi
+                </a>
+            </div>
+
+            @if (Model.PressItems.Count > 0)
+            {
+                <!-- Basında Biz Tarih Filtresi -->
+                <div class="date-filter-bar">
+                    <div class="date-filter-bar__title">
+                        <i class="bi bi-calendar-range" aria-hidden="true"></i>
+                        <span>Tarihe Göre Filtrele</span>
+                    </div>
+
+                    <div class="date-filter-bar__controls">
+                        <div class="date-filter-bar__field">
+                            <label for="pressFilterStartDate">Başlangıç:</label>
+                            <input type="date" id="pressFilterStartDate" class="date-filter-bar__input" />
+                        </div>
+
+                        <span class="date-filter-bar__divider">-</span>
+
+                        <div class="date-filter-bar__field">
+                            <label for="pressFilterEndDate">Bitiş:</label>
+                            <input type="date" id="pressFilterEndDate" class="date-filter-bar__input" />
+                        </div>
+
+                        <div class="date-filter-bar__actions">
+                            <button type="button" id="pressFilterApplyBtn" class="date-filter-bar__btn">
+                                <i class="bi bi-funnel-fill" aria-hidden="true"></i>
+                                <span>Filtrele</span>
+                            </button>
+
+                            <button type="button" id="pressFilterResetBtn" class="date-filter-bar__reset" style="display: none;">
+                                <i class="bi bi-x-circle" aria-hidden="true"></i>
+                                <span>Temizle</span>
+                            </button>
+
+                            <span id="pressFilterCountBadge" class="date-filter-bar__badge" style="display: none;"></span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (Model.PressItems.Count == 0)
+            {
+                <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+                    <i class="bi bi-newspaper fs-1 text-secondary mb-3"></i>
+                    <h3 class="h5 fw-bold text-dark">Henüz basın haberi bulunmuyor</h3>
+                    <p class="text-secondary mb-0">Basında biz arşivi yakında güncellenecektir.</p>
+                </div>
+            }
+            else
+            {
+                <!-- Filtreleme Sonucu Boş Uyarısı -->
+                <div id="pressFilterEmptyAlert" class="alert alert-light border rounded-4 text-center py-5 mb-5 shadow-sm" style="display: none;">
+                    <i class="bi bi-calendar-x fs-1 text-secondary mb-3 d-block"></i>
+                    <h3 class="h5 fw-bold text-dark">Seçilen tarih aralığında basın haberi bulunamadı</h3>
+                    <p class="text-secondary mb-3">Farklı bir tarih aralığı belirtebilir veya filtreyi temizleyebilirsiniz.</p>
+                    <button type="button" class="btn btn-outline-primary rounded-pill px-4" id="pressFilterEmptyClearBtn">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Tüm Haberleri Göster
+                    </button>
+                </div>
+
+                <div class="row g-4">
+                    @foreach (var pressItem in Model.PressItems)
+                    {
+                        var pressDay = pressItem.PublishedAt.ToString("dd");
+                        var pressMonth = pressItem.PublishedAt.ToString("MMM", culture).ToUpper(culture).Replace(".", "");
+
+                        <div class="col-12 col-md-6 col-lg-4 press-filter-item" data-date="@pressItem.PublishedAt.ToString("yyyy-MM-dd")">
+                            <article class="event-card-modern press-card-modern">
+                                <div class="event-card__media">
+                                    <img src="@pressItem.ImageUrl"
+                                         class="event-card__img"
+                                         alt="@pressItem.Title"
+                                         loading="lazy" />
+
+                                    <!-- Sol Üst: Takvim Damgası -->
+                                    <div class="event-card__date-stamp">
+                                        <span class="event-card__stamp-day">@pressDay</span>
+                                        <span class="event-card__stamp-month">@pressMonth</span>
+                                    </div>
+
+                                    <!-- Sağ Üst: Kategori Rozeti -->
+                                    <div class="event-card__floating-badges">
+                                        <span class="event-badge event-badge--online">
+                                            @pressItem.Category
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="event-card__body">
+                                    <div class="event-card__type-row">
+                                        <span class="event-card__type-pill">
+                                            <i class="bi bi-journal-text me-1" aria-hidden="true"></i>
+                                            @pressItem.Category
+                                        </span>
+                                    </div>
+
+                                    <h3 class="event-card__title">
+                                        <a asp-controller="Multimedia"
+                                           asp-action="PressDetail"
+                                           asp-route-slug="@pressItem.Slug"
+                                           title="@pressItem.Title">
+                                            @pressItem.Title
+                                        </a>
+                                    </h3>
+
+                                    <p class="event-card__summary">
+                                        @pressItem.Summary
+                                    </p>
+
+                                    <div class="event-card__meta-bar">
+                                        <div class="event-card__meta-item">
+                                            <i class="bi bi-calendar3" aria-hidden="true"></i>
+                                            <span>@pressItem.PublishedAt.ToString("dd MMMM yyyy", culture)</span>
+                                        </div>
+                                        <div class="event-card__meta-item">
+                                            <i class="bi bi-globe2" aria-hidden="true"></i>
+                                            <span>ELSADER Basın Bülteni</span>
+                                        </div>
+                                    </div>
+
+                                    <a asp-controller="Multimedia"
+                                       asp-action="PressDetail"
+                                       asp-route-slug="@pressItem.Slug"
+                                       class="event-card__btn">
+                                        <span>Devamını Oku</span>
+                                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </article>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        (function () {
+            // Sekme Geçişi
+            var tabBtnGallery = document.getElementById('tabBtnGallery');
+            var tabBtnPress = document.getElementById('tabBtnPress');
+            var secGallery = document.getElementById('fotograflar');
+            var secPress = document.getElementById('basinda-biz');
+
+            if (tabBtnGallery && tabBtnPress && secGallery && secPress) {
+                function switchTab(target) {
+                    if (target === 'basinda-biz') {
+                        secGallery.style.display = 'none';
+                        secPress.style.display = 'block';
+
+                        tabBtnPress.classList.remove('btn-outline-secondary');
+                        tabBtnPress.classList.add('event-register-button', 'is-active');
+                        tabBtnPress.setAttribute('aria-selected', 'true');
+
+                        tabBtnGallery.classList.remove('event-register-button', 'is-active');
+                        tabBtnGallery.classList.add('btn-outline-secondary');
+                        tabBtnGallery.setAttribute('aria-selected', 'false');
+                    } else {
+                        secGallery.style.display = 'block';
+                        secPress.style.display = 'none';
+
+                        tabBtnGallery.classList.remove('btn-outline-secondary');
+                        tabBtnGallery.classList.add('event-register-button', 'is-active');
+                        tabBtnGallery.setAttribute('aria-selected', 'true');
+
+                        tabBtnPress.classList.remove('event-register-button', 'is-active');
+                        tabBtnPress.classList.add('btn-outline-secondary');
+                        tabBtnPress.setAttribute('aria-selected', 'false');
+                    }
+                }
+
+                tabBtnGallery.addEventListener('click', function () {
+                    switchTab('fotograflar');
+                    if (history.pushState) {
+                        history.pushState(null, null, '#fotograflar');
+                    } else {
+                        location.hash = '#fotograflar';
+                    }
+                });
+
+                tabBtnPress.addEventListener('click', function () {
+                    switchTab('basinda-biz');
+                    if (history.pushState) {
+                        history.pushState(null, null, '#basinda-biz');
+                    } else {
+                        location.hash = '#basinda-biz';
+                    }
+                });
+
+                function checkHash() {
+                    var hash = window.location.hash;
+                    if (hash === '#basinda-biz') {
+                        switchTab('basinda-biz');
+                    } else {
+                        switchTab('fotograflar');
+                    }
+                }
+
+                checkHash();
+                window.addEventListener('hashchange', checkHash);
+            }
+
+            // Basında Biz Tarih Filtresi
+            var startDateInput = document.getElementById('pressFilterStartDate');
+            var endDateInput = document.getElementById('pressFilterEndDate');
+            var applyBtn = document.getElementById('pressFilterApplyBtn');
+            var resetBtn = document.getElementById('pressFilterResetBtn');
+            var countBadge = document.getElementById('pressFilterCountBadge');
+            var emptyAlert = document.getElementById('pressFilterEmptyAlert');
+            var emptyClearBtn = document.getElementById('pressFilterEmptyClearBtn');
+
+            var items = document.querySelectorAll('.press-filter-item');
+
+            if (startDateInput && endDateInput && applyBtn && items.length > 0) {
+                function applyPressFilter() {
+                    var startVal = startDateInput.value;
+                    var endVal = endDateInput.value;
+
+                    if (!startVal && !endVal) {
+                        resetPressFilter();
+                        return;
+                    }
+
+                    var visibleCount = 0;
+
+                    items.forEach(function (item) {
+                        var itemDate = item.getAttribute('data-date');
+                        var matches = true;
+
+                        if (startVal && itemDate < startVal) {
+                            matches = false;
+                        }
+                        if (endVal && itemDate > endVal) {
+                            matches = false;
+                        }
+
+                        if (matches) {
+                            item.style.display = '';
+                            visibleCount++;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+
+                    if (resetBtn) resetBtn.style.display = 'inline-flex';
+                    if (countBadge) {
+                        countBadge.style.display = 'inline-flex';
+                        countBadge.textContent = visibleCount + ' haber bulundu';
+                    }
+                    if (emptyAlert) {
+                        emptyAlert.style.display = visibleCount === 0 ? 'block' : 'none';
+                    }
+                }
+
+                function resetPressFilter() {
+                    startDateInput.value = '';
+                    endDateInput.value = '';
+
+                    items.forEach(function (item) {
+                        item.style.display = '';
+                    });
+
+                    if (resetBtn) resetBtn.style.display = 'none';
+                    if (countBadge) countBadge.style.display = 'none';
+                    if (emptyAlert) emptyAlert.style.display = 'none';
+                }
+
+                applyBtn.addEventListener('click', applyPressFilter);
+                if (resetBtn) resetBtn.addEventListener('click', resetPressFilter);
+                if (emptyClearBtn) emptyClearBtn.addEventListener('click', resetPressFilter);
+
+                startDateInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') applyPressFilter(); });
+                endDateInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') applyPressFilter(); });
+            }
+        })();
+    </script>
+}

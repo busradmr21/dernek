@@ -1,0 +1,176 @@
+@using System.Globalization
+@model IReadOnlyList<SliderRevision>
+
+@{
+    ViewData["Title"] = "Slider Değişiklik Geçmişi";
+    var turkishCulture = CultureInfo.GetCultureInfo("tr-TR");
+    int? filteredSliderId = ViewBag.FilteredSliderId;
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Edit);
+    var canDelete = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Delete);
+}
+
+<section class="admin-module admin-history-page">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Sürüm Yönetimi</span>
+            <h1>Değişiklik Geçmişi</h1>
+            <p>
+                Sliderlarda yapılan düzenleme, yayın durumu değişikliği ve
+                silme işlemlerinden önce saklanan sürümleri inceleyin.
+            </p>
+        </div>
+
+        <a asp-area="Admin"
+           asp-controller="Sliders"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            Slider Listesine Dön
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="admin-feedback admin-feedback--success" role="status">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+            <span>@successMessage</span>
+        </div>
+    }
+
+    @if (filteredSliderId.HasValue)
+    {
+        <div class="admin-history-filter">
+            <i class="bi bi-funnel-fill" aria-hidden="true"></i>
+            <span>Yalnızca seçilen sliderın geçmişi gösteriliyor.</span>
+            <a asp-area="Admin"
+               asp-controller="Sliders"
+               asp-action="History">
+                Tüm geçmişi göster
+            </a>
+        </div>
+    }
+
+    <div class="admin-summary-grid">
+        <article class="admin-module__summary">
+            <i class="bi bi-clock-history" aria-hidden="true"></i>
+            <div>
+                <span>Kaydedilen Sürüm</span>
+                <strong>@Model.Count</strong>
+            </div>
+        </article>
+
+        <article class="admin-module__summary">
+            <i class="bi bi-collection" aria-hidden="true"></i>
+            <div>
+                <span>Slider Sayısı</span>
+                <strong>@Model.Select(item => item.SliderId).Distinct().Count()</strong>
+            </div>
+        </article>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="admin-module__empty">
+            <i class="bi bi-clock-history" aria-hidden="true"></i>
+            <h2>Henüz geçmiş kaydı yok</h2>
+            <p>İlk düzenleme veya durum değişikliğinden sonra eski sürüm burada görünecek.</p>
+        </div>
+    }
+    else
+    {
+        <div class="admin-history-list">
+            @foreach (var revision in Model)
+            {
+                <article class="admin-history-card">
+                    <div class="admin-history-card__image">
+                        @if (!string.IsNullOrWhiteSpace(revision.ImageUrl))
+                        {
+                            <img src="@Url.Content(revision.ImageUrl)"
+                                 alt="@revision.Title" />
+                        }
+                        else
+                        {
+                            <i class="bi bi-image" aria-hidden="true"></i>
+                        }
+                    </div>
+
+                    <div class="admin-history-card__content">
+                        <div class="admin-history-card__heading">
+                            <div>
+                                <span class="admin-history-card__type">
+                                    @revision.ChangeType
+                                </span>
+                                <h2>@revision.Title</h2>
+                            </div>
+
+                            <span class="admin-status-button @(revision.IsActive ? "admin-status-button--active" : "admin-status-button--passive")">
+                                <i class="bi @(revision.IsActive ? "bi-eye-fill" : "bi-eye-slash-fill")"
+                                   aria-hidden="true"></i>
+                                @(revision.IsActive ? "Yayındaydı" : "Pasifti")
+                            </span>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(revision.Description))
+                        {
+                            <p>@revision.Description</p>
+                        }
+
+                        <dl class="admin-history-card__meta">
+                            <div>
+                                <dt>Kaydedilme zamanı</dt>
+                                <dd>@revision.ChangedAt.ToLocalTime().ToString("dd MMMM yyyy HH:mm", turkishCulture)</dd>
+                            </div>
+                            <div>
+                                <dt>Yönetici</dt>
+                                <dd>@(revision.ChangedBy ?? "Bilinmiyor")</dd>
+                            </div>
+                            <div>
+                                <dt>Gösterim sırası</dt>
+                                <dd>@revision.Order</dd>
+                            </div>
+                            <div>
+                                <dt>Buton</dt>
+                                <dd>@(revision.ButtonText ?? "Buton yok")</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div class="admin-history-card__action">
+                        @if (canEdit)
+                        {
+                            <form asp-area="Admin"
+                                  asp-controller="Sliders"
+                                  asp-action="Restore"
+                                  asp-route-id="@revision.Id"
+                                  method="post"
+                                  onsubmit="return confirm('Bu eski sürümü geri yüklemek istediğinize emin misiniz?');">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+                                    Bu Sürüme Geri Dön
+                                </button>
+                            </form>
+                        }
+
+                        @if (canDelete)
+                        {
+                            <form asp-area="Admin"
+                                  asp-controller="Sliders"
+                                  asp-action="DeleteRevision"
+                                  asp-route-id="@revision.Id"
+                                  asp-route-sliderId="@filteredSliderId"
+                                  method="post"
+                                  onsubmit="return confirm('Bu geçmiş kaydını kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.');">
+                                <button type="submit"
+                                        class="admin-history-delete-button"
+                                        title="Bu geçmiş kaydını sil"
+                                        aria-label="@revision.Title geçmiş kaydını sil">
+                                    <i class="bi bi-trash3" aria-hidden="true"></i>
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

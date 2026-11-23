@@ -1,0 +1,184 @@
+@model SigortaDernegi.Areas.Admin.ViewModels.ConfidentialReportsAdminViewModel
+@using SigortaDernegi.Areas.Admin.Authorization
+@using SigortaDernegi.Models
+@inject IRolePermissionService RolePermissionService
+@{
+    ViewData["Title"] = "Gizli İhbarlar";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var statuses = new[]
+    {
+        "Yeni",
+        "İnceleniyor",
+        "Değerlendirildi",
+        "İşlem Tamamlandı",
+        "Arşivlendi"
+    };
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.ConfidentialReports, PermissionActionType.Edit);
+    var canDelete = await RolePermissionService.HasPermissionAsync(User, ManagementArea.ConfidentialReports, PermissionActionType.Delete);
+}
+
+<section class="admin-module confidential-reports-admin">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Sınırlı Erişim</span>
+            <h1>Gizli İhbarlar</h1>
+            <p>Bu kayıtlar yalnızca Gizli İhbarlar görüntüleme yetkisi verilen yöneticiler tarafından görülebilir.</p>
+        </div>
+    </div>
+
+    <div class="contact-message-summary">
+        <div><i class="bi bi-shield-lock"></i><span>Toplam Bildirim</span><strong>@Model.TotalCount</strong></div>
+        <div><i class="bi bi-exclamation-circle"></i><span>Yeni Bildirim</span><strong>@Model.NewCount</strong></div>
+    </div>
+
+    <form method="get" class="admin-filter-bar">
+        <input type="search"
+               name="search"
+               value="@Model.Search"
+               class="form-control"
+               placeholder="Kategori, branş, şehir, referans veya açıklama ara..." />
+        <select name="status" class="form-select">
+            <option value="">Tüm durumlar</option>
+            @foreach (var state in statuses)
+            {
+                if (Model.Status == state)
+                {
+                    <option value="@state" selected>@state</option>
+                }
+                else
+                {
+                    <option value="@state">@state</option>
+                }
+            }
+        </select>
+        <button class="btn btn-primary" type="submit">Filtrele</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Search) || !string.IsNullOrWhiteSpace(Model.Status))
+        {
+            <a asp-action="ConfidentialReports" class="btn btn-outline-secondary">Temizle</a>
+        }
+    </form>
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="admin-empty-state">
+            <i class="bi bi-shield-check"></i>
+            <p>Filtrelere uygun gizli ihbar kaydı bulunmuyor.</p>
+        </div>
+    }
+    else
+    {
+        <div class="confidential-report-list">
+            @foreach (var report in Model.Items)
+            {
+                <article class="confidential-report-card">
+                    <header>
+                        <div>
+                            <span class="content-admin-type">@report.InsuranceBranch</span>
+                            <h2>@report.Category</h2>
+                        </div>
+                        <div class="contact-message-card__date">
+                            <time>@report.CreatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</time>
+                            <span class="admin-status-button @(report.Status == "Yeni" ? "admin-status-button--active" : "admin-status-button--passive")">
+                                @report.Status
+                            </span>
+                        </div>
+                    </header>
+
+                    <dl class="confidential-report-card__facts">
+                        @if (!string.IsNullOrWhiteSpace(report.City) || !string.IsNullOrWhiteSpace(report.Location))
+                        {
+                            <div><dt>Konum</dt><dd>@string.Join(" / ", new[] { report.City, report.Location }.Where(value => !string.IsNullOrWhiteSpace(value)))</dd></div>
+                        }
+                        @if (report.IncidentDate.HasValue)
+                        {
+                            <div><dt>Olay Tarihi</dt><dd>@report.IncidentDate.Value.ToString("dd.MM.yyyy")</dd></div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(report.ReferenceInformation))
+                        {
+                            <div><dt>Referans</dt><dd>@report.ReferenceInformation</dd></div>
+                        }
+                        <div><dt>Bildirim Türü</dt><dd>@(report.WantsContact ? "İletişim bilgisi paylaşıldı" : "Kimlik bilgisi verilmedi")</dd></div>
+                    </dl>
+
+                    <div class="contact-message-card__message">@report.Details</div>
+
+                    @if (report.WantsContact)
+                    {
+                        <div class="confidential-report-card__contact">
+                            <strong>@report.ReporterName</strong>
+                            @if (!string.IsNullOrWhiteSpace(report.ReporterEmail))
+                            {
+                                <a href="mailto:@report.ReporterEmail"><i class="bi bi-envelope"></i>@report.ReporterEmail</a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(report.ReporterPhone))
+                            {
+                                <a href="tel:@report.ReporterPhone"><i class="bi bi-telephone"></i>@report.ReporterPhone</a>
+                            }
+                        </div>
+                    }
+
+                    @if (report.Attachments.Count > 0)
+                    {
+                        <div class="confidential-report-card__attachments">
+                            <strong>Ekli belgeler</strong>
+                            @foreach (var attachment in report.Attachments)
+                            {
+                                <a asp-action="DownloadConfidentialReportAttachment"
+                                   asp-route-id="@attachment.Id">
+                                    <i class="bi bi-paperclip"></i>
+                                    <span>@attachment.OriginalFileName</span>
+                                    <small>@((attachment.FileSize / 1024d).ToString("N0")) KB</small>
+                                </a>
+                            }
+                        </div>
+                    }
+
+                    @if (canEdit)
+                    {
+                        <form asp-action="UpdateConfidentialReport"
+                              method="post"
+                              class="contact-message-card__management">
+                        <input type="hidden" name="id" value="@report.Id" />
+                        <div>
+                            <label for="report-status-@report.Id">Durum</label>
+                            <select id="report-status-@report.Id" name="status" class="form-select">
+                                @foreach (var state in statuses)
+                                {
+                                    if (report.Status == state)
+                                    {
+                                        <option value="@state" selected>@state</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@state">@state</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="contact-message-card__note">
+                            <label for="report-note-@report.Id">Yönetici Notu</label>
+                            <textarea id="report-note-@report.Id"
+                                      name="adminNote"
+                                      rows="2"
+                                      class="form-control"
+                                      placeholder="İnceleme ve takip notu...">@report.AdminNote</textarea>
+                        </div>
+                        <button class="btn btn-primary" type="submit"><i class="bi bi-check-lg"></i> Kaydet</button>
+                        </form>
+                    }
+
+                    @if (canDelete)
+                    {
+                        <form asp-action="DeleteConfidentialReport"
+                              method="post"
+                              class="contact-message-card__delete"
+                              onsubmit="return confirm('Bu gizli ihbar ve tüm ekleri kalıcı olarak silinsin mi?');">
+                            <input type="hidden" name="id" value="@report.Id" />
+                            <button type="submit"><i class="bi bi-trash3"></i> Kaydı Sil</button>
+                        </form>
+                    }
+                </article>
+            }
+        </div>
+    }
+</section>

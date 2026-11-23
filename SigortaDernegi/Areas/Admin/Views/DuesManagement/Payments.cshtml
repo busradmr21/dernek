@@ -1,0 +1,249 @@
+﻿@using System.Globalization
+@model DuesPaymentHistoryViewModel
+
+@{
+    ViewData["Title"] = "Ödeme Geçmişi";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+<section class="admin-module">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Finans Yönetimi</span>
+            <h1>Ödeme Geçmişi</h1>
+            <p>
+                Manuel ve PayTR demo aidat ödemelerini görüntüleyin,
+                arayın ve filtreleyin.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Aidat Dönemleri
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="admin-stat-card h-100">
+                <div class="admin-stat-card__icon">
+                    <i class="bi bi-receipt"></i>
+                </div>
+
+                <div>
+                    <span>Ödeme Kaydı</span>
+                    <strong>@Model.PaymentCount</strong>
+                    <small>Filtrelenen işlemler</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="admin-stat-card h-100">
+                <div class="admin-stat-card__icon">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+
+                <div>
+                    <span>Tahsil Edilen</span>
+                    <strong>@Model.TotalCollected.ToString("N2", culture) ₺</strong>
+                    <small>Başarılı işlemlerin toplamı</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="get"
+          asp-action="Payments"
+          class="admin-filter-bar mb-4">
+
+        <div>
+            <label asp-for="Search">Arama</label>
+            <input asp-for="Search"
+                   class="form-control"
+                   placeholder="Üye, dönem veya referans ara..." />
+        </div>
+
+        <div>
+            <label asp-for="Status">Durum</label>
+            <select asp-for="Status" class="form-select">
+                <option value="">Tüm durumlar</option>
+                <option value="@DuesPaymentStatuses.Completed">
+                    @DuesPaymentStatuses.Completed
+                </option>
+                <option value="@DuesPaymentStatuses.Pending">
+                    @DuesPaymentStatuses.Pending
+                </option>
+                <option value="@DuesPaymentStatuses.Failed">
+                    @DuesPaymentStatuses.Failed
+                </option>
+                <option value="@DuesPaymentStatuses.Refunded">
+                    @DuesPaymentStatuses.Refunded
+                </option>
+                <option value="@DuesPaymentStatuses.PartiallyRefunded">
+                    @DuesPaymentStatuses.PartiallyRefunded
+                </option>
+            </select>
+        </div>
+
+        <div>
+            <label asp-for="PaymentMethod">Ödeme Yöntemi</label>
+            <select asp-for="PaymentMethod" class="form-select">
+                <option value="">Tüm yöntemler</option>
+                <option value="@DuesPaymentMethods.OnlineCard">
+                    @DuesPaymentMethods.OnlineCard
+                </option>
+                <option value="@DuesPaymentMethods.BankTransfer">
+                    @DuesPaymentMethods.BankTransfer
+                </option>
+                <option value="@DuesPaymentMethods.Cash">
+                    @DuesPaymentMethods.Cash
+                </option>
+                <option value="@DuesPaymentMethods.Other">
+                    @DuesPaymentMethods.Other
+                </option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i>
+            Filtrele
+        </button>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Search) ||
+        !string.IsNullOrWhiteSpace(Model.Status) ||
+        !string.IsNullOrWhiteSpace(Model.PaymentMethod))
+        {
+            <a asp-action="Payments"
+               class="btn btn-outline-secondary">
+                Filtreleri Temizle
+            </a>
+        }
+    </form>
+
+    @if (Model.Payments.Count == 0)
+    {
+        <div class="admin-empty-state">
+            <i class="bi bi-receipt-cutoff"></i>
+            <h2>Ödeme kaydı bulunamadı</h2>
+            <p>
+                Henüz ödeme yapılmamış olabilir veya seçilen filtrelere
+                uygun bir işlem bulunmuyor.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive admin-form-card p-0">
+            <table class="table admin-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Üye</th>
+                        <th>Aidat Dönemi</th>
+                        <th>Tutar</th>
+                        <th>Ödeme Yöntemi</th>
+                        <th>Durum</th>
+                        <th>Tarih</th>
+                        <th>Referans</th>
+                        <th class="text-end">Belge</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var payment in Model.Payments)
+                    {
+                        var statusClass =
+                        payment.Status == DuesPaymentStatuses.Completed
+                        ? "text-bg-success"
+                        : payment.Status == DuesPaymentStatuses.Failed
+                        ? "text-bg-danger"
+                        : payment.Status == DuesPaymentStatuses.Pending
+                        ? "text-bg-warning"
+                        : "text-bg-secondary";
+
+                        <tr>
+                            <td>
+                                <strong>@payment.MemberName</strong>
+
+                                @if (!string.IsNullOrWhiteSpace(payment.RegistryNumber))
+                                {
+                                    <small class="d-block text-muted">
+                                        @payment.RegistryNumber
+                                    </small>
+                                }
+                            </td>
+
+                            <td>@payment.PeriodName</td>
+
+                            <td>
+                                <strong>
+                                    @payment.Amount.ToString("N2", culture) ₺
+                                </strong>
+                            </td>
+
+                            <td>
+                                @payment.PaymentMethod
+
+                                @if (payment.IsDemo)
+                                {
+                                    <span class="badge text-bg-warning ms-1">
+                                        Demo
+                                    </span>
+                                }
+                                else if (!string.IsNullOrWhiteSpace(payment.Provider))
+                                {
+                                    <small class="d-block text-muted">
+                                        @payment.Provider
+                                    </small>
+                                }
+                            </td>
+
+                            <td>
+                                <span class="badge @statusClass">
+                                    @payment.Status
+                                </span>
+                            </td>
+
+                            <td>
+                                @(TurkeyDateTime
+                                    .FromUtc(payment.PaidAtUtc)
+                                    .ToString("dd.MM.yyyy HH:mm"))
+                            </td>
+
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(payment.ReferenceNumber))
+                                {
+                                    <span class="font-monospace text-body">
+                                        @payment.ReferenceNumber
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                @if (payment.Status == DuesPaymentStatuses.Completed ||
+                               payment.Status == DuesPaymentStatuses.PartiallyRefunded ||
+                               payment.Status == DuesPaymentStatuses.Refunded)
+                                {
+                                    <a asp-action="PaymentReceipt"
+                                       asp-route-id="@payment.Id"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                        Belgeyi Görüntüle
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

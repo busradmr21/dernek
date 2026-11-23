@@ -1,92 +1,156 @@
-﻿@{
-    ViewData["Title"] = "Yönetim Kurulu";
+@model SigortaDernegi.ViewModels.CorporatePageViewModel
+
+@{
+    ViewData["Title"] = Model.Page.MenuTitle;
 }
 
-<div class="container py-3">
-    <!-- Sayfa Başlığı -->
-    <div class="text-center mb-5">
-        <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-2">Liderlik & Yönetim</span>
-        <h1 class="fw-bold text-dark display-6">Hi Sigorta Yönetim ve Denetim Kurulu</h1>
-        <p class="text-muted col-md-8 mx-auto">
-            Derneğimizin stratejik kararlarını alan, sektörel standartları gözeten ve derneğimizi temsil eden yönetim kadromuz.
-        </p>
+@functions {
+    private static string GetActionName(string pageKey) => pageKey switch
+    {
+        "about" => "Index",
+        "bylaws" => "Bylaws",
+        "legislation" => "Legislation",
+        "board" => "Board",
+        "committees" => "Committees",
+        _ => "Index"
+    };
+
+    private static string GetPositionName(BoardPosition position) => position switch
+    {
+        BoardPosition.President => "Dernek Başkanı",
+        BoardPosition.VicePresident => "Başkan Yardımcısı",
+        BoardPosition.Treasurer => "Sayman",
+        BoardPosition.GeneralSecretary => "Genel Sekreter",
+        _ => "Yönetim Üyesi"
+    };
+}
+
+
+<main class="corporate-managed-page">
+    <div class="container">
+        <div class="row g-4 g-xl-5 align-items-start">
+            <aside class="col-12 col-lg-3">
+                <nav class="corporate-managed-nav" aria-label="Kurumsal sayfalar">
+                    <span class="corporate-managed-nav__title">Kurumsal</span>
+
+                    @foreach (var navigationPage in Model.NavigationPages)
+                    {
+                        var actionName = GetActionName(navigationPage.PageKey);
+
+                        <a asp-area=""
+                           asp-controller="About"
+                           asp-action="@actionName"
+                           class="@(navigationPage.Id == Model.Page.Id ? "is-active" : null)">
+                            <span>@navigationPage.MenuTitle</span>
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    }
+                </nav>
+            </aside>
+
+            <div class="col-12 col-lg-9">
+                <div class="board-section-heading board-section-heading--centered">
+                    <h2>Yönetim Kurulumuz</h2>
+                </div>
+
+                @{
+                    var president = Model.BoardMembers.FirstOrDefault(m => m.Position == BoardPosition.President);
+                    var otherMembers = Model.BoardMembers.Where(m => m.Position != BoardPosition.President).ToList();
+                }
+
+                @if (president == null && otherMembers.Count == 0)
+                {
+                    <div class="corporate-managed-empty">
+                        <i class="bi bi-people" aria-hidden="true"></i>
+                        <p>Yönetim kurulu bilgileri yakında eklenecek.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="board-hierarchy-layout">
+                        @if (president != null)
+                        {
+                            <div class="board-president-wrapper">
+                                <article class="board-member-card board-member-card--president">
+                                    <div class="board-member-card__avatar">
+                                        @if (!string.IsNullOrWhiteSpace(president.PhotoUrl))
+                                        {
+                                            <img src="@Url.Content(president.PhotoUrl)"
+                                                 alt="@president.FullName" />
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-person" aria-hidden="true"></i>
+                                        }
+                                    </div>
+
+                                    <span class="board-member-card__role">
+                                        @GetPositionName(president.Position)
+                                    </span>
+
+                                    <h3>@president.FullName</h3>
+
+                                    @if (!string.IsNullOrWhiteSpace(president.ProfessionalTitle))
+                                    {
+                                        <p class="board-member-card__title">
+                                            @president.ProfessionalTitle
+                                        </p>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(president.Biography))
+                                    {
+                                        <p class="board-member-card__biography">
+                                            @president.Biography
+                                        </p>
+                                    }
+                                </article>
+                            </div>
+                        }
+
+                        @if (otherMembers.Count > 0)
+                        {
+                            <div class="board-members-grid">
+                                @foreach (var member in otherMembers)
+                                {
+                                    <article class="board-member-card">
+                                        <div class="board-member-card__avatar">
+                                            @if (!string.IsNullOrWhiteSpace(member.PhotoUrl))
+                                            {
+                                                <img src="@Url.Content(member.PhotoUrl)"
+                                                     alt="@member.FullName" />
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-person" aria-hidden="true"></i>
+                                            }
+                                        </div>
+
+                                        <span class="board-member-card__role">
+                                            @GetPositionName(member.Position)
+                                        </span>
+
+                                        <h3>@member.FullName</h3>
+
+                                        @if (!string.IsNullOrWhiteSpace(member.ProfessionalTitle))
+                                        {
+                                            <p class="board-member-card__title">
+                                                @member.ProfessionalTitle
+                                            </p>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(member.Biography))
+                                        {
+                                            <p class="board-member-card__biography">
+                                                @member.Biography
+                                            </p>
+                                        }
+                                    </article>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
     </div>
-
-    <!-- Yönetim Kurulu Üyeleri -->
-    <h4 class="fw-bold text-dark border-bottom pb-2 mb-4">Yönetim Kurulu</h4>
-    <div class="row g-4 mb-5">
-        <!-- Yönetim Kurulu Başkanı -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100">
-                <div class="bg-primary-subtle text-primary rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <i class="bi bi-person-fill fs-1"></i>
-                </div>
-                <h5 class="fw-bold text-dark mb-1">Ahmet YILMAZ</h5>
-                <span class="badge bg-warning text-dark px-3 py-1 rounded-pill mb-3">Yönetim Kurulu Başkanı</span>
-                <p class="text-muted small mb-0">Sigorta Suistimalleri İnceleme Uzmanı (20+ Yıl Sektör Tecrübesi)</p>
-            </div>
-        </div>
-
-        <!-- Başkan Yardımcısı -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100">
-                <div class="bg-primary-subtle text-primary rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <i class="bi bi-person-fill fs-1"></i>
-                </div>
-                <h5 class="fw-bold text-dark mb-1">Mehmet KAYA</h5>
-                <span class="badge bg-secondary text-white px-3 py-1 rounded-pill mb-3">Başkan Yardımcısı</span>
-                <p class="text-muted small mb-0">Saha Araştırmaları Koordinatörü / Emekli Emniyet Müdürü</p>
-            </div>
-        </div>
-
-        <!-- Genel Sekreter -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100">
-                <div class="bg-primary-subtle text-primary rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <i class="bi bi-person-fill fs-1"></i>
-                </div>
-                <h5 class="fw-bold text-dark mb-1">Ayşe DEMİR</h5>
-                <span class="badge bg-secondary text-white px-3 py-1 rounded-pill mb-3">Genel Sekreter</span>
-                <p class="text-muted small mb-0">Sigorta Hukuku Uzmanı & Danışman</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Denetim Kurulu -->
-    <h4 class="fw-bold text-dark border-bottom pb-2 mb-4">Denetim Kurulu</h4>
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 d-flex flex-row align-items-center">
-                <div class="bg-light text-dark rounded-circle p-3 me-3">
-                    <i class="bi bi-shield-check fs-3"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold mb-0 text-dark">Caner ŞAHİN</h6>
-                    <small class="text-muted">Denetim Kurulu Başkanı</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 d-flex flex-row align-items-center">
-                <div class="bg-light text-dark rounded-circle p-3 me-3">
-                    <i class="bi bi-shield-check fs-3"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold mb-0 text-dark">Selin AKSOY</h6>
-                    <small class="text-muted">Denetim Kurulu Üyesi</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 d-flex flex-row align-items-center">
-                <div class="bg-light text-dark rounded-circle p-3 me-3">
-                    <i class="bi bi-shield-check fs-3"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold mb-0 text-dark">Mustafa ÖZTÜRK</h6>
-                    <small class="text-muted">Denetim Kurulu Üyesi</small>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+</main>

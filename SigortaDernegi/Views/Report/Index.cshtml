@@ -1,144 +1,261 @@
-﻿@{
-    ViewData["Title"] = "Suistimal & Şüpheli Hasar İhbarı";
+@model SigortaDernegi.ViewModels.ConfidentialReportPageViewModel
+@{
+    ViewData["Title"] = "Gizli İhbar Hattı";
+    var reportSuccess = TempData["HomeReportSuccess"] as string;
+    var reportSubmitted = string.Equals(
+        Context.Request.Query["submitted"].ToString(),
+        "1",
+        StringComparison.Ordinal);
 }
 
-<div class="container py-3">
-    <!-- Sayfa Başlığı -->
-    <div class="text-center mb-5">
-        <span class="badge bg-danger text-white fw-bold px-3 py-2 rounded-pill mb-2">
-            <i class="bi bi-shield-lock-fill me-1"></i> Gizli & Anonim İhbar
-        </span>
-        <h1 class="fw-bold text-dark display-6">Şüpheli Hasar ve Suistimal Bildirimi</h1>
-        <p class="text-muted col-md-8 mx-auto">
-            Sigorta sektöründe haksız kazanç ve organize suistimallerle mücadele amacıyla tasarlanmış bildirim alanıdır. Kimlik bilgileriniz KVKK uyarınca tamamen koruma altındadır.
-        </p>
-    </div>
-
-    @if (ViewBag.SuccessMessage != null)
-    {
-            <div class="alert alert-success border-0 shadow-sm rounded-4 p-4 text-center mb-4">
-                <i class="bi bi-check-circle-fill text-success fs-1 d-block mb-2"></i>
-                <h5 class="fw-bold">Bildiriminiz Alındı!</h5>
-                <p class="mb-0">@ViewBag.SuccessMessage</p>
-            </div>
-    }
-
-    <div class="row g-4">
-        <!-- Bilgilendirme ve Güvenlik Kartı -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark text-white mb-4">
-                <h5 class="fw-bold text-warning mb-3">
-                    <i class="bi bi-incognito me-2"></i>Gizlilik Garantisi
-                </h5>
-                <p class="small text-light lh-lg mb-3">
-                    Aşağıdaki formu doldururken dilerseniz kimlik ve iletişim bilgilerinizi paylaşmadan <strong>tamamen anonim</strong> bildirimde bulunabilirsiniz.
-                </p>
-                <hr class="border-secondary">
-                <ul class="list-unstyled small text-light lh-lg mb-0">
-                    <li class="mb-2"><i class="bi bi-check2-circle text-warning me-2"></i>IP adresiniz sistem tarafından kaydedilmez.</li>
-                    <li class="mb-2"><i class="bi bi-check2-circle text-warning me-2"></i>Tüm veriler 256-bit SSL şifreleme ile iletilir.</li>
-                    <li class="mb-2"><i class="bi bi-check2-circle text-warning me-2"></i>Bildirimler doğrudan İhbar Değerlendirme Komisyonu'na düşer.</li>
-                </ul>
-            </div>
-
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-light">
-                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-telephone-outbound text-danger me-2"></i>Doğrudan İrtibat Hattı</h6>
-                <p class="small text-muted mb-3">Acil ve organize vakalar için dernek hasar denetim masası ile iletişime geçebilirsiniz.</p>
-                <div class="fw-bold text-dark fs-5"><i class="bi bi-headset me-2 text-primary"></i>0850 300 00 00</div>
-            </div>
+<main class="report-page">
+    <section class="about-hero corporate-managed-hero about-hero--overview" aria-labelledby="reportPageTitle">
+        <div class="container">
+            <h1 id="reportPageTitle">Gizli İhbar ve Suistimal Bildirim Hattı</h1>
+            <p>
+                Sigorta süreçlerinde karşılaştığınız şüpheli hasar, sahte belge,
+                organize suistimal ve benzeri durumları ELSADER’in yetkili inceleme
+                birimine iletebilirsiniz.
+            </p>
         </div>
+    </section>
 
-        <!-- İhbar Formu -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
-                <h4 class="fw-bold text-dark mb-4 border-bottom pb-3">İhbar ve Bildirim Formu</h4>
-
-                <form asp-controller="Report" asp-action="Submit" method="post">
-                    <!-- Suistimal Türü & Branş -->
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark small">Sigorta Branşı</label>
-                            <select class="form-select" required>
-                                <option value="">Seçiniz...</option>
-                                <option value="1">Kara Araçları (Kasko / Trafik)</option>
-                                <option value="2">Yangın ve Sınai Hasarlar</option>
-                                <option value="3">Sağlık ve Hayat Sigortaları</option>
-                                <option value="4">Nakliyat ve Emtia</option>
-                                <option value="5">Sorumluluk ve Diğer</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark small">İhbar / Suistimal Kategorisi</label>
-                            <select class="form-select" required>
-                                <option value="">Seçiniz...</option>
-                                <option value="1">Kurgusal Kaza / Sahte Tutanak</option>
-                                <option value="2">Geçmişe Dönük Poliçe / Hasar Sonrası Sigorta</option>
-                                <option value="3">Sahte Medikal / Tıbbi Rapor</option>
-                                <option value="4">Kundaklama / Kasıtlı Yangın</option>
-                                <option value="5">Organize Şebeke / Mükerrer Hasar</option>
-                            </select>
-                        </div>
+    <section class="report-page__content" aria-label="İhbar hattı bilgileri ve formu">
+        <div class="container">
+            <div class="report-page__layout">
+                <aside class="report-page__information" aria-labelledby="reportInformationTitle">
+                    <div class="report-info-card report-info-card--intro">
+                        <span class="report-info-card__number">01</span>
+                        <h2 id="reportInformationTitle">Hangi durumları bildirebilirsiniz?</h2>
+                        <p>
+                            Sigorta hasar süreçlerinde şüphe uyandıran, sektörel güveni
+                            zedeleyen veya incelenmesi gerektiğini düşündüğünüz olayları
+                            ayrıntılarıyla paylaşabilirsiniz.
+                        </p>
+                        <ul>
+                            <li>Kurgusal kaza veya sahte tutanak şüphesi</li>
+                            <li>Sahte belge, rapor ya da mükerrer hasar</li>
+                            <li>Organize hasar ve sistematik suistimal</li>
+                            <li>Eksper raporu veya hasar dosyası uyuşmazlığı</li>
+                        </ul>
                     </div>
 
-                    <!-- Şüpheli Şahıs / Şirket ve Plaka / Dosya No -->
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark small">Şüpheli Şahıs / Şirket / Tamirhane</label>
-                            <input type="text" class="form-control" placeholder="Örn: X Otomotiv / Ahmet K.">
+                    <div class="report-info-card">
+                        <span class="report-info-card__number">02</span>
+                        <h2>Bildirim nasıl değerlendirilir?</h2>
+                        <ol class="report-process">
+                            <li>
+                                <span>1</span>
+                                <div><strong>Ön inceleme</strong><small>Bilgiler ve varsa belgeler kapsam açısından değerlendirilir.</small></div>
+                            </li>
+                            <li>
+                                <span>2</span>
+                                <div><strong>Yetkili birime aktarım</strong><small>İncelemeye uygun kayıtlar yalnızca görevli yöneticilerce ele alınır.</small></div>
+                            </li>
+                            <li>
+                                <span>3</span>
+                                <div><strong>Değerlendirme</strong><small>Paylaşılan bilgiler ilgili mevzuat ve etik ilkeler çerçevesinde incelenir.</small></div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="report-info-card report-info-card--notice">
+                        <i class="bi bi-info-circle" aria-hidden="true"></i>
+                        <div>
+                            <h2>Önemli bilgilendirme</h2>
+                            <p>
+                                Bu kanal acil yardım veya resmî suç duyurusu hattı değildir.
+                                Acil durumlarda 112’ye, adli başvurular için ilgili resmî
+                                mercilere başvurunuz. Gereksiz özel nitelikli kişisel veri
+                                paylaşmayınız.
+                            </p>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark small">Plaka / Hasar Dosya No (Varsa)</label>
-                            <input type="text" class="form-control" placeholder="Örn: 34 ABC 123 veya 2026/98765">
+                    </div>
+                </aside>
+
+                <article class="home-form-panel home-form-panel--report report-page__form-panel"
+                         aria-labelledby="standaloneReportFormTitle">
+                    <div class="home-form-panel__header home-form-panel__header--report">
+                        <div>
+                            <span class="home-form-panel__eyebrow">
+                                <i class="bi bi-file-earmark-lock" aria-hidden="true"></i>
+                                Gizli İhbar Formu
+                            </span>
+                            <h2 id="standaloneReportFormTitle">Bildiriminizi iletin</h2>
                         </div>
+                        <span class="home-form-panel__privacy-badge">
+                            <i class="bi bi-incognito" aria-hidden="true"></i>
+                            İletişim bilgisi zorunlu değil
+                        </span>
+                        <p>İncelemenin sağlıklı yapılabilmesi için bildiğiniz ayrıntıları açık ve doğrulanabilir şekilde yazın.</p>
                     </div>
 
-                    <!-- Olay / Suistimal Detayı -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-dark small">Olay Detayları ve Şüphe Nedenleri</label>
-                        <textarea class="form-control" rows="5" placeholder="Lütfen olay yerini, tarihini, olaya karışan kişileri ve şüphelerinizi detaylıca açıklayınız..." required></textarea>
-                    </div>
+                    @if (reportSubmitted || !string.IsNullOrWhiteSpace(reportSuccess))
+                    {
+                        <div id="reportSubmissionStatus"
+                             class="home-form-alert home-form-alert--success report-page__submission-success"
+                             role="status"
+                             aria-live="polite">
+                            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                            <div>
+                                <strong>Bildiriminiz güvenle iletildi</strong>
+                                <span>@(reportSuccess ?? "Kaydınız yetkili inceleme birimine ulaştı ve değerlendirme sürecine alındı.")</span>
+                            </div>
+                        </div>
+                    }
 
-                    <!-- Dosya / Kanıt Yükleme -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-dark small">Fotoğraf / Belge / Kanıt Yükle (İsteğe Bağlı)</label>
-                        <input type="file" class="form-control" multiple>
-                        <small class="text-muted">PDF, JPG, PNG formatlarında belge veya fotoğraf ekleyebilirsiniz.</small>
-                    </div>
+                    <form asp-controller="Home"
+                          asp-action="SubmitHomeReport"
+                          method="post"
+                          enctype="multipart/form-data"
+                          class="home-form"
+                          data-confidential-report-form>
+                        <input type="hidden" name="reportReturnTarget" value="report-page" />
 
-                    <!-- Bildirimi Yapan Bilgileri (Opsiyonel) -->
-                    <div class="card bg-light border-0 rounded-3 p-3 mb-4">
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="anonymousCheck" onchange="toggleReporterInfo(this)">
-                            <label class="form-check-label fw-bold text-dark small" for="anonymousCheck">
-                                İletişim bilgilerimi vermek istiyorum (Aksi halde bildirim anonim kalır)
+                        <div asp-validation-summary="ModelOnly"
+                             class="home-form__validation-summary"></div>
+
+                        <div class="home-form__honeypot" aria-hidden="true">
+                            <label for="reportPageWebsite">Bu alanı boş bırakın</label>
+                            <input id="reportPageWebsite"
+                                   name="reportWebsite"
+                                   type="text"
+                                   tabindex="-1"
+                                   autocomplete="off" />
+                        </div>
+
+                        <div class="home-report-mode">
+                            <span class="home-report-mode__state">
+                                <i class="bi bi-person-x" aria-hidden="true"></i>
+                                <strong data-report-mode-label>
+                                    @(Model.ReportForm.WantsContact
+                                        ? "İletişim bilgilerimi paylaşacağım"
+                                        : "Kimlik bilgisi vermeden bildirim")
+                                </strong>
+                            </span>
+                            <label class="home-report-switch">
+                                <input asp-for="ReportForm.WantsContact"
+                                       data-report-contact-toggle />
+                                <span aria-hidden="true"></span>
+                                Benimle iletişime geçilsin
                             </label>
                         </div>
-                        <div id="reporterInfoFields" class="row g-3 mt-1 d-none">
-                            <div class="col-md-6">
-                                <input type="text" class="form-control form-control-sm" placeholder="Adınız Soyadınız">
+
+                        <div class="home-form__two-columns">
+                            <div class="home-form__field">
+                                <label asp-for="ReportForm.InsuranceBranch"></label>
+                                <select asp-for="ReportForm.InsuranceBranch">
+                                    <option value="">Seçiniz...</option>
+                                    <option>Kara Araçları</option>
+                                    <option>Yangın ve Mühendislik</option>
+                                    <option>Sağlık, Hayat ve Ferdi Kaza</option>
+                                    <option>Denizcilik, Havacılık ve Raylı Sistemler</option>
+                                    <option>Sorumluluk ve Diğer</option>
+                                </select>
+                                <span asp-validation-for="ReportForm.InsuranceBranch"></span>
                             </div>
-                            <div class="col-md-6">
-                                <input type="text" class="form-control form-control-sm" placeholder="Telefon No veya E-posta">
+
+                            <div class="home-form__field">
+                                <label asp-for="ReportForm.Category"></label>
+                                <select asp-for="ReportForm.Category">
+                                    <option value="">Seçiniz...</option>
+                                    <option>Organize Hasar</option>
+                                    <option>Kurgusal Kaza / Sahte Tutanak</option>
+                                    <option>Sahte Belge / Rapor</option>
+                                    <option>Mükerrer veya Şüpheli Hasar</option>
+                                    <option>Eksper Raporu Uyuşmazlığı</option>
+                                    <option>Diğer</option>
+                                </select>
+                                <span asp-validation-for="ReportForm.Category"></span>
                             </div>
                         </div>
-                    </div>
 
-                    <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold rounded-3">
-                        <i class="bi bi-shield-exclamation me-2"></i> İhbarı Güvenli Şekilde Gönder
-                    </button>
-                </form>
+                        <div class="home-form__two-columns home-form__two-columns--three">
+                            <div class="home-form__field">
+                                <label asp-for="ReportForm.City"></label>
+                                <input asp-for="ReportForm.City" placeholder="Örn. Ankara" />
+                                <span asp-validation-for="ReportForm.City"></span>
+                            </div>
+                            <div class="home-form__field">
+                                <label asp-for="ReportForm.Location"></label>
+                                <input asp-for="ReportForm.Location" placeholder="İlçe veya konum" />
+                                <span asp-validation-for="ReportForm.Location"></span>
+                            </div>
+                            <div class="home-form__field">
+                                <label asp-for="ReportForm.IncidentDate"></label>
+                                <input asp-for="ReportForm.IncidentDate"
+                                       max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="ReportForm.IncidentDate"></span>
+                            </div>
+                        </div>
+
+                        <div class="home-form__field">
+                            <label asp-for="ReportForm.ReferenceInformation"></label>
+                            <input asp-for="ReportForm.ReferenceInformation"
+                                   placeholder="Varsa plaka, hasar dosyası veya referans numarası" />
+                            <span asp-validation-for="ReportForm.ReferenceInformation"></span>
+                        </div>
+
+                        <div class="home-report-contact-fields @(Model.ReportForm.WantsContact ? "is-visible" : null)"
+                             data-report-contact-fields>
+                            <div class="home-form__two-columns home-form__two-columns--three">
+                                <div class="home-form__field">
+                                    <label asp-for="ReportForm.ReporterName"></label>
+                                    <input asp-for="ReportForm.ReporterName" autocomplete="name" />
+                                    <span asp-validation-for="ReportForm.ReporterName"></span>
+                                </div>
+                                <div class="home-form__field">
+                                    <label asp-for="ReportForm.ReporterEmail"></label>
+                                    <input asp-for="ReportForm.ReporterEmail" autocomplete="email" />
+                                    <span asp-validation-for="ReportForm.ReporterEmail"></span>
+                                </div>
+                                <div class="home-form__field">
+                                    <label asp-for="ReportForm.ReporterPhone"></label>
+                                    <input asp-for="ReportForm.ReporterPhone" autocomplete="tel" />
+                                    <span asp-validation-for="ReportForm.ReporterPhone"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="home-form__field">
+                            <label for="reportPageAttachments">Kanıt ve Belge Ekle</label>
+                            <input id="reportPageAttachments"
+                                   name="reportAttachments"
+                                   type="file"
+                                   multiple
+                                   accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" />
+                            <small>PDF, JPG veya PNG — dosya başına 10 MB, toplam 20 MB.</small>
+                            <span class="home-form__validation">@Html.ValidationMessage("ReportAttachments")</span>
+                        </div>
+
+                        <div class="home-form__field home-form__field--grow">
+                            <label asp-for="ReportForm.Details"></label>
+                            <textarea asp-for="ReportForm.Details"
+                                      rows="7"
+                                      placeholder="Olayı, şüphe nedenlerini ve bilinen ayrıntıları yazınız..."></textarea>
+                            <span asp-validation-for="ReportForm.Details"></span>
+                        </div>
+
+                        <div class="home-report-notice">
+                            <i class="bi bi-shield-check" aria-hidden="true"></i>
+                            <p>
+                                Kimlik bilgisi vermeden bildirim yapabilirsiniz. Kayıtlar yalnızca yetkili inceleme birimi tarafından değerlendirilir.
+                                İletişim bilgisi veya belge paylaşmanız hâlinde kişisel verilerinizin nasıl işlendiğini
+                                <a asp-controller="Home" asp-action="Privacy" asp-fragment="isleme-surecleri" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>’nden inceleyebilirsiniz.
+                            </p>
+                        </div>
+
+                        <button type="submit" class="home-form__submit home-form__submit--report">
+                            <span>Bildirimi Güvenle İlet</span>
+                            <i class="bi bi-lock-fill" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </article>
             </div>
         </div>
-    </div>
-</div>
+    </section>
+</main>
 
-<script>
-    function toggleReporterInfo(checkbox) {
-        var fields = document.getElementById('reporterInfoFields');
-        if (checkbox.checked) {
-            fields.classList.remove('d-none');
-        } else {
-            fields.classList.add('d-none');
-        }
-    }
-</script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

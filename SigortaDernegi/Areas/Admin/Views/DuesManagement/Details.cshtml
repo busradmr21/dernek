@@ -1,0 +1,85 @@
+@using System.Globalization
+@model DuesPeriodDetailsViewModel
+
+@{
+    ViewData["Title"] = "Aidat Dönemi Detayı";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.DuesAndPayments, PermissionActionType.Edit);
+    var canApprove = await RolePermissionService.HasPermissionAsync(User, ManagementArea.DuesAndPayments, PermissionActionType.Approve);
+    var canDelete = await RolePermissionService.HasPermissionAsync(User, ManagementArea.DuesAndPayments, PermissionActionType.Delete);
+}
+
+<section class="admin-module">
+    <div class="admin-module__header">
+        <div><span class="admin-module__eyebrow">Aidat Dönemi</span><h1>@Model.Name</h1><p>@Model.PeriodType · @Model.StartDate.ToString("dd.MM.yyyy") – @Model.EndDate.ToString("dd.MM.yyyy") · Son ödeme @Model.DueDate.ToString("dd.MM.yyyy")</p></div>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Dönemler</a>
+            @if (canEdit && Model.AssignedMemberCount == 0) { <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-pencil"></i> Düzenle</a> }
+            @if (canApprove && Model.IsActive)
+            {
+                <form asp-action="AssignToActiveMembers" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Bu sabit aidat tutarı henüz kaydı olmayan bütün faal üyelere ve yönetim kurulu üyelerine tahakkuk ettirilsin mi?');"><button type="submit" class="btn btn-primary"><i class="bi bi-people"></i> Tüm Faal Üyelere Tahakkuk Ettir</button></form>
+            }
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string successMessage) { <div class="admin-feedback admin-feedback--success"><i class="bi bi-check-circle-fill"></i><span>@successMessage</span></div> }
+    @if (TempData["ErrorMessage"] is string errorMessage) { <div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>@errorMessage</div> }
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3"><div class="admin-stat-card h-100"><div class="admin-stat-card__icon"><i class="bi bi-cash-stack"></i></div><div><span>Sabit Tutar</span><strong>@Model.Amount.ToString("N2", culture) ₺</strong></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="admin-stat-card h-100"><div class="admin-stat-card__icon"><i class="bi bi-people"></i></div><div><span>Tahakkuk</span><strong>@Model.AssignedMemberCount / @Model.ActiveMemberCount</strong><small>Faal kişi</small></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="admin-stat-card h-100"><div class="admin-stat-card__icon"><i class="bi bi-check2-circle"></i></div><div><span>Tahsil Edilen</span><strong>@Model.CollectedAmount.ToString("N2", culture) ₺</strong><small>@Model.PaidMemberCount ödeme</small></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="admin-stat-card h-100"><div class="admin-stat-card__icon"><i class="bi bi-hourglass"></i></div><div><span>Bekleyen</span><strong>@Model.OutstandingAmount.ToString("N2", culture) ₺</strong></div></div></div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Description)) { <div class="alert alert-light border mb-4"><strong>Açıklama:</strong> @Model.Description</div> }
+
+    @if (Model.MemberDues.Count == 0)
+    {
+        <div class="admin-empty-state"><i class="bi bi-person-check"></i><h2>Henüz tahakkuk oluşturulmadı</h2><p>“Tüm Faal Üyelere Tahakkuk Ettir” düğmesi, bu dönemin sabit tutarını normal üyelere ve yönetim kurulu üyelerine bir kez atar.</p></div>
+    }
+    else
+    {
+        <div class="table-responsive admin-form-card p-0">
+            <table class="table admin-table align-middle mb-0">
+                <thead><tr><th>Üye / Yönetim Kurulu</th><th>Tutar</th><th>Durum</th><th>Ödeme Bilgisi</th><th class="text-end">İşlem</th></tr></thead>
+                <tbody>
+                @foreach (var due in Model.MemberDues)
+                {
+                    <tr>
+                        <td><strong>@due.MemberName</strong><small class="d-block">@due.MemberType @if (!string.IsNullOrWhiteSpace(due.RegistryNumber)) { <span>· @due.RegistryNumber</span> }</small></td>
+                        <td><strong>@due.Amount.ToString("N2", culture) ₺</strong></td>
+                        <td><span class="badge @(due.Status == MemberDueStatuses.Paid ? "text-bg-success" : due.IsOverdue ? "text-bg-danger" : "text-bg-warning")">@(due.IsOverdue ? "Gecikmiş" : due.Status)</span></td>
+                        <td>
+                            @if (due.PaidAtUtc.HasValue)
+                            {
+                                <strong>@TurkeyDateTime.FromUtc(due.PaidAtUtc.Value).ToString("dd.MM.yyyy HH:mm")</strong><small class="d-block">@due.PaymentMethod @if (!string.IsNullOrWhiteSpace(due.ReferenceNumber)) { <span>· @due.ReferenceNumber</span> } @if (due.HasDemoPayment) { <span class="badge text-bg-warning ms-1">Demo</span> }</small>
+                            }
+                            else { <span class="text-muted">Ödeme kaydı yok</span> }
+                        </td>
+                        <td class="text-end">
+                            @if (canEdit && due.Status == MemberDueStatuses.Unpaid)
+                            {
+                                <a asp-action="RecordPayment" asp-route-id="@due.Id" class="btn btn-sm btn-primary"><i class="bi bi-receipt"></i> Ödeme Kaydet</a>
+                            }
+                            @if (canDelete && Model.DemoResetEnabled && due.HasDemoPayment)
+                            {
+                                <form asp-action="ResetDemoPayment"
+                                      asp-route-id="@due.Id"
+                                      method="post"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Bu PayTR demo ödemesi silinip aidat yeniden ödenmedi durumuna getirilsin mi?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                        Demo Ödemesini Sıfırla
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

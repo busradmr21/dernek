@@ -1,0 +1,10 @@
+@model SigortaDernegi.Areas.Admin.ViewModels.FaqFormViewModel
+<input asp-for="Id" type="hidden" />
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+<div class="admin-form-grid">
+    <div class="admin-form-field"><label asp-for="Category" class="form-label"></label><input asp-for="Category" class="form-control" placeholder="Üyelik, Etkinlikler, Kurumsal..." /><span asp-validation-for="Category" class="text-danger"></span></div>
+    <div class="admin-form-field"><label asp-for="DisplayOrder" class="form-label"></label><input asp-for="DisplayOrder" class="form-control" /><span asp-validation-for="DisplayOrder" class="text-danger"></span></div>
+    <div class="admin-form-field admin-form-field--full"><label asp-for="Question" class="form-label"></label><input asp-for="Question" class="form-control" /><span asp-validation-for="Question" class="text-danger"></span></div>
+    <div class="admin-form-field admin-form-field--full"><label asp-for="Answer" class="form-label"></label><textarea asp-for="Answer" rows="8" class="form-control"></textarea><span asp-validation-for="Answer" class="text-danger"></span></div>
+    <div class="admin-form-field admin-form-field--full"><label class="admin-form-switch"><input asp-for="IsActive" class="form-check-input" /><span><strong>Sitede yayınlansın</strong><small>Pasif sorular ziyaretçi sayfasında görünmez.</small></span></label></div>
+</div>

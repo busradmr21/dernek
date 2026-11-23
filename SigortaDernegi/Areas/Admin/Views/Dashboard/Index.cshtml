@@ -1,0 +1,334 @@
+@using System.Globalization
+@model SigortaDernegi.Areas.Admin.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Ana Panel";
+
+    var turkishCulture = new CultureInfo("tr-TR");
+}
+
+<section class="admin-dashboard-header">
+    <div>
+        <span class="admin-dashboard-header__eyebrow">
+            Genel Bakış
+        </span>
+
+        <h1>Yönetim Paneli</h1>
+
+        <p>
+            Site içeriklerini, başvuruları, üyeleri ve finansal
+            işlemleri bu panelden yönetebilirsiniz.
+        </p>
+    </div>
+
+    <a class="btn admin-dashboard-header__site-link"
+       asp-area=""
+       asp-controller="Home"
+       asp-action="Index"
+       target="_blank"
+       rel="noopener">
+
+        <i class="bi bi-box-arrow-up-right"
+           aria-hidden="true"></i>
+
+        Siteyi Yeni Sekmede Aç
+    </a>
+</section>
+
+<section class="row g-3 g-xl-4 mb-4"
+         aria-label="Yönetim istatistikleri">
+
+    @if (Model.CanViewMemberManagement)
+    {
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="admin-stat-card"
+           asp-area="Admin"
+           asp-controller="MemberManagement"
+           asp-action="Index">
+            <div class="admin-stat-card__icon admin-stat-card__icon--blue">
+                <i class="bi bi-person-vcard"
+                   aria-hidden="true"></i>
+            </div>
+
+            <div>
+                <span>Toplam Üye</span>
+                <strong>@Model.TotalMemberCount</strong>
+            </div>
+        </a>
+    </div>
+    }
+
+    @if (Model.CanViewApplications)
+    {
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="admin-stat-card"
+           asp-area=""
+           asp-controller="Admin"
+           asp-action="MembershipApplications">
+            <div class="admin-stat-card__icon admin-stat-card__icon--orange">
+                <i class="bi bi-person-plus"
+                   aria-hidden="true"></i>
+            </div>
+
+            <div>
+                <span>Bekleyen Başvuru</span>
+                <strong>@Model.PendingMembershipApplicationCount</strong>
+            </div>
+        </a>
+    </div>
+    }
+
+    @if (Model.CanViewApplications)
+    {
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="admin-stat-card"
+           asp-area=""
+           asp-controller="Admin"
+           asp-action="ContactMessages">
+            <div class="admin-stat-card__icon admin-stat-card__icon--teal">
+                <i class="bi bi-envelope"
+                   aria-hidden="true"></i>
+            </div>
+
+            <div>
+                <span>Yeni Mesaj</span>
+                <strong>@Model.NewContactMessageCount</strong>
+            </div>
+        </a>
+    </div>
+    }
+
+    @if (Model.CanViewSiteContent)
+    {
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="admin-stat-card"
+           asp-area="Admin"
+           asp-controller="EventsManagement"
+           asp-action="Index">
+            <div class="admin-stat-card__icon admin-stat-card__icon--purple">
+                <i class="bi bi-calendar-event"
+                   aria-hidden="true"></i>
+            </div>
+
+            <div>
+                <span>Yaklaşan Etkinlik</span>
+                <strong>@Model.UpcomingEventCount</strong>
+            </div>
+        </a>
+    </div>
+    }
+
+    @if (Model.CanViewSiteContent)
+    {
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="admin-stat-card admin-stat-card--compact"
+           asp-area="Admin"
+           asp-controller="NewsManagement"
+           asp-action="Index">
+            <i class="bi bi-newspaper"
+               aria-hidden="true"></i>
+
+            <span>Aktif Haber</span>
+            <strong>@Model.ActiveNewsCount</strong>
+        </a>
+    </div>
+    }
+
+    @if (Model.CanViewSiteContent)
+    {
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="admin-stat-card admin-stat-card--compact"
+           asp-area="Admin"
+           asp-controller="NewsManagement"
+           asp-action="Index">
+            <i class="bi bi-megaphone"
+               aria-hidden="true"></i>
+
+            <span>Aktif Duyuru</span>
+            <strong>@Model.ActiveAnnouncementCount</strong>
+        </a>
+    </div>
+    }
+
+    @if (Model.CanViewApplications)
+    {
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="admin-stat-card admin-stat-card--compact"
+           asp-area=""
+           asp-controller="Admin"
+           asp-action="Volunteers">
+            <i class="bi bi-people"
+               aria-hidden="true"></i>
+
+            <span>Gönüllü Başvurusu</span>
+            <strong>@Model.VolunteerApplicationCount</strong>
+        </a>
+    </div>
+    }
+
+    @if (Model.CanViewDonations)
+    {
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a class="admin-stat-card admin-stat-card--compact"
+           asp-area=""
+           asp-controller="Admin"
+           asp-action="Donations">
+            <i class="bi bi-heart"
+               aria-hidden="true"></i>
+
+            <span>Toplam Bağış</span>
+
+            <strong>
+                @Model.TotalDonationAmount.ToString("N2", turkishCulture) ₺
+            </strong>
+        </a>
+    </div>
+    }
+</section>
+
+@if (Model.CanViewApplications || Model.CanViewSiteContent)
+{
+<section class="admin-volunteer-spotlight mb-4" aria-labelledby="volunteerManagementTitle">
+    <div class="admin-volunteer-spotlight__icon"><i class="bi bi-person-heart"></i></div>
+    <div class="admin-volunteer-spotlight__content"><span>Gönüllülük Yönetimi</span><h2 id="volunteerManagementTitle">Gönüllü gücünü büyütün</h2><p>Toplam <strong>@Model.VolunteerApplicationCount</strong> gönüllü başvurusunu takip edin ve ziyaretçilere gösterilen gönüllülük sayfasını yönetin.</p></div>
+    <div class="admin-volunteer-spotlight__actions">@if (Model.CanViewApplications) { <a asp-area="" asp-controller="Admin" asp-action="Volunteers" class="btn btn-primary"><i class="bi bi-people"></i> Başvuruları Yönet</a> } @if (Model.CanEditSiteContent) { <a asp-area="Admin" asp-controller="VolunteerSettings" asp-action="Index" class="btn btn-light text-dark fw-semibold"><i class="bi bi-pencil-square"></i> Sayfayı Düzenle</a> }</div>
+</section>
+}
+
+@if (Model.CanViewApplications)
+{
+<section class="row g-4">
+
+    <div class="col-12 col-xl-6">
+        <article class="admin-panel-card">
+
+            <header class="admin-panel-card__header">
+                <div>
+                    <span>Son Kayıtlar</span>
+                    <h2>Üyelik Başvuruları</h2>
+                </div>
+
+                <a asp-area=""
+                   asp-controller="Admin"
+                   asp-action="MembershipApplications">
+                    Tümünü Gör
+                </a>
+            </header>
+
+            @if (Model.RecentMembershipApplications.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table admin-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Başvuru Sahibi</th>
+                                <th>Tür</th>
+                                <th>Durum</th>
+                                <th>Tarih</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var application
+                                      in Model.RecentMembershipApplications)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>
+                                            @application.ApplicantName
+                                        </strong>
+
+                                        <small>
+                                            @application.Email
+                                        </small>
+                                    </td>
+
+                                    <td>@application.MembershipType</td>
+
+                                    <td>
+                                        <span class="admin-status-badge">
+                                            @application.ApplicationStatus
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @(application.CreatedAt
+                                            .ToLocalTime()
+                                            .ToString("dd.MM.yyyy"))
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="admin-empty-state">
+                    Henüz üyelik başvurusu bulunmuyor.
+                </div>
+            }
+
+        </article>
+    </div>
+
+    <div class="col-12 col-xl-6">
+        <article class="admin-panel-card">
+
+            <header class="admin-panel-card__header">
+                <div>
+                    <span>Gelen Kutusu</span>
+                    <h2>Son İletişim Mesajları</h2>
+                </div>
+
+                <a asp-area=""
+                   asp-controller="Admin"
+                   asp-action="ContactMessages">
+                    Tümünü Gör
+                </a>
+            </header>
+
+            @if (Model.RecentContactMessages.Count > 0)
+            {
+                <div class="admin-message-list">
+                    @foreach (var message
+                              in Model.RecentContactMessages)
+                    {
+                        <div class="admin-message-item">
+                            <div class="admin-message-item__icon">
+                                <i class="bi bi-envelope"
+                                   aria-hidden="true"></i>
+                            </div>
+
+                            <div>
+                                <strong>@message.FullName</strong>
+
+                                <span>
+                                    @message.Subject
+                                </span>
+
+                                <small>
+                                    @(message.CreatedAt
+                                        .ToLocalTime()
+                                        .ToString("dd.MM.yyyy HH:mm"))
+                                </small>
+                            </div>
+
+                            <span class="admin-status-badge">
+                                @message.Status
+                            </span>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="admin-empty-state">
+                    Henüz iletişim mesajı bulunmuyor.
+                </div>
+            }
+
+        </article>
+    </div>
+
+</section>
+}

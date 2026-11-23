@@ -1,0 +1,86 @@
+@using System.Globalization
+@model SigortaDernegi.Areas.Admin.ViewModels.HomeMissionSettingsAdminViewModel
+@{
+    ViewData["Title"] = "Başkan Mesajı ve Misyon Alanı";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Edit);
+    var canDelete = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Delete);
+}
+
+<section class="admin-module">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Ana Sayfa Yönetimi</span>
+            <h1>Başkan Mesajı ve Misyon Alanı</h1>
+            <p>Başkan mesajının yanında gösterilen misyon metnini, ilkeleri ve yayın durumunu yönetin.</p>
+        </div>
+        <a asp-area="" asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-secondary">
+            <i class="bi bi-box-arrow-up-right"></i> Ana Sayfayı Gör
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string message)
+    {
+        <div class="admin-feedback admin-feedback--success"><i class="bi bi-check-circle-fill"></i><span>@message</span></div>
+    }
+
+    <form asp-action="Save" method="post" class="admin-form-card">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <fieldset class="admin-form-section">
+            <legend>Misyon ve Kuruluş Amacı</legend>
+            <div class="admin-form-grid">
+                <div class="admin-form-field"><label asp-for="Settings.Eyebrow" class="form-label"></label><input asp-for="Settings.Eyebrow" class="form-control" /><span asp-validation-for="Settings.Eyebrow" class="text-danger"></span></div>
+                <div class="admin-form-field"><label asp-for="Settings.Title" class="form-label"></label><input asp-for="Settings.Title" class="form-control" /><span asp-validation-for="Settings.Title" class="text-danger"></span></div>
+                <div class="admin-form-field admin-form-field--full"><label asp-for="Settings.Description" class="form-label"></label><textarea asp-for="Settings.Description" rows="4" class="form-control"></textarea><span asp-validation-for="Settings.Description" class="text-danger"></span></div>
+            </div>
+        </fieldset>
+
+        <fieldset class="admin-form-section">
+            <legend>Çalışma İlkeleri</legend>
+            <div class="admin-form-grid">
+                <div class="admin-form-field"><label asp-for="Settings.ResearchTitle" class="form-label"></label><input asp-for="Settings.ResearchTitle" class="form-control" /><label asp-for="Settings.ResearchDescription" class="form-label mt-3"></label><textarea asp-for="Settings.ResearchDescription" rows="4" class="form-control"></textarea></div>
+                <div class="admin-form-field"><label asp-for="Settings.FraudTitle" class="form-label"></label><input asp-for="Settings.FraudTitle" class="form-control" /><label asp-for="Settings.FraudDescription" class="form-label mt-3"></label><textarea asp-for="Settings.FraudDescription" rows="4" class="form-control"></textarea></div>
+                <div class="admin-form-field admin-form-field--full"><label asp-for="Settings.EthicsTitle" class="form-label"></label><input asp-for="Settings.EthicsTitle" class="form-control" /><label asp-for="Settings.EthicsDescription" class="form-label mt-3"></label><textarea asp-for="Settings.EthicsDescription" rows="4" class="form-control"></textarea></div>
+            </div>
+        </fieldset>
+
+        <fieldset class="admin-form-section">
+            <legend>Yayın ve Alt Bilgi</legend>
+            <div class="admin-form-grid">
+                <div class="admin-form-field admin-form-field--full"><label asp-for="Settings.LegalReference" class="form-label"></label><input asp-for="Settings.LegalReference" class="form-control" /><span asp-validation-for="Settings.LegalReference" class="text-danger"></span></div>
+                <div class="admin-form-field admin-form-field--full"><label class="admin-form-switch"><input asp-for="Settings.IsActive" class="form-check-input" /><span><strong>Ana sayfada yayınla</strong><small>Kapatıldığında başkan mesajı ve misyon bölümü birlikte gizlenir.</small></span></label></div>
+            </div>
+        </fieldset>
+
+        @if (canEdit)
+        {
+            <div class="admin-form-actions"><button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Değişiklikleri Kaydet</button></div>
+        }
+    </form>
+
+    <section class="admin-history-page mt-5">
+        <div class="admin-module__header"><div><span class="admin-module__eyebrow">Sürüm Yönetimi</span><h2>Değişiklik Geçmişi</h2><p>Önceki içerik sürümlerini geri yükleyebilirsiniz.</p></div></div>
+        @if (Model.Revisions.Count == 0)
+        {
+            <div class="admin-empty-state"><i class="bi bi-clock-history"></i><p>Henüz eski sürüm bulunmuyor.</p></div>
+        }
+        else
+        {
+            <div class="admin-history-list">
+                @foreach (var revision in Model.Revisions)
+                {
+                    <article class="admin-history-card admin-history-card--compact">
+                        <div class="admin-history-card__content"><span class="admin-history-card__type">@revision.Summary</span><h3>@revision.ChangedAt.ToLocalTime().ToString("dd MMMM yyyy HH:mm", culture)</h3><p>@revision.ChangedBy</p></div>
+                        <div class="admin-history-card__action">
+                            @if (canEdit) { <form asp-action="Restore" asp-route-id="@revision.Id" method="post" onsubmit="return confirm('Bu ana sayfa sürümüne geri dönülsün mü?');"><button class="btn" type="submit"><i class="bi bi-arrow-counterclockwise"></i> Bu Sürüme Dön</button></form> }
+                            @if (canDelete) { <form asp-action="DeleteRevision" asp-route-id="@revision.Id" method="post" onsubmit="return confirm('Bu geçmiş kaydı silinsin mi?');"><button class="admin-history-delete-button" type="submit" aria-label="Geçmiş kaydını sil"><i class="bi bi-trash3"></i></button></form> }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

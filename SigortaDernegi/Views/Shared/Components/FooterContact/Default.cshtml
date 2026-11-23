@@ -1,0 +1,50 @@
+@model SigortaDernegi.Models.ContactSettings
+
+<address class="hisad-footer__contact" aria-label="ELSADER iletişim bilgileri">
+    <a class="hisad-footer__contact-item"
+       href="tel:@Model.PhoneLink">
+        <i class="bi bi-telephone" aria-hidden="true"></i>
+        <span>@Model.PhoneDisplay</span>
+    </a>
+
+    <a class="hisad-footer__contact-item"
+       href="mailto:@Model.Email">
+        <i class="bi bi-envelope" aria-hidden="true"></i>
+        <span>@Model.Email</span>
+    </a>
+
+    @if (!string.IsNullOrWhiteSpace(Model.MapLink))
+    {
+        <a class="hisad-footer__contact-item"
+           href="@Model.MapLink"
+           target="_blank"
+           rel="noopener noreferrer">
+            <i class="bi bi-geo-alt" aria-hidden="true"></i>
+            <span>
+                @Model.AddressLine1
+                @if (!string.IsNullOrWhiteSpace(Model.AddressLine2))
+                {
+                    <text>, @Model.AddressLine2</text>
+                }
+            </span>
+        </a>
+    }
+    else
+    {
+        <div class="hisad-footer__contact-item">
+            <i class="bi bi-geo-alt" aria-hidden="true"></i>
+            <span>
+                @Model.AddressLine1
+                @if (!string.IsNullOrWhiteSpace(Model.AddressLine2))
+                {
+                    <text>, @Model.AddressLine2</text>
+                }
+            </span>
+        </div>
+    }
+
+    <div class="hisad-footer__contact-item">
+        <i class="bi bi-clock" aria-hidden="true"></i>
+        <span>Hafta içi @Model.WeekdayHours</span>
+    </div>
+</address>

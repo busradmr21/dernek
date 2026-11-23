@@ -1,0 +1,706 @@
+:root {
+    --hisad-primary: #0a2540;
+    --hisad-primary-dark: #000f22;
+    --hisad-primary-light: #173a58;
+    --hisad-secondary: #0d9488;
+    --hisad-secondary-hover: #0f766e;
+    --hisad-secondary-light: #ccfbf1;
+    --hisad-warning: #d97706;
+    --hisad-warning-light: #fef3c7;
+    --hisad-background: #faf8ff;
+    --hisad-surface: #ffffff;
+    --hisad-surface-low: #f2f3ff;
+    --hisad-surface-medium: #eaedff;
+    --hisad-text: #131b2e;
+    --hisad-text-secondary: #43474d;
+    --hisad-text-muted: #64748b;
+    --hisad-text-light: #ffffff;
+    --hisad-border: #e2e8f0;
+    --hisad-radius-small: 8px;
+    --hisad-radius-medium: 12px;
+    --hisad-radius-large: 16px;
+    --hisad-shadow-small: 0 4px 20px rgba(10, 37, 64, 0.06);
+    --hisad-shadow-medium: 0 12px 32px rgba(10, 37, 64, 0.10);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background-color: var(--hisad-background);
+    color: var(--hisad-text);
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--hisad-primary);
+    font-family: "Plus Jakarta Sans", Arial, sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+a {
+    color: var(--hisad-secondary);
+    transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+    a:hover {
+        color: var(--hisad-secondary-hover);
+    }
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+        outline: 3px solid rgba(13, 148, 136, 0.25);
+        outline-offset: 3px;
+    }
+
+/* Tek parçalı HİSAD üst menüsü */
+
+.hisad-header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1030;
+    background-color: var(--hisad-surface);
+    box-shadow: 0 2px 12px rgba(10, 37, 64, 0.08);
+}
+
+.hisad-navbar {
+    min-height: 104px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background-color: var(--hisad-surface);
+}
+
+    .hisad-navbar > .container {
+        max-width: 1380px;
+    }
+
+/* HİSAD logosu */
+
+.hisad-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-right: 0 !important;
+    color: var(--hisad-primary);
+    text-decoration: none;
+}
+
+    .hisad-brand:hover {
+        color: var(--hisad-primary);
+    }
+
+.hisad-brand__mark {
+    width: 58px;
+    height: 58px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 58px;
+}
+
+    .hisad-brand__mark img {
+        display: block;
+        width: 125%;
+        height: 125%;
+        object-fit: contain;
+    }
+
+.hisad-brand__mark--legacy {
+    border: 4px solid #e9a735;
+    border-radius: 50%;
+    background-color: var(--hisad-surface);
+    color: var(--hisad-primary);
+    font-family: "Plus Jakarta Sans", Arial, sans-serif;
+    font-size: 27px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -3px;
+    padding-right: 3px;
+}
+
+.hisad-brand__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+}
+
+    .hisad-brand__text strong {
+        color: var(--hisad-primary);
+        font-family: "Plus Jakarta Sans", Arial, sans-serif;
+        font-size: 21px;
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: 1px;
+    }
+
+    .hisad-brand__text small {
+        margin-top: 4px;
+        color: var(--hisad-text-secondary);
+        font-size: 10px;
+        font-weight: 500;
+        line-height: 1.35;
+    }
+
+/* Ana menü */
+
+.hisad-menu {
+    align-items: center;
+    gap: 2px;
+}
+
+.hisad-navbar .hisad-menu .nav-link {
+    padding: 11px 9px;
+    border-radius: 10px;
+    color: #131b2e !important;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: nowrap;
+}
+
+    .hisad-navbar .hisad-menu .nav-link:hover,
+    .hisad-navbar .hisad-menu .nav-link:focus,
+    .hisad-navbar .hisad-menu .nav-link.show,
+    .hisad-navbar .hisad-menu .nav-link.active {
+        background-color: #e2e7ff;
+        color: #000f22 !important;
+    }
+
+/* Açılır menü */
+
+.hisad-navbar .dropdown-menu {
+    padding: 8px;
+    border: 1px solid var(--hisad-border);
+    border-radius: 12px;
+    background-color: var(--hisad-surface);
+    box-shadow: var(--hisad-shadow-medium);
+}
+
+.hisad-navbar .dropdown-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #131b2e;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+    .hisad-navbar .dropdown-item:hover,
+    .hisad-navbar .dropdown-item:focus {
+        background-color: #e2e7ff;
+        color: #000f22;
+    }
+
+/* Üye girişi ve işlem butonları */
+
+.hisad-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: 12px;
+}
+
+    .hisad-header-actions form {
+        margin: 0;
+    }
+
+.hisad-header-actions__login,
+.hisad-header-actions__logout,
+.hisad-header-actions__donate,
+.hisad-header-actions__join {
+    min-height: 43px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 11px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.hisad-header-actions__login {
+    background-color: #e2e7ff;
+    color: var(--hisad-primary);
+}
+
+    .hisad-header-actions__login:hover {
+        background-color: #d5dcf7;
+        color: var(--hisad-primary-dark);
+    }
+
+.hisad-header-actions__logout {
+    background-color: transparent;
+    color: var(--hisad-primary);
+}
+
+.hisad-header-actions__donate {
+    gap: 3px;
+    padding-right: 5px;
+    padding-left: 5px;
+    border-color: var(--hisad-secondary);
+    background-color: var(--hisad-surface);
+    color: var(--hisad-secondary);
+    font-size: 12px;
+}
+
+    .hisad-header-actions__donate i {
+        font-size: 13px;
+    }
+
+    .hisad-header-actions__donate:hover {
+        border-color: var(--hisad-secondary-hover);
+        background-color: #ecfdf9;
+        color: var(--hisad-secondary-hover);
+    }
+
+.hisad-header-actions__join {
+    background-color: var(--hisad-secondary);
+    color: var(--hisad-text-light);
+}
+
+    .hisad-header-actions__join:hover {
+        background-color: var(--hisad-secondary-hover);
+        color: var(--hisad-text-light);
+    }
+
+/* ==========================================================================
+   Tablet ve Telefon / Mobil Görünüm (< 1200px)
+   ========================================================================== */
+
+@media (max-width: 1199.98px) {
+    .hisad-navbar {
+        min-height: 74px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+
+    .hisad-navbar > .container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    /* Sol 3 Çizgi (Hamburger) Butonu */
+    .hisad-mobile-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        background: transparent;
+        border: none;
+        color: var(--hisad-primary, #0c243c);
+        font-size: 34px;
+        line-height: 1;
+        padding: 0;
+        cursor: pointer;
+        z-index: 2;
+        transition: color 0.15s ease, transform 0.15s ease;
+    }
+
+    .hisad-mobile-menu-btn:hover,
+    .hisad-mobile-menu-btn:focus-visible {
+        color: var(--hisad-teal, #16b8a6);
+        outline: none;
+    }
+
+    /* Sağ Üye Sembolü (👤) */
+    .hisad-mobile-user-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        background: transparent;
+        border: none;
+        color: var(--hisad-primary, #0c243c);
+        font-size: 28px;
+        line-height: 1;
+        padding: 0;
+        text-decoration: none;
+        cursor: pointer;
+        z-index: 2;
+        transition: color 0.15s ease, transform 0.15s ease;
+    }
+
+    .hisad-mobile-user-btn:hover,
+    .hisad-mobile-user-btn:focus-visible {
+        color: var(--hisad-teal, #16b8a6);
+        outline: none;
+    }
+
+    /* Ortalanmış Logo & Dernek İsmi */
+    .hisad-navbar .hisad-brand {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin: 0 !important;
+        z-index: 1;
+        max-width: calc(100% - 110px);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hisad-navbar {
+        min-height: 72px;
+    }
+
+    .hisad-brand__mark {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+    }
+
+    .hisad-brand__text {
+        min-width: 0;
+    }
+
+    .hisad-brand__text strong {
+        font-size: 17px;
+        font-weight: 850;
+        letter-spacing: 0.02em;
+        line-height: 1.1;
+        color: var(--hisad-primary, #0c243c);
+    }
+
+    .hisad-brand__text small {
+        display: block;
+        font-size: 10.5px;
+        line-height: 1.2;
+        color: #64748b;
+        font-weight: 600;
+        margin-top: 2px;
+    }
+}
+
+/* ==========================================================================
+   Soldan Açılan Mobil Çekmece Menü (Offcanvas)
+   ========================================================================== */
+
+.hisad-mobile-offcanvas {
+    width: 320px;
+    max-width: 86vw;
+    border-right: 1px solid rgba(12, 36, 60, 0.1);
+    background-color: #ffffff;
+    box-shadow: 10px 0 35px rgba(7, 24, 43, 0.18);
+}
+
+.hisad-mobile-offcanvas__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid #eef2f6;
+    background-color: #ffffff;
+}
+
+.hisad-mobile-offcanvas__close {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: var(--hisad-primary, #0c243c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+
+.hisad-mobile-offcanvas__close:hover {
+    background-color: #f1f5f9;
+}
+
+.hisad-mobile-offcanvas__brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hisad-mobile-offcanvas__logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+.hisad-mobile-offcanvas__brand strong {
+    font-size: 19px;
+    font-weight: 850;
+    color: var(--hisad-primary, #0c243c);
+    letter-spacing: -0.02em;
+}
+
+.hisad-mobile-offcanvas__user {
+    color: var(--hisad-primary, #0c243c);
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+
+.hisad-mobile-offcanvas__user:hover {
+    background-color: #f1f5f9;
+}
+
+.hisad-mobile-offcanvas__body {
+    padding: 14px 18px 32px 18px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* Mobil Menü Listesi */
+.hisad-mobile-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.hisad-mobile-nav > li {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.hisad-mobile-nav__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 4px;
+    color: var(--hisad-primary, #0c243c);
+    font-size: 14.5px;
+    font-weight: 750;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    transition: color 0.15s ease;
+}
+
+.hisad-mobile-nav__link:hover,
+.hisad-mobile-nav__link:focus {
+    color: var(--hisad-teal, #16b8a6);
+}
+
+.hisad-mobile-nav__toggle i {
+    font-size: 13px;
+    transition: transform 0.25s ease;
+    color: #64748b;
+}
+
+.hisad-mobile-nav__toggle:not(.collapsed) {
+    color: var(--hisad-teal, #16b8a6);
+}
+
+.hisad-mobile-nav__toggle:not(.collapsed) i {
+    transform: rotate(180deg);
+    color: var(--hisad-teal, #16b8a6);
+}
+
+/* Alt Menüler (Subnav) */
+.hisad-mobile-subnav {
+    padding: 4px 0 10px 12px;
+    border-left: 2.5px solid var(--hisad-teal, #16b8a6);
+    margin-left: 6px;
+    margin-bottom: 8px;
+}
+
+.hisad-mobile-subnav a {
+    display: block;
+    padding: 8px 10px;
+    color: #475569;
+    font-size: 13.5px;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+
+.hisad-mobile-subnav a:hover {
+    color: var(--hisad-primary, #0c243c);
+    background-color: #f8fafc;
+}
+
+/* Alt Aksiyon Butonları */
+.hisad-mobile-offcanvas__actions {
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.hisad-mobile-btn--donate {
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.18s ease;
+}
+
+.hisad-mobile-btn--donate:hover {
+    box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
+    transform: translateY(-1px);
+}
+
+.hisad-mobile-btn--login {
+    background-color: #f1f5f9;
+    color: var(--hisad-primary, #0c243c) !important;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.18s ease;
+}
+
+.hisad-mobile-btn--login:hover {
+    background-color: #e2e8f0;
+}
+
+.hisad-mobile-btn--logout {
+    background-color: #fff1f2;
+    color: #e11d48 !important;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid #ffe4e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.18s ease;
+}
+
+.hisad-mobile-btn--logout:hover {
+    background-color: #fee2e2;
+}
+
+.hisad-mobile-btn--join {
+    background-color: #ffffff;
+    color: var(--hisad-teal, #0d9488) !important;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1.5px solid #ccfbf1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.18s ease;
+}
+
+.hisad-mobile-btn--join:hover {
+    background-color: #f0fdfa;
+    border-color: #99f6e4;
+}
+
+/* ==========================================================================
+   Masaüstünde Logo, Menü ve Mobil Elemanların Gizlenmesi (>= 1200px)
+   (PC Tarafı %100 Orijinal Halinde Korunur)
+   ========================================================================== */
+
+@media (min-width: 1200px) {
+    .hisad-mobile-menu-btn,
+    .hisad-mobile-user-btn,
+    .hisad-mobile-offcanvas {
+        display: none !important;
+    }
+
+    .hisad-navbar .hisad-brand {
+        position: static !important;
+        transform: none !important;
+        max-width: none !important;
+    }
+
+    .hisad-navbar {
+        min-height: 96px;
+    }
+
+    .hisad-navbar > .container {
+        max-width: 1480px;
+    }
+
+    .hisad-brand__mark {
+        width: 68px;
+        height: 68px;
+        flex-basis: 68px;
+    }
+
+    .hisad-brand__mark--legacy {
+        border-width: 5px;
+        font-size: 31px;
+    }
+
+    .hisad-brand__text {
+        min-width: 215px;
+    }
+
+    .hisad-brand__text strong {
+        font-size: 25px;
+    }
+
+    .hisad-brand__text small {
+        font-size: 15px;
+        line-height: 1.4;
+    }
+
+    .hisad-navbar .hisad-menu .nav-link {
+        padding: 13px 11px;
+        font-size: 20px;
+    }
+}

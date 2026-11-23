@@ -1,0 +1,107 @@
+@model SigortaDernegi.ViewModels.CorporatePageViewModel
+
+@functions {
+    private static string GetActionName(string pageKey) => pageKey switch
+    {
+        "about" => "Index",
+        "bylaws" => "Bylaws",
+        "legislation" => "Legislation",
+        "board" => "Board",
+        "committees" => "Committees",
+        _ => "Index"
+    };
+}
+
+@{
+    var identity = Model.Sections.FirstOrDefault(section => section.SectionKey == "identity");
+    var purpose = Model.Sections.FirstOrDefault(section => section.SectionKey == "purpose");
+    var mission = Model.Sections.FirstOrDefault(section => section.SectionKey == "mission");
+    var vision = Model.Sections.FirstOrDefault(section => section.SectionKey == "vision");
+    var values = Model.Sections.FirstOrDefault(section => section.SectionKey == "values");
+}
+
+<main class="corporate-about-page">
+    <div class="container">
+        <div class="corporate-about-intro">
+            <aside>
+                <nav class="corporate-managed-nav" aria-label="Kurumsal sayfalar">
+                    <span class="corporate-managed-nav__title">Kurumsal</span>
+                    @foreach (var navigationPage in Model.NavigationPages)
+                    {
+                        var actionName = GetActionName(navigationPage.PageKey);
+                        <a asp-area=""
+                           asp-controller="About"
+                           asp-action="@actionName"
+                           class="@(navigationPage.Id == Model.Page.Id ? "is-active" : null)">
+                            <span>@navigationPage.MenuTitle</span>
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    }
+                </nav>
+            </aside>
+
+            @if (identity is not null)
+            {
+                <section class="corporate-about-identity" aria-label="ELSADER Kimdir?">
+                    <div class="corporate-about-identity__content">
+                        @if (!string.IsNullOrWhiteSpace(identity.Eyebrow))
+                        {
+                            <span class="corporate-about-eyebrow">@identity.Eyebrow</span>
+                        }
+                        <div class="corporate-about-richtext">@Html.Raw(identity.ContentHtml)</div>
+                    </div>
+                </section>
+            }
+        </div>
+
+        @if (purpose is not null)
+        {
+            <section class="corporate-about-purpose" aria-labelledby="aboutPurposeTitle">
+                <h2 id="aboutPurposeTitle">@purpose.Title</h2>
+                <div class="corporate-about-purpose__content corporate-about-richtext">
+                    @Html.Raw(purpose.ContentHtml)
+                </div>
+            </section>
+        }
+
+        @if (mission is not null || vision is not null)
+        {
+            <section class="corporate-about-direction" aria-labelledby="aboutDirectionTitle">
+                <span class="corporate-about-eyebrow">Yönümüz ve sorumluluğumuz</span>
+                <h2 id="aboutDirectionTitle">Bugünün ihtiyaçlarına yanıt verirken geleceğin mesleki standartlarını oluşturuyoruz.</h2>
+                <div class="corporate-about-direction__grid">
+                    @if (mission is not null)
+                    {
+                        <article class="corporate-about-direction-card">
+                            <span class="corporate-about-eyebrow">@mission.Eyebrow</span>
+                            <h3>@mission.Title</h3>
+                            <div class="corporate-about-richtext">@Html.Raw(mission.ContentHtml)</div>
+                        </article>
+                    }
+                    @if (vision is not null)
+                    {
+                        <article class="corporate-about-direction-card corporate-about-direction-card--dark">
+                            <span class="corporate-about-eyebrow">@vision.Eyebrow</span>
+                            <h3>@vision.Title</h3>
+                            <div class="corporate-about-richtext">@Html.Raw(vision.ContentHtml)</div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+
+        @if (values is not null)
+        {
+            <section class="corporate-about-values" aria-labelledby="aboutValuesTitle">
+                @if (!string.IsNullOrWhiteSpace(values.Eyebrow))
+                {
+                    <span class="corporate-about-eyebrow">@values.Eyebrow</span>
+                }
+                <h2 id="aboutValuesTitle">@values.Title</h2>
+                <div class="corporate-about-values__list corporate-about-richtext">
+                    @Html.Raw(values.ContentHtml)
+                </div>
+            </section>
+        }
+    </div>
+</main>

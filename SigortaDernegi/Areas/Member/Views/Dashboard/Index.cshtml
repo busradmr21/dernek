@@ -1,0 +1,107 @@
+@model MemberDashboardViewModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Genel Bakış";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+<section class="member-welcome">
+    <div>
+        <span class="member-eyebrow">Faal Üye</span>
+        <h1>Hoş geldiniz, @Model.DisplayName</h1>
+        <p>Üyelik bilgilerinizi, duyuruları ve yaklaşan etkinlikleri buradan takip edebilirsiniz.</p>
+    </div>
+    <a asp-area="Member" asp-controller="Profile" asp-action="Index" class="btn btn-light">
+        <i class="bi bi-person-gear"></i> Profilimi Gör
+    </a>
+</section>
+
+<section class="member-summary-grid" aria-label="Üyelik özeti">
+    <article class="member-summary-card">
+        <div class="member-summary-card__icon"><i class="bi bi-patch-check"></i></div>
+        <span>Üyelik Durumu</span><strong>Faal Üye</strong>
+        <small>@Model.MemberType üyelik</small>
+    </article>
+    <article class="member-summary-card">
+        <div class="member-summary-card__icon"><i class="bi bi-person-badge"></i></div>
+        <span>Üye Numarası</span><strong>@(Model.RegistryNumber ?? "Henüz atanmadı")</strong>
+        <small>Yalnızca size ve yönetime görünür</small>
+    </article>
+    <article class="member-summary-card">
+        <div class="member-summary-card__icon"><i class="bi bi-calendar-check"></i></div>
+        <span>Üyelik Tarihi</span><strong>@Model.MembershipDate.ToLocalTime().ToString("dd.MM.yyyy")</strong>
+        <small>@Model.Specialty · @Model.City</small>
+    </article>
+    <article class="member-summary-card">
+        <div class="member-summary-card__icon"><i class="bi bi-envelope-paper"></i></div>
+        <span>Rehber Mesajları</span><strong>@Model.MessageCount Mesaj</strong>
+        <small><a asp-area="Member" asp-controller="Messages" asp-action="Index">Mesajlarımı görüntüle</a></small>
+    </article>
+    <article class="member-summary-card @(Model.OutstandingDuesCount > 0 ? "member-summary-card--warning" : null)">
+        <div class="member-summary-card__icon"><i class="bi bi-wallet2"></i></div>
+        <span>Ödenmemiş Aidat</span><strong>@Model.OutstandingDuesAmount.ToString("N2", culture) ₺</strong>
+        <small><a asp-area="Member" asp-controller="Dues" asp-action="Index">@Model.OutstandingDuesCount aidat kaydını görüntüle</a></small>
+    </article>
+</section>
+
+<div class="member-content-grid">
+    <section class="member-panel">
+        <div class="member-panel__header">
+            <div><span>Güncel Bilgiler</span><h2>Duyurular</h2></div>
+            <a asp-area="" asp-controller="News" asp-action="Announcements">Tümünü Gör</a>
+        </div>
+        @if (Model.Announcements.Count == 0)
+        {
+            <div class="member-empty"><i class="bi bi-megaphone"></i><p>Yayımlanmış güncel bir duyuru bulunmuyor.</p></div>
+        }
+        else
+        {
+            <div class="member-list">
+                @foreach (var announcement in Model.Announcements)
+                {
+                    <a asp-area="" asp-controller="News" asp-action="Detail" asp-route-id="@announcement.Id">
+                        <time>@announcement.PublishedAt.ToString("dd.MM.yyyy")</time>
+                        <strong>@announcement.Title</strong>
+                        <span>@announcement.Summary</span>
+                    </a>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="member-panel">
+        <div class="member-panel__header">
+            <div><span>Takvim</span><h2>Yaklaşan Etkinlikler</h2></div>
+            <a asp-area="" asp-controller="Events" asp-action="Index">Tümünü Gör</a>
+        </div>
+        @if (Model.UpcomingEvents.Count == 0)
+        {
+            <div class="member-empty"><i class="bi bi-calendar-event"></i><p>Yaklaşan aktif bir etkinlik bulunmuyor.</p></div>
+        }
+        else
+        {
+            <div class="member-list">
+                @foreach (var eventItem in Model.UpcomingEvents)
+                {
+                    <a asp-area="" asp-controller="Events" asp-action="Detail" asp-route-id="@eventItem.Id">
+                        <time>@eventItem.StartDate.ToString("dd.MM.yyyy HH:mm")</time>
+                        <strong>@eventItem.Title</strong>
+                        <span>@(eventItem.IsOnline ? "Çevrim içi" : eventItem.Location ?? "Konum daha sonra açıklanacak")</span>
+                    </a>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+<section class="member-quick-actions">
+    <h2>Hızlı İşlemler</h2>
+    <div>
+        <a asp-area="Member" asp-controller="Messages" asp-action="Index"><i class="bi bi-envelope-paper"></i><span><strong>Mesajlarım</strong><small>Rehberden size gönderilen mesajları görüntüleyin</small></span></a>
+        <a asp-area="Member" asp-controller="Profile" asp-action="Edit"><i class="bi bi-pencil-square"></i><span><strong>Profilimi Güncelle</strong><small>İletişim ve rehber bilgilerinizi düzenleyin</small></span></a>
+        <a asp-area="Member" asp-controller="Account" asp-action="Security"><i class="bi bi-key"></i><span><strong>Hesap Güvenliği</strong><small>Şifre ve giriş bilgilerinizi yönetin</small></span></a>
+        <a asp-area="Member" asp-controller="Dues" asp-action="Index"><i class="bi bi-credit-card"></i><span><strong>Aidatlarım</strong><small>Ödeme modülü için hazırlanan alanı görüntüleyin</small></span></a>
+        <a asp-area="" asp-controller="Home" asp-action="Donate"><i class="bi bi-heart"></i><span><strong>Bağış Yap</strong><small>Dernek çalışmalarına destek olmak için bağış bildiriminde bulunun</small></span></a>
+    </div>
+</section>

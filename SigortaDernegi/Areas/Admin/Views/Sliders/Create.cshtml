@@ -1,0 +1,43 @@
+@model SigortaDernegi.Areas.Admin.ViewModels.SliderFormViewModel
+
+@{
+    ViewData["Title"] = "Yeni Slider Ekle";
+}
+
+<section class="admin-form-page">
+    <div class="admin-form-page__header">
+        <span class="admin-module__eyebrow">Ana Sayfa Yönetimi</span>
+        <h1>Yeni Slider Ekle</h1>
+        <p>Ana sayfada yayınlanacak sliderın içeriğini ve görselini belirleyin.</p>
+    </div>
+
+    <form asp-area="Admin"
+          asp-controller="Sliders"
+          asp-action="Create"
+          method="post"
+          enctype="multipart/form-data"
+          class="admin-form-card">
+
+        <partial name="_SliderForm" model="Model" />
+
+        <div class="admin-form-actions">
+            <a asp-area="Admin"
+               asp-controller="Sliders"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                Listeye Dön
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg" aria-hidden="true"></i>
+                Sliderı Kaydet
+            </button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/admin-slider-form.js" asp-append-version="true"></script>
+}

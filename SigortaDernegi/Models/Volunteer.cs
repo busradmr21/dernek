@@ -18,6 +18,7 @@ namespace SigortaDernegi.Models
 
         public string ExpertiseArea { get; set; } = string.Empty; // Örn: Saha İncelemesi, Hukuk, Dijital Analiz
         public string Notes { get; set; } = string.Empty;
+        public bool HasReadKvkkNotice { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
     }
 }

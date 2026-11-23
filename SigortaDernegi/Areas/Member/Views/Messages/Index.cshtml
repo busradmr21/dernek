@@ -1,0 +1,70 @@
+@model MemberMessagesViewModel
+
+@{
+    ViewData["Title"] = "Mesajlarım";
+}
+
+<div class="member-page-heading">
+    <div>
+        <span class="member-eyebrow">REHBER İLETİŞİMİ</span>
+        <h1>Mesajlarım</h1>
+        <p>Uzman ve Üye Rehberindeki iletişim formundan size gönderilen mesajlar.</p>
+    </div>
+</div>
+
+<div class="member-message-privacy">
+    <i class="bi bi-shield-check" aria-hidden="true"></i>
+    <p>
+        Bu mesajlar yalnızca size ve yetkili dernek yöneticilerine görünür.
+        Gönderenin iletişim bilgilerini sadece mesaja yanıt vermek amacıyla kullanın.
+    </p>
+</div>
+
+@if (Model.Messages.Count == 0)
+{
+    <section class="member-panel member-empty">
+        <i class="bi bi-envelope-open"></i>
+        <p>Henüz size gönderilmiş bir rehber mesajı bulunmuyor.</p>
+    </section>
+}
+else
+{
+    <section class="member-message-list" aria-label="Rehber mesajları">
+        @foreach (var message in Model.Messages)
+        {
+            var replySubject = Uri.EscapeDataString($"ELSADER - {message.Subject}");
+            <article class="member-message-card">
+                <header>
+                    <div>
+                        <span>REHBER MESAJI</span>
+                        <h2>@message.Subject</h2>
+                        <p><strong>@message.SenderName</strong> tarafından gönderildi.</p>
+                    </div>
+                    <time datetime="@message.CreatedAt.ToString("O")">
+                        @message.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                    </time>
+                </header>
+
+                <div class="member-message-card__body">@message.Message</div>
+
+                <footer>
+                    <div>
+                        <a href="mailto:@message.SenderEmail">
+                            <i class="bi bi-envelope"></i>@message.SenderEmail
+                        </a>
+                        @if (!string.IsNullOrWhiteSpace(message.SenderPhone))
+                        {
+                            <a href="tel:@message.SenderPhone">
+                                <i class="bi bi-telephone"></i>@message.SenderPhone
+                            </a>
+                        }
+                    </div>
+                    <a class="btn btn-primary"
+                       href="mailto:@message.SenderEmail?subject=@replySubject">
+                        <i class="bi bi-reply"></i> Yanıtla
+                    </a>
+                </footer>
+            </article>
+        }
+    </section>
+}

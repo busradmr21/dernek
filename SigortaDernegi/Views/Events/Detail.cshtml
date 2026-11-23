@@ -1,0 +1,261 @@
+@using System.Globalization
+@model SigortaDernegi.Models.AssociationEvent
+
+@{
+    ViewData["Title"] = Model.Title;
+
+    var culture = new CultureInfo("tr-TR");
+    var currentDate = DateTime.Now;
+    var endDate = Model.EndDate ?? Model.StartDate;
+
+    var isPast = endDate < currentDate;
+    var isOngoing =
+        Model.StartDate <= currentDate &&
+        endDate >= currentDate;
+
+    var locationText = Model.IsOnline
+        ? "Çevrim içi (Zoom / Web)"
+        : string.IsNullOrWhiteSpace(Model.Location)
+            ? "Konum yakında açıklanacak"
+            : Model.Location;
+
+    var descriptionParagraphs =
+        string.IsNullOrWhiteSpace(Model.Description)
+            ? Array.Empty<string>()
+            : Model.Description.Split(
+                new[] { "\r\n\r\n", "\n\n" },
+                StringSplitOptions.RemoveEmptyEntries);
+
+    var startDay = Model.StartDate.ToString("dd");
+    var startMonth = Model.StartDate.ToString("MMMM", culture);
+    var startYear = Model.StartDate.ToString("yyyy");
+    var startDayName = Model.StartDate.ToString("dddd", culture);
+
+    var isMultiDay = Model.EndDate.HasValue && Model.EndDate.Value.Date != Model.StartDate.Date;
+}
+
+<main class="event-detail-page py-4 py-lg-5">
+    <div class="container">
+
+        <!-- Üst Gezinme / Geri Dön -->
+        <nav class="event-detail__nav mb-4" aria-label="Gezinme">
+            <a asp-controller="Events"
+               asp-action="Index"
+               asp-route-type="@Model.EventType"
+               class="event-detail__back-btn">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                <span>Tüm Etkinliklere Dön</span>
+            </a>
+            <span class="event-detail__nav-divider">/</span>
+            <span class="event-detail__nav-current text-truncate">@Model.Title</span>
+        </nav>
+
+        <div class="row g-4 g-xl-5">
+
+            <!-- Sol Kolon: Ana İçerik ve Görsel (col-lg-8) -->
+            <div class="col-12 col-lg-8">
+
+                <!-- Başlık ve Rozetler -->
+                <header class="event-detail__header mb-4">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <span class="event-badge event-badge--category">
+                            <i class="bi bi-bookmark-fill me-1" aria-hidden="true"></i>
+                            @(Model.EventType ?? "Etkinlik")
+                        </span>
+
+                        @if (isOngoing)
+                        {
+                            <span class="event-badge event-badge--ongoing">
+                                <span class="event-badge__dot"></span> Devam Ediyor
+                            </span>
+                        }
+                        else if (isPast)
+                        {
+                            <span class="event-badge event-badge--past">
+                                Tamamlandı
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="event-badge event-badge--upcoming">
+                                Yaklaşan Etkinlik
+                            </span>
+                        }
+
+                        @if (Model.IsOnline)
+                        {
+                            <span class="event-badge event-badge--online">
+                                <i class="bi bi-camera-video me-1" aria-hidden="true"></i> Çevrim İçi
+                            </span>
+                        }
+
+                        @if (Model.IsFeatured)
+                        {
+                            <span class="event-badge event-badge--featured">
+                                <i class="bi bi-star-fill me-1" aria-hidden="true"></i> Öne Çıkan
+                            </span>
+                        }
+                    </div>
+
+                    <h1 class="event-detail__title">@Model.Title</h1>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Summary))
+                    {
+                        <p class="event-detail__lead">@Model.Summary</p>
+                    }
+                </header>
+
+                <!-- Etkinlik Görseli (Orantılı, net, sınırlandırılmış) -->
+                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                {
+                    <div class="event-detail__media-wrapper mb-4">
+                        <img src="@Model.ImageUrl"
+                             alt="@Model.Title"
+                             class="event-detail__media-img" />
+                    </div>
+                }
+
+                <!-- Etkinlik Açıklaması -->
+                <article class="event-detail__content-card p-4 p-md-5 mb-4">
+                    <h2 class="event-detail__section-title">
+                        <i class="bi bi-card-text me-2" aria-hidden="true"></i>
+                        Etkinlik Hakkında
+                    </h2>
+
+                    @if (descriptionParagraphs.Length > 0)
+                    {
+                        <div class="event-detail__richtext">
+                            @foreach (var paragraph in descriptionParagraphs)
+                            {
+                                <p>@paragraph.Trim()</p>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-secondary">Etkinliğin detaylı programı ve içerik bilgisi yakında güncellenecektir.</p>
+                    }
+
+                    @if (!isPast && !string.IsNullOrWhiteSpace(Model.RegistrationUrl))
+                    {
+                        <div class="event-detail__cta-box mt-4 pt-4 border-top">
+                            <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                                <div>
+                                    <strong class="d-block text-dark fs-6">Bu etkinliğe katılmak ister misiniz?</strong>
+                                    <small class="text-secondary">Kayıt kontenjanla sınırlıdır, hemen yerinizi ayırtın.</small>
+                                </div>
+                                <a href="@Model.RegistrationUrl"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="event-detail__register-btn">
+                                    <span>Hemen Kayıt Ol</span>
+                                    <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </article>
+
+            </div>
+
+            <!-- Sağ Kolon: Yapışkan Bilgi Kartı (col-lg-4) -->
+            <div class="col-12 col-lg-4">
+                <aside class="event-detail__sidebar">
+
+                    <div class="event-detail__info-card">
+
+                        <!-- Takvim Vurgu Başlığı -->
+                        <div class="event-detail__date-hero">
+                            <div class="event-detail__date-stamp">
+                                <span class="event-detail__date-stamp-day">@startDay</span>
+                                <span class="event-detail__date-stamp-month">@startMonth</span>
+                            </div>
+                            <div class="event-detail__date-hero-text">
+                                <span class="event-detail__date-dayname">@startDayName</span>
+                                <span class="event-detail__date-full">
+                                    @if (isMultiDay)
+                                    {
+                                        @:@Model.StartDate.ToString("dd MMM", culture) - @Model.EndDate!.Value.ToString("dd MMM yyyy", culture)
+                                    }
+                                    else
+                                    {
+                                        @:@Model.StartDate.ToString("dd MMMM yyyy", culture)
+                                    }
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Bilgi Maddeleri -->
+                        <div class="event-detail__info-list">
+
+                            <div class="event-detail__info-item">
+                                <div class="event-detail__info-icon">
+                                    <i class="bi bi-clock-history" aria-hidden="true"></i>
+                                </div>
+                                <div>
+                                    <span class="event-detail__info-label">Saat / Süre</span>
+                                    <strong class="event-detail__info-value">
+                                        @Model.StartDate.ToString("HH:mm")
+                                        @(Model.EndDate.HasValue ? " - " + Model.EndDate.Value.ToString("HH:mm") : "")
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <div class="event-detail__info-item">
+                                <div class="event-detail__info-icon">
+                                    <i class="bi @(Model.IsOnline ? "bi-camera-video" : "bi-geo-alt")" aria-hidden="true"></i>
+                                </div>
+                                <div>
+                                    <span class="event-detail__info-label">Konum / Platform</span>
+                                    <strong class="event-detail__info-value">@locationText</strong>
+                                </div>
+                            </div>
+
+                            <div class="event-detail__info-item">
+                                <div class="event-detail__info-icon">
+                                    <i class="bi bi-person-check" aria-hidden="true"></i>
+                                </div>
+                                <div>
+                                    <span class="event-detail__info-label">Katılım Durumu</span>
+                                    <strong class="event-detail__info-value">
+                                        @(isPast ? "Etkinlik Tamamlandı" : "Kayıtlar Açık (Ücretsiz)")
+                                    </strong>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Kayıt Düğmesi -->
+                        @if (!string.IsNullOrWhiteSpace(Model.RegistrationUrl) && !isPast)
+                        {
+                            <a href="@Model.RegistrationUrl"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="event-detail__sidebar-btn">
+                                <span>Etkinliğe Kayıt Ol</span>
+                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        }
+                        else if (isPast)
+                        {
+                            <div class="event-detail__sidebar-notice">
+                                <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                                Bu etkinlik tamamlanmıştır. Yeni etkinlikler için takvimimizi takip edebilirsiniz.
+                            </div>
+                        }
+
+                        <!-- Dernek Destek Notu -->
+                        <div class="event-detail__support-note">
+                            <i class="bi bi-shield-check" aria-hidden="true"></i>
+                            <span>ELSADER üyeleri etkinliklere öncelikli katılım hakkına sahiptir.</span>
+                        </div>
+
+                    </div>
+
+                </aside>
+            </div>
+
+        </div>
+
+    </div>
+</main>

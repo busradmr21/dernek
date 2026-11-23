@@ -1,6 +1,124 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
-}
-<h1>@ViewData["Title"]</h1>
+@model SigortaDernegi.Models.ContactSettings
 
-<p>Use this page to detail your site's privacy policy.</p>
+@{
+    ViewData["Title"] = "KVKK Aydınlatma Metni";
+    const string organizationName = "Elazığ Sigorta Acenteleri Derneği (ELSADER)";
+    var fullAddress = string.Join(", ", new[] { Model.AddressLine1, Model.AddressLine2 }
+        .Where(value => !string.IsNullOrWhiteSpace(value)));
+}
+
+<section class="about-hero corporate-managed-hero about-hero--overview privacy-hero">
+    <div class="container">
+            <span class="privacy-hero__eyebrow">Kişisel Verilerin Korunması</span>
+            <h1>KVKK Aydınlatma Metni</h1>
+            <p>Bu metin; internet sitesini ziyaret ederken, formları kullanırken, üyelik ve gönüllülük başvurusu yaparken veya dernekle iletişime geçerken paylaştığınız kişisel veriler hakkında sizi bilgilendirir.</p>
+            <small>Son güncelleme: 26 Ekim 2026</small>
+    </div>
+</section>
+
+<main class="privacy-page">
+    <div class="container">
+        <div class="privacy-layout">
+            <nav class="privacy-navigation" aria-label="KVKK metni bölüm bağlantıları">
+                <strong>Metin İçeriği</strong>
+                <a href="#veri-sorumlusu">Veri sorumlusu</a>
+                <a href="#isleme-surecleri">İşleme süreçleri</a>
+                <a href="#aktarim">Aktarım ve saklama</a>
+                <a href="#guvenlik">Bilgi güvenliği</a>
+                <a href="#yayin-izni">Üye rehberi yayın izni</a>
+                <a href="#haklariniz">Haklarınız ve başvuru</a>
+            </nav>
+
+            <article class="privacy-content">
+                <section id="veri-sorumlusu">
+                    <span class="privacy-section-number">01</span>
+                    <div>
+                        <h2>Veri sorumlusu</h2>
+                        <p>6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında veri sorumlusu <strong>@organizationName</strong>’dir. Kişisel verileriniz hukuka, dürüstlük kurallarına ve işlendikleri amaçla sınırlı ve ölçülü olma ilkelerine uygun biçimde işlenir.</p>
+                    </div>
+                </section>
+
+                <section id="isleme-surecleri">
+                    <span class="privacy-section-number">02</span>
+                    <div>
+                        <h2>Hangi verileri, hangi amaçlarla işliyoruz?</h2>
+                        <div class="privacy-process-list">
+                            <div><h3>İletişim ve üyeye mesaj gönderme</h3><p>Ad soyad, e-posta, telefon, konu ve mesaj içeriği; talebin yanıtlanması, ilgili birime yönlendirilmesi ve iletişim sürecinin güvenli biçimde yürütülmesi amacıyla işlenir.</p></div>
+                            <div><h3>Üyelik başvurusu ve üyelik işlemleri</h3><p>Kimlik, iletişim, uzmanlık, şehir, üyelik türü ve başvuru açıklaması; üyelik koşullarının değerlendirilmesi, üyelik ilişkisinin kurulması ve yasal/idari kayıtların yürütülmesi amacıyla işlenir.</p></div>
+                            <div><h3>Gönüllülük başvurusu</h3><p>Ad soyad, iletişim bilgileri, katkı alanı ve başvuru notu; gönüllü adayının değerlendirilmesi, uygun çalışmalarla eşleştirilmesi ve adayla iletişim kurulması amacıyla işlenir.</p></div>
+                            <div><h3>Bağış bildirimi</h3><p>Bağışçı adı/unvanı, iletişim bilgileri, tutar, açıklama ve bildirim tarihi; bağış kaydının oluşturulması ve idari/mali süreçlerin yürütülmesi amacıyla işlenir. Mevcut form kart bilgisi toplamaz ve çevrim içi ödeme almaz.</p></div>
+                            <div><h3>Gizli ihbar ve suistimal bildirimi</h3><p>Bildirim içeriği, olay bilgileri, yüklenen belgeler ve yalnızca bildirimi yapan kişi isterse iletişim bilgileri; bildirimin incelenmesi, doğrulanması ve gerekli işlemlerin yürütülmesi amacıyla yetkili kişilerce işlenir.</p></div>
+                            <div><h3>Site güvenliği ve zorunlu teknik kayıtlar</h3><p>Oturum, güvenlik ve hata kayıtları; sistem güvenliğinin sağlanması, kötüye kullanımın önlenmesi ve hizmetin çalıştırılması amacıyla sınırlı olarak işlenebilir. Pazarlama amacıyla zorunlu olmayan çerez kullanılmaz.</p></div>
+                        </div>
+                        <p class="privacy-note">Veriler; hukuki yükümlülüklerin yerine getirilmesi, bir sözleşmenin kurulması veya ifası, bir hakkın tesisi, kullanılması ya da korunması ve temel haklarınıza zarar vermemek kaydıyla derneğin meşru menfaati hukuki sebeplerine dayanılarak işlenir. Açık rıza gereken bir işlem varsa bu rıza ayrıca alınır.</p>
+                    </div>
+                </section>
+
+                <section id="aktarim">
+                    <span class="privacy-section-number">03</span>
+                    <div>
+                        <h2>Aktarım, erişim ve saklama</h2>
+                        <p>Kişisel verileriniz yalnızca görev ve yetkisi bulunan dernek yöneticileri ile çalışanları tarafından görüntülenir. Hizmetin yürütülmesi için gerekli olması hâlinde barındırma ve bilişim hizmeti sağlayıcılarına; hukuki yükümlülük bulunması hâlinde yetkili kamu kurumlarına ve yargı mercilerine amaçla sınırlı olarak aktarılabilir.</p>
+                        <p>Veriler, ilgili işlemin gerektirdiği süre ve uygulanabilir yasal zamanaşımı/saklama süreleri boyunca tutulur; işleme amacı ve hukuki saklama zorunluluğu sona erdiğinde silinir, yok edilir veya anonim hâle getirilir.</p>
+                    </div>
+                </section>
+
+                <section id="guvenlik">
+                    <span class="privacy-section-number">04</span>
+                    <div>
+                        <h2>Bilgi güvenliği</h2>
+                        <p>Yetkilendirme, erişim kontrolü, güvenli oturum, kayıt ve yedekleme tedbirleri uygulanır. Formların açıklama ve dosya alanlarına işlem için gerekli olmayan kimlik numarası, sağlık verisi, kart bilgisi veya başka özel nitelikli kişisel veri eklememenizi rica ederiz.</p>
+                    </div>
+                </section>
+
+                <section id="yayin-izni">
+                    <span class="privacy-section-number">05</span>
+                    <div>
+                        <h2>Üye rehberi ve yayın izni</h2>
+                        <p>Üye profil bilgilerinin internet sitesindeki uzman ve üye rehberinde yayımlanması, genel aydınlatmadan ayrı bir işlemdir. Bu yayın yalnızca üyenin kendi panelinden verdiği <strong>açık rıza</strong> ve yönetim onayı birlikte bulunduğunda yapılır. Üye, rızasını dilediği zaman panelinden geri çekebilir; rıza geri çekildiğinde profil rehberden kaldırılır.</p>
+                    </div>
+                </section>
+
+                <section id="haklariniz">
+                    <span class="privacy-section-number">06</span>
+                    <div>
+                        <h2>KVKK kapsamındaki haklarınız ve başvuru</h2>
+                        <p>KVKK’nın 11. maddesi kapsamında verilerinizin işlenip işlenmediğini öğrenme, işlenmişse bilgi talep etme, amacına uygun kullanılıp kullanılmadığını öğrenme, aktarılan üçüncü kişileri bilme, eksik veya yanlış verilerin düzeltilmesini isteme, şartları oluştuğunda silme/yok etme, otomatik analiz sonucuna itiraz ve zararın giderilmesini talep etme haklarına sahipsiniz.</p>
+                        <div class="privacy-contact">
+                            <p><strong>E-posta</strong><a href="mailto:@Model.Email">@Model.Email</a></p>
+                            <p><strong>Adres</strong><span>@fullAddress</span></p>
+                            <p><strong>Telefon</strong><a href="tel:@Model.PhoneLink">@Model.PhoneDisplay</a></p>
+                        </div>
+                        <p>Başvurunuzda ad soyad, talebin konusu ve kimliğinizi doğrulamaya elverişli bilgilerin bulunması gerekir. Ayrıca <a asp-controller="Contact" asp-action="Index">iletişim sayfamız</a> üzerinden de derneğe ulaşabilirsiniz.</p>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </div>
+</main>
+
+<style>
+    .privacy-page { padding: 0 0 4.5rem; background: #fff; color: #102b46; }
+    .privacy-hero__eyebrow { position: relative; z-index: 2; display: block; margin-bottom: .5rem; color: #bff7f1; font-size: .9rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .privacy-hero.about-hero--overview h1 { max-width: 100%; font-size: clamp(42px, 4.5vw, 62px); }
+    .privacy-hero.about-hero--overview > .container > p { max-width: 1080px; margin-top: .65rem; line-height: 1.55; }
+    .privacy-hero small { position: relative; z-index: 2; display: block; margin-top: .55rem; color: rgba(255,255,255,.82); }
+    .privacy-layout { display: grid; grid-template-columns: 16rem minmax(0, 1fr); gap: clamp(2rem, 5vw, 5rem); margin-top: 3rem; }
+    .privacy-navigation { position: sticky; top: 7rem; align-self: start; display: grid; gap: .2rem; padding: 1.25rem; border: 1px solid #d6e1e8; border-radius: 1rem; }
+    .privacy-navigation strong { margin-bottom: .6rem; color: #087f79; }
+    .privacy-navigation a { padding: .55rem .7rem; border-radius: .55rem; color: #334f67; text-decoration: none; }
+    .privacy-navigation a:hover, .privacy-navigation a:focus { background: #edf7f7; color: #087f79; }
+    .privacy-content section { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 1.5rem; padding: 0 0 2.75rem; margin-bottom: 2.75rem; border-bottom: 1px solid #dce5ea; scroll-margin-top: 8rem; }
+    .privacy-section-number { color: #0b9b91; font-weight: 800; }
+    .privacy-content h2 { margin: -.3rem 0 1rem; font-size: clamp(1.55rem, 3vw, 2.2rem); font-weight: 800; }
+    .privacy-content h3 { font-size: 1.08rem; font-weight: 800; }
+    .privacy-content p { color: #4a6175; line-height: 1.8; }
+    .privacy-process-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 2.2rem; margin: 1.5rem 0; }
+    .privacy-process-list > div { padding-top: 1rem; border-top: 2px solid #bfe8e5; }
+    .privacy-note { padding: 1rem 1.2rem; border-left: 4px solid #0b9b91; background: #eff8f8; }
+    .privacy-contact { display: grid; gap: .7rem; padding: 1.25rem; margin: 1.25rem 0; border: 1px solid #cfdce4; border-radius: 1rem; background: #f8fbfc; }
+    .privacy-contact p { display: grid; grid-template-columns: 7rem 1fr; gap: .7rem; margin: 0; }
+    .privacy-contact a { color: #087f79; }
+    @@media (max-width: 991.98px) { .privacy-layout { grid-template-columns: 1fr; } .privacy-navigation { position: static; } }
+    @@media (max-width: 575.98px) { .privacy-hero__eyebrow { font-size: .78rem; } .privacy-hero.about-hero--overview h1 { font-size: clamp(36px, 10vw, 46px); } .privacy-process-list { grid-template-columns: 1fr; } .privacy-content section { grid-template-columns: 1fr; gap: .5rem; } .privacy-contact p { grid-template-columns: 1fr; } }
+</style>

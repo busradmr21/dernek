@@ -1,0 +1,32 @@
+@using System.Globalization
+@model ManualDuesPaymentViewModel
+
+@{
+    ViewData["Title"] = "Aidat Ödemesi Kaydet";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+<section class="admin-module">
+    <div class="admin-module__header"><div><span class="admin-module__eyebrow">Manuel Tahsilat</span><h1>Aidat Ödemesi Kaydet</h1><p>Havale, EFT veya nakit olarak alınmış tam aidat ödemesini kaydedin.</p></div></div>
+
+    <form asp-action="RecordPayment" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <input asp-for="MemberDueId" type="hidden" />
+
+        <div class="admin-form-card">
+            <div class="row g-4">
+                <div class="col-md-6"><label class="form-label">Üye</label><input value="@Model.MemberName @(string.IsNullOrWhiteSpace(Model.RegistryNumber) ? null : $"· {Model.RegistryNumber}")" class="form-control" readonly /></div>
+                <div class="col-md-6"><label class="form-label">Aidat Dönemi</label><input value="@Model.PeriodName" class="form-control" readonly /></div>
+                <div class="col-md-6"><label class="form-label">Kaydedilecek Sabit Tutar</label><div class="input-group"><input value="@Model.Amount.ToString("N2", culture)" class="form-control" readonly /><span class="input-group-text">₺</span></div><div class="form-text">Güvenlik için ödeme tutarı formdan değiştirilemez.</div></div>
+                <div class="col-md-6"><label asp-for="PaymentMethod" class="form-label"></label><select asp-for="PaymentMethod" class="form-select">@foreach (var method in DuesPaymentMethods.ManualMethods) { <option value="@method">@method</option> }</select><span asp-validation-for="PaymentMethod" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="PaidAtLocal" class="form-label"></label><input asp-for="PaidAtLocal" class="form-control" /><span asp-validation-for="PaidAtLocal" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="ReferenceNumber" class="form-label"></label><input asp-for="ReferenceNumber" class="form-control" placeholder="Banka dekont numarası veya iç referans" /><span asp-validation-for="ReferenceNumber" class="text-danger"></span></div>
+                <div class="col-12"><label asp-for="AdminNote" class="form-label"></label><textarea asp-for="AdminNote" class="form-control" rows="3"></textarea><span asp-validation-for="AdminNote" class="text-danger"></span></div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4"><a asp-action="Details" asp-route-id="@Model.DuesPeriodId" class="btn btn-outline-secondary">Vazgeç</a><button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Tam Ödemeyi Kaydet</button></div>
+    </form>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

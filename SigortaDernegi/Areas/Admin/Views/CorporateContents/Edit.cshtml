@@ -1,0 +1,67 @@
+@model CorporatePage
+@{
+    ViewData["Title"] = "Kurumsal Sayfa Ayarları";
+}
+
+<section class="admin-module corporate-admin-form-page">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Kurumsal İçerikler</span>
+            <h1>@Model.MenuTitle</h1>
+            <p>Sayfanın üst başlık alanını, menü sırasını ve yayın durumunu düzenleyin.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            Listeye Dön
+        </a>
+    </div>
+
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="corporate-admin-form">
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="PageKey" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="corporate-admin-form__grid">
+            <div class="corporate-admin-field">
+                <label asp-for="MenuTitle">Menü başlığı</label>
+                <input asp-for="MenuTitle" class="form-control" />
+                <span asp-validation-for="MenuTitle" class="text-danger"></span>
+            </div>
+            <div class="corporate-admin-field">
+                <label asp-for="HeroEyebrow">Üst küçük başlık</label>
+                <input asp-for="HeroEyebrow" class="form-control" />
+                <span asp-validation-for="HeroEyebrow" class="text-danger"></span>
+            </div>
+            <div class="corporate-admin-field corporate-admin-field--wide">
+                <label asp-for="HeroTitle">Sayfa başlığı</label>
+                <input asp-for="HeroTitle" class="form-control" />
+                <span asp-validation-for="HeroTitle" class="text-danger"></span>
+            </div>
+            <div class="corporate-admin-field corporate-admin-field--wide">
+                <label asp-for="HeroDescription">Sayfa açıklaması</label>
+                <textarea asp-for="HeroDescription" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="HeroDescription" class="text-danger"></span>
+            </div>
+            <div class="corporate-admin-field">
+                <label asp-for="DisplayOrder">Menü sırası</label>
+                <input asp-for="DisplayOrder" class="form-control" min="0" />
+            </div>
+            <label class="corporate-admin-switch">
+                <input asp-for="IsActive" />
+                <span><strong>Sayfa yayında</strong><small>Kapatılırsa ziyaretçiler bu sayfaya ulaşamaz.</small></span>
+            </label>
+        </div>
+
+        <div class="corporate-admin-form__actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg" aria-hidden="true"></i>
+                Değişiklikleri Kaydet
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">İptal</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

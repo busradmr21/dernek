@@ -1,0 +1,19 @@
+@model CorporateContentSection
+@{
+    ViewData["Title"] = "Yeni İçerik Bölümü";
+}
+
+<section class="admin-module corporate-admin-form-page">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">@ViewBag.PageTitle</span>
+            <h1>Yeni İçerik Bölümü</h1>
+            <p>Sayfaya yeni bir başlık, metin veya görsel bölümü ekleyin.</p>
+        </div>
+    </div>
+    <form asp-action="CreateSection" method="post" class="corporate-admin-form">
+        <partial name="_SectionForm" model="Model" />
+    </form>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

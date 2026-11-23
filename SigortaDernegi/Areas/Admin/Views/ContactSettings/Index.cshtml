@@ -1,0 +1,74 @@
+@using System.Globalization
+@model SigortaDernegi.Areas.Admin.ViewModels.ContactSettingsAdminViewModel
+@{
+    ViewData["Title"] = "İletişim Bilgileri";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.ApplicationsAndCommunication, PermissionActionType.Edit);
+    var canDelete = await RolePermissionService.HasPermissionAsync(User, ManagementArea.ApplicationsAndCommunication, PermissionActionType.Delete);
+}
+
+<section class="admin-module contact-settings-admin">
+    <div class="admin-module__header"><div><span class="admin-module__eyebrow">İletişim Yönetimi</span><h1>İletişim Bilgileri</h1><p>Adres, telefon, çalışma saatleri, harita, sosyal medya ve iletişim formunu yönetin.</p></div><a asp-area="" asp-controller="Contact" asp-action="Index" target="_blank" class="btn btn-outline-secondary"><i class="bi bi-box-arrow-up-right"></i> Sayfayı Gör</a></div>
+    @if (TempData["SuccessMessage"] is string message) { <div class="admin-feedback admin-feedback--success"><i class="bi bi-check-circle-fill"></i><span>@message</span></div> }
+
+    <form asp-action="Save" method="post" class="admin-form-card">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <fieldset class="admin-form-section"><legend>Sayfa Başlığı</legend><div class="admin-form-grid">
+            <div class="admin-form-field"><label asp-for="Settings.HeroEyebrow" class="form-label"></label><input asp-for="Settings.HeroEyebrow" class="form-control" /><span asp-validation-for="Settings.HeroEyebrow" class="text-danger"></span></div>
+            <div class="admin-form-field"><label asp-for="Settings.HeroTitle" class="form-label"></label><input asp-for="Settings.HeroTitle" class="form-control" /><span asp-validation-for="Settings.HeroTitle" class="text-danger"></span></div>
+            <div class="admin-form-field admin-form-field--full"><label asp-for="Settings.HeroDescription" class="form-label"></label><textarea asp-for="Settings.HeroDescription" rows="3" class="form-control"></textarea><span asp-validation-for="Settings.HeroDescription" class="text-danger"></span></div>
+        </div></fieldset>
+
+        <fieldset class="admin-form-section"><legend>Merkez ve İletişim</legend><div class="admin-form-grid">
+            <div class="admin-form-field"><label asp-for="Settings.OrganizationName" class="form-label"></label><input asp-for="Settings.OrganizationName" class="form-control" /></div>
+            <div class="admin-form-field"><label asp-for="Settings.Email" class="form-label"></label><input asp-for="Settings.Email" class="form-control" /></div>
+            <div class="admin-form-field"><label asp-for="Settings.PhoneDisplay" class="form-label"></label><input asp-for="Settings.PhoneDisplay" class="form-control" /><div class="admin-form-help">Ziyaretçinin göreceği biçim.</div></div>
+            <div class="admin-form-field"><label asp-for="Settings.PhoneLink" class="form-label"></label><input asp-for="Settings.PhoneLink" class="form-control" /><div class="admin-form-help">Boşluksuz biçim: +902123000000</div></div>
+            <div class="admin-form-field"><label asp-for="Settings.AddressLine1" class="form-label"></label><input asp-for="Settings.AddressLine1" class="form-control" /></div>
+            <div class="admin-form-field"><label asp-for="Settings.AddressLine2" class="form-label"></label><input asp-for="Settings.AddressLine2" class="form-control" /></div>
+        </div></fieldset>
+
+        <fieldset class="admin-form-section"><legend>Çalışma Saatleri</legend><div class="admin-form-grid admin-form-grid--three">
+            <div class="admin-form-field"><label asp-for="Settings.WeekdayHours" class="form-label"></label><input asp-for="Settings.WeekdayHours" class="form-control" /></div>
+            <div class="admin-form-field"><label asp-for="Settings.SaturdayHours" class="form-label"></label><input asp-for="Settings.SaturdayHours" class="form-control" /></div>
+            <div class="admin-form-field"><label asp-for="Settings.SundayHours" class="form-label"></label><input asp-for="Settings.SundayHours" class="form-control" /></div>
+        </div></fieldset>
+
+        <fieldset class="admin-form-section"><legend>Harita ve Sosyal Medya</legend><div class="admin-form-grid">
+            <div class="admin-form-field admin-form-field--full"><label asp-for="Settings.MapEmbedUrl" class="form-label"></label><input asp-for="Settings.MapEmbedUrl" class="form-control" placeholder="https://www.google.com/maps/embed?..." /><div class="admin-form-help">Google Maps paylaşım ekranındaki “Harita yerleştirme” bağlantısını kullanın.</div><span asp-validation-for="Settings.MapEmbedUrl" class="text-danger"></span></div>
+            <div class="admin-form-field admin-form-field--full"><label asp-for="Settings.MapLink" class="form-label"></label><input asp-for="Settings.MapLink" class="form-control" placeholder="https://maps.google.com/..." /><span asp-validation-for="Settings.MapLink" class="text-danger"></span></div>
+            <div class="admin-form-field"><label asp-for="Settings.InstagramUrl" class="form-label"></label><input asp-for="Settings.InstagramUrl" class="form-control" /><span asp-validation-for="Settings.InstagramUrl" class="text-danger"></span></div>
+            <div class="admin-form-field"><label asp-for="Settings.LinkedInUrl" class="form-label"></label><input asp-for="Settings.LinkedInUrl" class="form-control" /><span asp-validation-for="Settings.LinkedInUrl" class="text-danger"></span></div>
+            <div class="admin-form-field"><label asp-for="Settings.YouTubeUrl" class="form-label"></label><input asp-for="Settings.YouTubeUrl" class="form-control" /><span asp-validation-for="Settings.YouTubeUrl" class="text-danger"></span></div>
+            <div class="admin-form-field"><label asp-for="Settings.XUrl" class="form-label"></label><input asp-for="Settings.XUrl" class="form-control" /><span asp-validation-for="Settings.XUrl" class="text-danger"></span></div>
+        </div></fieldset>
+
+        <fieldset class="admin-form-section"><legend>Birim İletişimleri</legend><div class="admin-form-grid admin-form-grid--three">
+            <div class="admin-form-field"><label asp-for="Settings.MembershipEmail" class="form-label"></label><input asp-for="Settings.MembershipEmail" class="form-control" /><span asp-validation-for="Settings.MembershipEmail" class="text-danger"></span></div>
+            <div class="admin-form-field"><label asp-for="Settings.PressEmail" class="form-label"></label><input asp-for="Settings.PressEmail" class="form-control" /><span asp-validation-for="Settings.PressEmail" class="text-danger"></span></div>
+            <div class="admin-form-field"><label asp-for="Settings.FinanceEmail" class="form-label"></label><input asp-for="Settings.FinanceEmail" class="form-control" /><span asp-validation-for="Settings.FinanceEmail" class="text-danger"></span></div>
+        </div></fieldset>
+
+        <fieldset class="admin-form-section"><legend>İletişim Formu</legend><div class="admin-form-grid">
+            <div class="admin-form-field admin-form-field--full"><label asp-for="Settings.SubjectOptions" class="form-label"></label><textarea asp-for="Settings.SubjectOptions" rows="6" class="form-control"></textarea><div class="admin-form-help">Her satıra bir konu yazın.</div></div>
+            <div class="admin-form-field admin-form-field--full"><label asp-for="Settings.SuccessMessage" class="form-label"></label><textarea asp-for="Settings.SuccessMessage" rows="3" class="form-control"></textarea></div>
+            <div class="admin-form-field admin-form-field--full"><label asp-for="Settings.KvkkText" class="form-label"></label><textarea asp-for="Settings.KvkkText" rows="4" class="form-control"></textarea></div>
+            <div class="admin-form-field"><label asp-for="Settings.SecurityNoteTitle" class="form-label"></label><input asp-for="Settings.SecurityNoteTitle" class="form-control" /></div>
+            <div class="admin-form-field"><label asp-for="Settings.SecurityNoteDescription" class="form-label"></label><textarea asp-for="Settings.SecurityNoteDescription" rows="3" class="form-control"></textarea></div>
+            <div class="admin-form-field admin-form-field--full"><label class="admin-form-switch"><input asp-for="Settings.FormEnabled" class="form-check-input" /><span><strong>İletişim formu açık</strong><small>Kapatıldığında ziyaretçiler adres, telefon ve e-postayı görmeye devam eder fakat mesaj gönderemez.</small></span></label></div>
+        </div></fieldset>
+
+        @if (canEdit)
+        {
+            <div class="admin-form-actions"><button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Değişiklikleri Kaydet</button></div>
+        }
+    </form>
+
+    <section class="admin-history-page mt-5"><div class="admin-module__header"><div><span class="admin-module__eyebrow">Sürüm Yönetimi</span><h2>Değişiklik Geçmişi</h2><p>Kaydetme ve geri yükleme işlemlerinden önceki iletişim ayarları burada saklanır.</p></div></div>
+        @if (Model.Revisions.Count == 0) { <div class="admin-empty-state"><i class="bi bi-clock-history"></i><p>Henüz eski sürüm bulunmuyor.</p></div> }
+        else { <div class="admin-history-list">@foreach (var revision in Model.Revisions) { <article class="admin-history-card admin-history-card--compact"><div class="admin-history-card__content"><span class="admin-history-card__type">@revision.Summary</span><h3>@revision.ChangedAt.ToLocalTime().ToString("dd MMMM yyyy HH:mm", culture)</h3><p>@revision.ChangedBy</p></div><div class="admin-history-card__action">@if (canEdit) { <form asp-action="Restore" asp-route-id="@revision.Id" method="post" onsubmit="return confirm('Bu iletişim ayarları sürümüne geri dönülsün mü?');"><button class="btn" type="submit"><i class="bi bi-arrow-counterclockwise"></i> Bu Sürüme Dön</button></form> } @if (canDelete) { <form asp-action="DeleteRevision" asp-route-id="@revision.Id" method="post" onsubmit="return confirm('Bu geçmiş kaydı silinsin mi?');"><button class="admin-history-delete-button" type="submit" aria-label="Geçmiş kaydını sil"><i class="bi bi-trash3"></i></button></form> }</div></article> }</div> }
+    </section>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

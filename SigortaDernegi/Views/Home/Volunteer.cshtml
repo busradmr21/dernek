@@ -1,54 +1,71 @@
-@model Volunteer
+@model SigortaDernegi.ViewModels.VolunteerPageViewModel
 @{
     ViewData["Title"] = "Gönüllü Ol";
+    var settings = Model.Settings;
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body p-4 p-md-5">
-                <h1 class="h3 fw-bold">Gönüllü Ol</h1>
-                <p class="text-muted">Uzmanlığınızla derneğimizin çalışmalarına destek olun.</p>
-                @if (TempData["SuccessMessage"] is string successMessage)
-                {
-                    <div class="alert alert-success" role="alert">@successMessage</div>
-                }
-                <form asp-action="Volunteer" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                    <div class="mb-3">
-                        <label asp-for="FullName" class="form-label">Ad Soyad</label>
-                        <input asp-for="FullName" class="form-control" />
-                        <span asp-validation-for="FullName" class="text-danger"></span>
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label asp-for="Email" class="form-label">E-posta</label>
-                            <input asp-for="Email" class="form-control" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="Phone" class="form-label">Telefon</label>
-                            <input asp-for="Phone" class="form-control" />
-                            <span asp-validation-for="Phone" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="ExpertiseArea" class="form-label">Uzmanlık Alanı</label>
-                        <input asp-for="ExpertiseArea" class="form-control" />
-                        <span asp-validation-for="ExpertiseArea" class="text-danger"></span>
-                    </div>
-                    <div class="mb-4">
-                        <label asp-for="Notes" class="form-label">Notlar</label>
-                        <textarea asp-for="Notes" class="form-control" rows="4"></textarea>
-                        <span asp-validation-for="Notes" class="text-danger"></span>
-                    </div>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4">Başvuruyu Gönder</button>
-                </form>
-            </div>
-        </div>
+<section class="about-hero corporate-managed-hero about-hero--overview">
+    <div class="container">
+        <h1>@settings.HeroTitle</h1>
+        <p>@settings.HeroDescription</p>
     </div>
-</div>
+</section>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+<main class="volunteer-page py-5">
+    <div class="container">
+        @if (TempData["SuccessMessage"] is string successMessage)
+        {
+            <div class="alert alert-success border-0 shadow-sm rounded-4 p-4 mb-4"><i class="bi bi-check-circle-fill me-2"></i>@successMessage</div>
+        }
+
+        <section class="volunteer-introduction mb-5">
+            <div class="volunteer-introduction__copy"><span>Gönüllülük</span><h2>@settings.WhoCanApplyTitle</h2><p>@settings.WhoCanApplyDescription</p></div>
+            <div class="volunteer-benefits"><h3>Gönüllülüğün Katkıları</h3><ul>@foreach (var benefit in Model.Benefits) { <li><i class="bi bi-check-circle-fill"></i><span>@benefit</span></li> }</ul></div>
+        </section>
+
+        <section class="volunteer-opportunities mb-5" aria-labelledby="volunteerAreasTitle">
+            <div class="text-center mb-4"><span class="volunteer-section-label">Katkı Alanları</span><h2 id="volunteerAreasTitle">Deneyiminize Uygun Bir Alan Var</h2></div>
+            <div class="volunteer-opportunities__grid">
+                @for (var index = 0; index < Model.OpportunityAreas.Count; index++)
+                {
+                    var area = Model.OpportunityAreas[index];
+                    var icons = new[] { "bi-search", "bi-bank", "bi-mortarboard", "bi-megaphone", "bi-bar-chart", "bi-calendar-check", "bi-stars" };
+                    <article><i class="bi @icons[index % icons.Length]"></i><h3>@area</h3></article>
+                }
+            </div>
+        </section>
+
+        <section class="volunteer-process mb-5" aria-labelledby="volunteerProcessTitle">
+            <div><span class="volunteer-section-label">Başvuru Süreci</span><h2 id="volunteerProcessTitle">Üç Adımda Gönüllü Olun</h2></div>
+            <ol>@for (var index = 0; index < Model.ProcessSteps.Count; index++) { <li><strong>@(index + 1)</strong><span>@Model.ProcessSteps[index]</span></li> }</ol>
+        </section>
+
+        <section id="gonullu-basvuru" class="volunteer-application-section scroll-margin-top">
+            <div class="volunteer-application-section__intro"><span class="volunteer-section-label">Başvuru Formu</span><h2>Gönüllü Gücümüze Katılın</h2><p>Bilgilerinizi bırakın; deneyiminize ve ilgi alanınıza uygun çalışmalar için sizinle iletişime geçelim.</p><div class="volunteer-privacy-note"><i class="bi bi-shield-check"></i><span>Bilgileriniz yalnızca gönüllülük başvurunuzun değerlendirilmesi amacıyla kullanılır.</span></div></div>
+            <div class="volunteer-form-card">
+                @if (!settings.FormEnabled)
+                {
+                    <div class="alert alert-warning mb-0"><i class="bi bi-info-circle me-2"></i>Gönüllü başvuru formu geçici olarak kapalıdır.</div>
+                }
+                else
+                {
+                    <form asp-action="Volunteer" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        <div class="visually-hidden" aria-hidden="true"><label asp-for="Website">Web sitesi</label><input asp-for="Website" tabindex="-1" autocomplete="off" /></div>
+                        <div class="row g-3">
+                            <div class="col-12"><label asp-for="Application.FullName" class="form-label">Ad Soyad *</label><input asp-for="Application.FullName" class="form-control" placeholder="Adınızı ve soyadınızı yazın" /><span asp-validation-for="Application.FullName" class="text-danger small"></span></div>
+                            <div class="col-md-6"><label asp-for="Application.Email" class="form-label">E-posta *</label><input asp-for="Application.Email" class="form-control" placeholder="ornek@eposta.com" /><span asp-validation-for="Application.Email" class="text-danger small"></span></div>
+                            <div class="col-md-6"><label asp-for="Application.Phone" class="form-label">Telefon *</label><input asp-for="Application.Phone" class="form-control" placeholder="05XX XXX XX XX" /><span asp-validation-for="Application.Phone" class="text-danger small"></span></div>
+                            <div class="col-12"><label asp-for="Application.ExpertiseArea" class="form-label">Katkı Sağlamak İstediğiniz Alan *</label><select asp-for="Application.ExpertiseArea" class="form-select"><option value="">Alan seçiniz</option>@foreach (var area in Model.OpportunityAreas) { <option value="@area">@area</option> }</select><span asp-validation-for="Application.ExpertiseArea" class="text-danger small"></span></div>
+                            <div class="col-12"><label asp-for="Application.Notes" class="form-label">Deneyiminiz ve Beklentiniz</label><textarea asp-for="Application.Notes" class="form-control" rows="5" placeholder="Deneyiminizden, ilgi alanlarınızdan ve nasıl katkı sağlamak istediğinizden kısaca bahsedin..."></textarea><span asp-validation-for="Application.Notes" class="text-danger small"></span></div>
+                            <div class="col-12"><div class="form-check"><input asp-for="HasReadKvkkNotice" class="form-check-input" /><label asp-for="HasReadKvkkNotice" class="form-check-label small text-secondary"><a asp-controller="Home" asp-action="Privacy" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>’ni okudum ve gönüllülük başvurum kapsamında kişisel verilerimin işlenmesi hakkında bilgi edindim. *</label></div><span asp-validation-for="HasReadKvkkNotice" class="text-danger small"></span></div>
+                            <div class="col-12"><button type="submit" class="btn volunteer-submit-button w-100">Başvuruyu Gönder <i class="bi bi-send-check ms-2"></i></button></div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </section>
+    </div>
+</main>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

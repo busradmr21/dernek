@@ -1,0 +1,50 @@
+@model Slider
+
+@{
+    ViewData["Title"] = "Slider Sil";
+}
+
+<section class="admin-delete-page">
+    <div class="admin-delete-card">
+        <div class="admin-delete-card__icon" aria-hidden="true">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+
+        <div class="admin-delete-card__content">
+            <span class="admin-module__eyebrow">Silme Onayı</span>
+            <h1>Bu slider silinsin mi?</h1>
+            <p>
+                Bu işlem geri alınamaz. Slider kaydı ve yönetim panelinden
+                yüklenen görsel kalıcı olarak kaldırılır.
+            </p>
+
+            <div class="admin-delete-preview">
+                <img src="@Url.Content(Model.ImageUrl)" alt="" />
+                <div>
+                    <strong>@Model.Title</strong>
+                    <span>Sıra: @Model.Order</span>
+                    <span>@(Model.IsActive ? "Yayında" : "Pasif")</span>
+                </div>
+            </div>
+
+            <form asp-area="Admin"
+                  asp-controller="Sliders"
+                  asp-action="Delete"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  class="admin-form-actions">
+                <a asp-area="Admin"
+                   asp-controller="Sliders"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Vazgeç
+                </a>
+
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash" aria-hidden="true"></i>
+                    Sliderı Kalıcı Olarak Sil
+                </button>
+            </form>
+        </div>
+    </div>
+</section>

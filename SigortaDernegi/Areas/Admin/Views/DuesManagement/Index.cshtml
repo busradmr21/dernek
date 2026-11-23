@@ -1,0 +1,88 @@
+@using System.Globalization
+@model DuesManagementIndexViewModel
+
+@{
+    ViewData["Title"] = "Aidat ve Ödemeler";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+    var canAdd = await RolePermissionService.HasPermissionAsync(User, ManagementArea.DuesAndPayments, PermissionActionType.Add);
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.DuesAndPayments, PermissionActionType.Edit);
+    var canDelete = await RolePermissionService.HasPermissionAsync(User, ManagementArea.DuesAndPayments, PermissionActionType.Delete);
+}
+
+<section class="admin-module">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Finans Yönetimi</span>
+            <h1>Aidat ve Ödemeler</h1>
+            <p>Aidat dönemlerini oluşturun, faal üyelere ve yönetim kurulu üyelerine tahakkuk ettirin ve ödemeleri takip edin.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-action="Payments"
+               class="btn btn-outline-primary">
+                <i class="bi bi-clock-history"></i>
+                Ödeme Geçmişi
+            </a>
+
+            @if (canAdd)
+            {
+                <a asp-action="Create"
+                   class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i>
+                    Yeni Aidat Dönemi
+                </a>
+            }
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="admin-feedback admin-feedback--success"><i class="bi bi-check-circle-fill"></i><span>@successMessage</span></div>
+    }
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-2"></i>@errorMessage</div>
+    }
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3"><div class="admin-stat-card h-100"><div class="admin-stat-card__icon"><i class="bi bi-calendar2-week"></i></div><div><span>Toplam Dönem</span><strong>@Model.PeriodCount</strong><small>@Model.ActivePeriodCount aktif</small></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="admin-stat-card h-100"><div class="admin-stat-card__icon"><i class="bi bi-receipt"></i></div><div><span>Toplam Tahakkuk</span><strong>@Model.TotalReceivable.ToString("N2", culture) ₺</strong></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="admin-stat-card h-100"><div class="admin-stat-card__icon"><i class="bi bi-check-circle"></i></div><div><span>Tahsil Edilen</span><strong>@Model.CollectedAmount.ToString("N2", culture) ₺</strong></div></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="admin-stat-card h-100"><div class="admin-stat-card__icon"><i class="bi bi-hourglass-split"></i></div><div><span>Bekleyen</span><strong>@Model.OutstandingAmount.ToString("N2", culture) ₺</strong></div></div></div>
+    </div>
+
+    @if (Model.Periods.Count == 0)
+    {
+        <div class="admin-empty-state"><i class="bi bi-wallet2"></i><h2>Henüz aidat dönemi yok</h2><p>İlk aidat dönemini oluşturarak faal üyelere ve yönetim kurulu üyelerine sabit tutarlı borç tahakkuk ettirebilirsiniz.</p>@if (canAdd) { <a asp-action="Create" class="btn btn-primary">İlk Dönemi Oluştur</a> }</div>
+    }
+    else
+    {
+        <div class="table-responsive admin-form-card p-0">
+            <table class="table admin-table align-middle mb-0">
+                <thead><tr><th>Dönem</th><th>Tutar / Son Ödeme</th><th>Tahakkuk</th><th>Tahsilat</th><th>Durum</th><th class="text-end">İşlemler</th></tr></thead>
+                <tbody>
+                @foreach (var period in Model.Periods)
+                {
+                    <tr>
+                        <td><strong>@period.Name</strong><small class="d-block">@period.PeriodType · @period.StartDate.ToString("dd.MM.yyyy") – @period.EndDate.ToString("dd.MM.yyyy")</small></td>
+                        <td><strong>@period.Amount.ToString("N2", culture) ₺</strong><small class="d-block">Son: @period.DueDate.ToString("dd.MM.yyyy")</small></td>
+                        <td><strong>@period.AssignedMemberCount kişi</strong><small class="d-block">@period.PaidMemberCount ödendi</small></td>
+                        <td><strong>@period.CollectedAmount.ToString("N2", culture) ₺</strong></td>
+                        <td><span class="badge @(period.IsActive ? "text-bg-success" : "text-bg-secondary")">@(period.IsActive ? "Aktif" : "Pasif")</span></td>
+                        <td class="text-end">
+                            <a asp-action="Details" asp-route-id="@period.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> Detay</a>
+                            @if (canEdit && period.AssignedMemberCount == 0)
+                            {
+                                <a asp-action="Edit" asp-route-id="@period.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            }
+                            @if (canDelete && period.AssignedMemberCount == 0)
+                            {
+                                <form asp-action="Delete" asp-route-id="@period.Id" method="post" class="d-inline" onsubmit="return confirm('Bu aidat dönemi silinsin mi?');"><button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

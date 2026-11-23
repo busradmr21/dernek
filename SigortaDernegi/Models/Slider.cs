@@ -19,6 +19,8 @@ namespace SigortaDernegi.Models
         public string? ButtonUrl { get; set; } // Butonun gideceği link
 
         public bool IsActive { get; set; } = true; // Gösterilsin yada gösterilmesin(false)
+
+        public bool IsDeleted { get; set; } = false;
         public int Order { get; set; } = 0; // Sıralama
     }
 }

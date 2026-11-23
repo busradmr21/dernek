@@ -1,0 +1,41 @@
+@model RelatedInstitutionFormViewModel
+
+@{
+    ViewData["Title"] = "Kurum Kartını Düzenle";
+}
+
+<section class="admin-form-page">
+    <div class="admin-form-page__header">
+        <span class="admin-module__eyebrow">Ana Sayfa Yönetimi</span>
+        <h1>Kurum Kartını Düzenle</h1>
+        <p>Kurum adını, kısaltmayı, resmî bağlantıyı, sıralamayı veya yayın durumunu güncelleyin.</p>
+    </div>
+
+    <form asp-area="Admin"
+          asp-controller="RelatedInstitutions"
+          asp-action="Edit"
+          asp-route-id="@Model.Id"
+          method="post"
+          class="admin-form-card">
+        <partial name="_Form" model="Model" />
+
+        <div class="admin-form-actions">
+            <a asp-area="Admin"
+               asp-controller="RelatedInstitutions"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                Listeye Dön
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg" aria-hidden="true"></i>
+                Değişiklikleri Kaydet
+            </button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,161 @@
+@model SigortaDernegi.Areas.Admin.ViewModels.BoardMemberAccountViewModel
+
+@{
+    ViewData["Title"] = "Yönetim Üyesi Giriş Hesabı";
+}
+
+<section class="admin-module board-account-page">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Hesap ve Rol Yönetimi</span>
+            <h1>Yönetim Üyesi Giriş Hesabı</h1>
+            <p>Yönetim üyesinin panele giriş hesabını ve görev rolünü yönetin.</p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Üye Listesine Dön
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="admin-feedback admin-feedback--success" role="status">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@successMessage</span>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger" role="alert">@errorMessage</div>
+    }
+
+    <div class="board-account-layout">
+        <aside class="board-account-summary">
+            <span class="board-account-summary__icon">
+                <i class="bi bi-person-badge"></i>
+            </span>
+
+            <span class="board-account-summary__eyebrow">Yönetim Üyesi</span>
+            <h2>@Model.FullName</h2>
+            <p>@Model.RoleDisplayName</p>
+
+            <span class="admin-status-button @(Model.HasAccount ? "admin-status-button--active" : "admin-status-button--passive")">
+                @(Model.HasAccount ? "Giriş hesabı bağlı" : "Giriş hesabı yok")
+            </span>
+        </aside>
+
+        <div class="board-account-panel">
+            @if (Model.HasAccount)
+            {
+                <div class="board-account-result">
+                    <span class="board-account-result__icon">
+                        <i class="bi bi-shield-check"></i>
+                    </span>
+
+                    <div>
+                        <span>Bağlı giriş hesabı</span>
+                        <h2>@Model.ExistingEmail</h2>
+                        <p>
+                            Bu kullanıcı panele <strong>@Model.RoleDisplayName</strong>
+                            rolüyle giriş yapabilir.
+                        </p>
+                    </div>
+                </div>
+            }
+            else if (Model.IsPresident)
+            {
+                <div class="board-account-panel__heading">
+                    <span>Başkan Hesabı</span>
+                    <h2>Mevcut admin hesabını bağla</h2>
+                    <p>
+                        Yeni bir Başkan hesabı oluşturulmaz. Oturum açtığınız mevcut
+                        admin hesabı Başkan kaydıyla eşleştirilir.
+                    </p>
+                </div>
+
+                <div class="board-account-current-user">
+                    <i class="bi bi-envelope-check"></i>
+                    <div>
+                        <span>Bağlanacak hesap</span>
+                        <strong>@Model.CurrentAdminEmail</strong>
+                    </div>
+                </div>
+
+                <form asp-action="LinkCurrentAdmin"
+                      asp-route-id="@Model.BoardMemberId"
+                      method="post"
+                      class="board-account-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-link-45deg"></i>
+                        Admin Hesabını Başkana Bağla
+                    </button>
+                </form>
+            }
+            else
+            {
+                <div class="board-account-panel__heading">
+                    <span>Yeni Giriş Hesabı</span>
+                    <h2>@Model.RoleDisplayName hesabı oluştur</h2>
+                    <p>
+                        Kullanıcının giriş e-postasını ve ilk girişte kullanacağı
+                        geçici şifreyi belirleyin.
+                    </p>
+                </div>
+
+                <form asp-action="CreateAccount"
+                      method="post"
+                      class="admin-form-card board-account-form">
+                    <input asp-for="BoardMemberId" type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="alert alert-danger"></div>
+
+                    <div class="admin-form-grid">
+                        <div class="admin-form-field admin-form-field--full">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email"
+                                   class="form-control"
+                                   autocomplete="email"
+                                   placeholder="ornek@elsader.org.tr" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="admin-form-field">
+                            <label asp-for="TemporaryPassword" class="form-label"></label>
+                            <input asp-for="TemporaryPassword"
+                                   class="form-control"
+                                   autocomplete="new-password" />
+                            <span asp-validation-for="TemporaryPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="admin-form-field">
+                            <label asp-for="ConfirmPassword" class="form-label"></label>
+                            <input asp-for="ConfirmPassword"
+                                   class="form-control"
+                                   autocomplete="new-password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="admin-form-help board-account-password-help">
+                        Şifre en az 8 karakter olmalı; büyük harf, küçük harf,
+                        rakam ve özel karakter içermelidir.
+                    </div>
+
+                    <div class="admin-form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-check"></i>
+                            Giriş Hesabını Oluştur
+                        </button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

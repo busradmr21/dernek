@@ -1,0 +1,61 @@
+@model IReadOnlyList<CorporatePage>
+@{
+    ViewData["Title"] = "Kurumsal İçerikler";
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Edit);
+}
+
+<section class="admin-module corporate-admin-page">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Site Yönetimi</span>
+            <h1>Kurumsal İçerikler</h1>
+            <p>Kurumsal sayfaların başlıklarını, yayın durumunu ve içerik bölümlerini yönetin.</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="admin-feedback admin-feedback--success" role="status">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+            <span>@successMessage</span>
+        </div>
+    }
+
+    <div class="corporate-admin-list">
+        @foreach (var pageItem in Model)
+        {
+            <article class="corporate-admin-card">
+                <div class="corporate-admin-card__order" aria-label="Gösterim sırası">
+                    @pageItem.DisplayOrder.ToString("00")
+                </div>
+                <div class="corporate-admin-card__content">
+                    <div class="corporate-admin-card__heading">
+                        <div>
+                            <span>@(pageItem.HeroEyebrow ?? "Kurumsal")</span>
+                            <h2>@pageItem.MenuTitle</h2>
+                        </div>
+                        <span class="admin-status-button @(pageItem.IsActive ? "admin-status-button--active" : "admin-status-button--passive")">
+                            <i class="bi @(pageItem.IsActive ? "bi-eye-fill" : "bi-eye-slash-fill")" aria-hidden="true"></i>
+                            @(pageItem.IsActive ? "Yayında" : "Pasif")
+                        </span>
+                    </div>
+                    <strong>@pageItem.HeroTitle</strong>
+                    <p>@pageItem.HeroDescription</p>
+                </div>
+                <div class="corporate-admin-card__actions">
+                    <a asp-action="Sections" asp-route-pageId="@pageItem.Id" class="btn btn-primary">
+                        <i class="bi bi-layout-text-window-reverse" aria-hidden="true"></i>
+                        İçerikleri Yönet
+                    </a>
+                    @if (canEdit)
+                    {
+                        <a asp-action="Edit" asp-route-id="@pageItem.Id" class="btn btn-outline-secondary">
+                            <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                            Sayfa Ayarları
+                        </a>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+</section>

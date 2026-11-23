@@ -1,0 +1,21 @@
+@model DuesPeriodFormViewModel
+
+@{
+    ViewData["Title"] = "Yeni Aidat Dönemi";
+}
+
+<section class="admin-module">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Aidat ve Ödemeler</span>
+            <h1>Yeni Aidat Dönemi</h1>
+            <p>Dönemi, son ödeme tarihini ve üyelerin ödeyeceği sabit tutarı belirleyin.</p>
+        </div>
+    </div>
+
+    <form asp-action="Create" method="post">
+        <partial name="_Form" model="Model" />
+    </form>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

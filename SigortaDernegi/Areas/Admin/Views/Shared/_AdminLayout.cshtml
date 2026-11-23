@@ -1,0 +1,492 @@
+@using SigortaDernegi.Areas.Admin.Authorization
+@using SigortaDernegi.Data
+@using SigortaDernegi.Models
+@inject IRolePermissionService PermissionService
+@{
+    var pageTitle = ViewData["Title"]?.ToString() ?? "Yönetim Paneli";
+    var currentArea = ViewContext.RouteData.Values["area"]?.ToString();
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var isAdmin = User.IsInRole(IdentitySeedData.AdminRole);
+
+    var canViewBoardManagement =
+        await PermissionService.HasPermissionAsync(
+            User,
+            ManagementArea.BoardManagement,
+            PermissionActionType.View);
+
+    var canViewSiteContent =
+        await PermissionService.HasPermissionAsync(
+            User,
+            ManagementArea.SiteContent,
+            PermissionActionType.View);
+
+    var canViewApplications =
+        await PermissionService.HasPermissionAsync(
+            User,
+            ManagementArea.ApplicationsAndCommunication,
+            PermissionActionType.View);
+
+    var canViewHomeUpdates =
+        await PermissionService.HasPermissionAsync(
+            User,
+            ManagementArea.HomeUpdates,
+            PermissionActionType.View);
+
+    var canViewConfidentialReports =
+        await PermissionService.HasPermissionAsync(
+            User,
+            ManagementArea.ConfidentialReports,
+            PermissionActionType.View);
+
+    var canViewMemberManagement =
+        await PermissionService.HasPermissionAsync(
+            User,
+            ManagementArea.MemberManagement,
+            PermissionActionType.View);
+
+    var canViewDuesAndPayments =
+        await PermissionService.HasPermissionAsync(
+            User,
+            ManagementArea.DuesAndPayments,
+            PermissionActionType.View);
+
+    var canViewDonations =
+        await PermissionService.HasPermissionAsync(
+            User,
+            ManagementArea.DonationManagement,
+            PermissionActionType.View);
+
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@pageTitle - ELSADER Yönetimi</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/admin.css"
+          asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="admin-body">
+
+    <aside class="offcanvas offcanvas-start admin-sidebar"
+           tabindex="-1"
+           id="adminSidebar"
+           aria-labelledby="adminSidebarTitle">
+
+        <div class="offcanvas-header admin-sidebar__mobile-header">
+            <h2 class="offcanvas-title fs-5"
+                id="adminSidebarTitle">
+                ELSADER Yönetimi
+            </h2>
+
+            <button type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="offcanvas"
+                    aria-label="Menüyü kapat">
+            </button>
+        </div>
+
+        <div class="offcanvas-body admin-sidebar__body">
+
+            <a class="admin-brand"
+               asp-area="Admin"
+               asp-controller="Dashboard"
+               asp-action="Index">
+
+                <img src="~/images/hisad-logo-mark.png"
+                     alt=""
+                     asp-append-version="true" />
+
+                <span>
+                    <strong>ELSADER</strong>
+                    <small>Yönetim Paneli</small>
+                </span>
+            </a>
+
+            <nav class="admin-navigation"
+                 aria-label="Yönetim menüsü">
+
+                <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "Dashboard" ? "admin-navigation__link--active" : null)"
+                   asp-area="Admin"
+                   asp-controller="Dashboard"
+                   asp-action="Index">
+
+                    <i class="bi bi-grid-1x2-fill"
+                       aria-hidden="true"></i>
+
+                    <span>Ana Panel</span>
+                </a>
+
+                @if (canViewBoardManagement)
+                {
+                    <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "BoardMembers" ? "admin-navigation__link--active" : null)"
+                       asp-area="Admin"
+                       asp-controller="BoardMembers"
+                       asp-action="Index">
+
+                        <i class="bi bi-diagram-3"
+                           aria-hidden="true"></i>
+
+                        <span>Yönetim Kurulu</span>
+                    </a>
+                }
+
+                @if (isAdmin)
+                {
+                    <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "RolePermissions" ? "admin-navigation__link--active" : null)"
+                       asp-area="Admin"
+                       asp-controller="RolePermissions"
+                       asp-action="Index">
+
+                        <i class="bi bi-shield-lock"
+                           aria-hidden="true"></i>
+
+                        <span>Rol ve Yetkiler</span>
+                    </a>
+                }
+
+                @if (canViewSiteContent)
+                {
+                    <p class="admin-navigation__heading">
+                        Site Yönetimi
+                    </p>
+
+                    <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "Sliders" ? "admin-navigation__link--active" : null)"
+                       asp-area="Admin"
+                       asp-controller="Sliders"
+                       asp-action="Index">
+
+                        <i class="bi bi-house-gear"
+                           aria-hidden="true"></i>
+
+                        <span>Ana Sayfa ve Slider</span>
+                    </a>
+
+                    <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "RelatedInstitutions" ? "admin-navigation__link--active" : null)"
+                       asp-area="Admin"
+                       asp-controller="RelatedInstitutions"
+                       asp-action="Index">
+
+                        <i class="bi bi-buildings"
+                           aria-hidden="true"></i>
+
+                        <span>Kurum Kartları</span>
+                    </a>
+
+                    <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "HomeMissionSettings" ? "admin-navigation__link--active" : null)"
+                       asp-area="Admin"
+                       asp-controller="HomeMissionSettings"
+                       asp-action="Index">
+                        <i class="bi bi-layout-split" aria-hidden="true"></i>
+                        <span>Başkan ve Misyon Alanı</span>
+                    </a>
+
+                    <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "CorporateContents" ? "admin-navigation__link--active" : null)"
+                       asp-area="Admin"
+                       asp-controller="CorporateContents"
+                       asp-action="Index">
+                        <i class="bi bi-building"
+                           aria-hidden="true"></i>
+                        <span>Kurumsal İçerikler</span>
+                    </a>
+
+                    <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "MultimediaManagement" ? "admin-navigation__link--active" : null)"
+                       asp-area="Admin"
+                       asp-controller="MultimediaManagement"
+                       asp-action="Index">
+                        <i class="bi bi-images"
+                           aria-hidden="true"></i>
+                        <span>Multimedya</span>
+                    </a>
+                }
+
+                @if (canViewHomeUpdates)
+                {
+                    <p class="admin-navigation__heading">
+                        Ana Sayfa Akışı
+                    </p>
+
+                    <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "EventsManagement" ? "admin-navigation__link--active" : null)"
+                       asp-area="Admin"
+                       asp-controller="EventsManagement"
+                       asp-action="Index">
+                        <i class="bi bi-calendar-event"
+                           aria-hidden="true"></i>
+                        <span>Ana Sayfa Etkinlikleri</span>
+                    </a>
+
+                    <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "NewsManagement" ? "admin-navigation__link--active" : null)"
+                       asp-area="Admin"
+                       asp-controller="NewsManagement"
+                       asp-action="Index">
+                        <i class="bi bi-newspaper"
+                           aria-hidden="true"></i>
+                        <span>Ana Sayfa Güncel Haberleri</span>
+                    </a>
+                }
+
+                @if (canViewApplications || canViewSiteContent || canViewConfidentialReports)
+                {
+                    <p class="admin-navigation__heading">
+                        İletişim Yönetimi
+                    </p>
+
+                    @if (canViewApplications)
+                    {
+                        <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "ContactSettings" ? "admin-navigation__link--active" : null)"
+                           asp-area="Admin"
+                           asp-controller="ContactSettings"
+                           asp-action="Index">
+                            <i class="bi bi-geo-alt"
+                               aria-hidden="true"></i>
+                            <span>İletişim Bilgileri</span>
+                        </a>
+
+                        <a class="admin-navigation__link @(currentController == "Admin" && currentAction == "ContactMessages" ? "admin-navigation__link--active" : null)"
+                           asp-area=""
+                           asp-controller="Admin"
+                           asp-action="ContactMessages">
+                            <i class="bi bi-envelope"
+                               aria-hidden="true"></i>
+                            <span>İletişim Mesajları</span>
+                        </a>
+
+                    }
+
+                    @if (canViewConfidentialReports)
+                    {
+                        <a class="admin-navigation__link @(currentController == "Admin" && currentAction == "ConfidentialReports" ? "admin-navigation__link--active" : null)"
+                           asp-area=""
+                           asp-controller="Admin"
+                           asp-action="ConfidentialReports">
+                            <i class="bi bi-shield-lock"
+                               aria-hidden="true"></i>
+                            <span>Gizli İhbarlar</span>
+                        </a>
+                    }
+
+                    @if (canViewSiteContent)
+                    {
+                        <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "FaqManagement" ? "admin-navigation__link--active" : null)"
+                           asp-area="Admin"
+                           asp-controller="FaqManagement"
+                           asp-action="Index">
+                            <i class="bi bi-question-circle"
+                               aria-hidden="true"></i>
+                            <span>Sıkça Sorulan Sorular</span>
+                        </a>
+                    }
+                }
+
+                @if (canViewApplications || canViewSiteContent)
+                {
+                    <p class="admin-navigation__heading">
+                        Gönüllülük Yönetimi
+                    </p>
+
+                    @if (canViewSiteContent)
+                    {
+                        <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "VolunteerSettings" ? "admin-navigation__link--active" : null)"
+                           asp-area="Admin"
+                           asp-controller="VolunteerSettings"
+                           asp-action="Index">
+                            <i class="bi bi-heart-pulse"
+                               aria-hidden="true"></i>
+                            <span>Gönüllülük Sayfası</span>
+                        </a>
+                    }
+
+                    @if (canViewApplications)
+                    {
+                        <a class="admin-navigation__link @(currentController == "Admin" && currentAction == "Volunteers" ? "admin-navigation__link--active" : null)"
+                           asp-area=""
+                           asp-controller="Admin"
+                           asp-action="Volunteers">
+                            <i class="bi bi-person-heart"
+                               aria-hidden="true"></i>
+                            <span>Gönüllü Başvuruları</span>
+                        </a>
+                    }
+                }
+
+                @if (canViewApplications || canViewDonations)
+                {
+                    <p class="admin-navigation__heading">
+                        Başvurular ve Kayıtlar
+                    </p>
+
+                    @if (canViewApplications)
+                    {
+                        <a class="admin-navigation__link @(currentController == "Admin" && currentAction == "MembershipApplications" ? "admin-navigation__link--active" : null)"
+                           asp-area=""
+                           asp-controller="Admin"
+                           asp-action="MembershipApplications">
+
+                            <i class="bi bi-person-plus"
+                               aria-hidden="true"></i>
+
+                            <span>Üyelik Başvuruları</span>
+                        </a>
+                    }
+
+                    @if (canViewDonations)
+                    {
+                        <a class="admin-navigation__link @(currentController == "Admin" && currentAction == "Donations" ? "admin-navigation__link--active" : null)"
+                           asp-area=""
+                           asp-controller="Admin"
+                           asp-action="Donations">
+
+                            <i class="bi bi-heart"
+                               aria-hidden="true"></i>
+
+                            <span>Bağış Kayıtları</span>
+                        </a>
+                    }
+                }
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <p class="admin-navigation__heading">
+                        Üyelik ve Finans
+                    </p>
+
+                    <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "ManagementDues" ? "admin-navigation__link--active" : null)"
+                       asp-area="Admin"
+                       asp-controller="ManagementDues"
+                       asp-action="Index">
+                        <i class="bi bi-credit-card-2-front"
+                           aria-hidden="true"></i>
+                        <span>Aidatlarım</span>
+                    </a>
+
+                    @if (canViewMemberManagement)
+                    {
+                        <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "MemberManagement" ? "admin-navigation__link--active" : null)"
+                           asp-area="Admin"
+                           asp-controller="MemberManagement"
+                           asp-action="Index">
+                            <i class="bi bi-person-vcard"
+                               aria-hidden="true"></i>
+                            <span>Üye Yönetimi</span>
+                        </a>
+                    }
+
+                    @if (isAdmin)
+                    {
+                        <a class="admin-navigation__link @(currentArea == "Admin" && currentController == "DuesManagement" ? "admin-navigation__link--active" : null)"
+                           asp-area="Admin"
+                           asp-controller="DuesManagement"
+                           asp-action="Index">
+                            <i class="bi bi-wallet2"
+                               aria-hidden="true"></i>
+                            <span>Aidat ve Ödemeler</span>
+                        </a>
+                    }
+
+                }
+
+            </nav>
+
+            <div class="admin-sidebar__footer">
+
+                <a asp-area=""
+                   asp-controller="Home"
+                   asp-action="Index">
+
+                    <i class="bi bi-box-arrow-up-right"
+                       aria-hidden="true"></i>
+
+                    <span>Ana Siteyi Görüntüle</span>
+                </a>
+
+            </div>
+        </div>
+    </aside>
+
+    <div class="admin-page">
+
+        <header class="admin-topbar">
+
+            <button class="btn admin-topbar__menu-button d-lg-none"
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#adminSidebar"
+                    aria-controls="adminSidebar"
+                    aria-label="Yönetim menüsünü aç">
+
+                <i class="bi bi-list"
+                   aria-hidden="true"></i>
+            </button>
+
+            <div>
+                <span class="admin-topbar__eyebrow">
+                    Yönetim Alanı
+                </span>
+
+                <strong class="admin-topbar__title">
+                    @pageTitle
+                </strong>
+            </div>
+
+            <div class="admin-topbar__account">
+
+                <div class="admin-topbar__user d-none d-sm-flex">
+                    <i class="bi bi-person-circle"
+                       aria-hidden="true"></i>
+
+                    <span>
+                        <small>Yönetici</small>
+                        <strong>@User.Identity?.Name</strong>
+                    </span>
+                </div>
+
+                <form asp-area="Identity"
+                      asp-page="/Account/Logout"
+                      asp-route-returnUrl="/"
+                      method="post">
+
+                    <button class="btn admin-topbar__logout"
+                            type="submit">
+
+                        <i class="bi bi-box-arrow-right"
+                           aria-hidden="true"></i>
+
+                        <span class="d-none d-sm-inline">
+                            Çıkış
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <main class="admin-content">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

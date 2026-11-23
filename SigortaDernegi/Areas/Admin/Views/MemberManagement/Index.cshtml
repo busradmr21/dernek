@@ -1,0 +1,261 @@
+@model IReadOnlyList<MemberProfile>
+
+@{
+    ViewData["Title"] = "Normal Üye Yönetimi";
+
+    var canAdd = await RolePermissionService.HasPermissionAsync(
+        User, ManagementArea.MemberManagement, PermissionActionType.Add);
+    var canEdit = await RolePermissionService.HasPermissionAsync(
+        User, ManagementArea.MemberManagement, PermissionActionType.Edit);
+    var canApprove = await RolePermissionService.HasPermissionAsync(
+        User, ManagementArea.MemberManagement, PermissionActionType.Approve);
+    var canDelete = await RolePermissionService.HasPermissionAsync(
+        User, ManagementArea.MemberManagement, PermissionActionType.Delete);
+}
+
+<section class="admin-module member-admin-page">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Üyelik Yönetimi</span>
+            <h1>Normal Üyeler</h1>
+            <p>
+                Bireysel ve kurumsal üyeleri yönetin; yayın izni bulunan
+                üyeleri Uzman ve Üye Rehberinde yayımlayın.
+            </p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-area=""
+               asp-controller="Membership"
+               asp-action="Directory"
+               target="_blank"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-box-arrow-up-right"></i>
+                Rehberi Gör
+            </a>
+
+            @if (canAdd)
+            {
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-person-plus"></i>
+                    Yeni Üye Ekle
+                </a>
+            }
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string message)
+    {
+        <div class="admin-feedback admin-feedback--success" role="status">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@message</span>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            @errorMessage
+        </div>
+    }
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <div class="admin-stat-card h-100">
+                <div class="admin-stat-card__icon"><i class="bi bi-people"></i></div>
+                <div><span>Toplam Üye</span><strong>@ViewBag.TotalCount</strong></div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="admin-stat-card h-100">
+                <div class="admin-stat-card__icon"><i class="bi bi-person-check"></i></div>
+                <div><span>Faal Üye</span><strong>@ViewBag.ActiveCount</strong></div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="admin-stat-card h-100">
+                <div class="admin-stat-card__icon"><i class="bi bi-journal-richtext"></i></div>
+                <div><span>Rehberde Yayında</span><strong>@ViewBag.PublishedCount</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Index"
+          method="get"
+          class="admin-form-card mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-lg-5">
+                <label for="memberSearch" class="form-label">Üye Ara</label>
+                <input id="memberSearch"
+                       name="search"
+                       value="@ViewBag.Search"
+                       class="form-control"
+                       placeholder="Ad, üye numarası, uzmanlık veya şehir" />
+            </div>
+            <div class="col-md-3">
+                <label for="memberType" class="form-label">Üye Türü</label>
+                <select id="memberType" name="memberType" class="form-select">
+                    <option value="">Tüm üyeler</option>
+                    <option value="Bireysel" selected="@(ViewBag.MemberType == "Bireysel")">Bireysel</option>
+                    <option value="Kurumsal" selected="@(ViewBag.MemberType == "Kurumsal")">Kurumsal</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="memberStatus" class="form-label">Durum</label>
+                <select id="memberStatus" name="status" class="form-select">
+                    <option value="">Tümü</option>
+                    <option value="active" selected="@(ViewBag.Status == "active")">Faal</option>
+                    <option value="passive" selected="@(ViewBag.Status == "passive")">Pasif</option>
+                    <option value="published" selected="@(ViewBag.Status == "published")">Rehberde</option>
+                    <option value="hidden" selected="@(ViewBag.Status == "hidden")">Gizli</option>
+                </select>
+            </div>
+            <div class="col-lg-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1">
+                    <i class="bi bi-search"></i>
+                    Ara
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary" title="Filtreleri temizle">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+
+    @if (Model.Count == 0)
+    {
+        <div class="board-admin-empty">
+            <i class="bi bi-person-vcard"></i>
+            <h2>Gösterilecek üye kaydı bulunamadı</h2>
+            <p>İlk normal üyeyi ekleyebilir veya arama filtrelerini temizleyebilirsiniz.</p>
+            @if (canAdd)
+            {
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i>
+                    İlk Üyeyi Ekle
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive admin-form-card p-0">
+            <table class="table admin-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Üye</th>
+                        <th>Uzmanlık / Konum</th>
+                        <th>Üyelik</th>
+                        <th>Rehber</th>
+                        <th class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var member in Model)
+                    {
+                        var appearsInDirectory =
+                            member.IsActive &&
+                            member.HasPublicationConsent &&
+                            member.IsPublished;
+
+                        <tr>
+                            <td>
+                                <strong>@member.DisplayName</strong>
+                                <small class="d-block">
+                                    @member.MemberType
+                                    @if (!string.IsNullOrWhiteSpace(member.RegistryNumber))
+                                    {
+                                        <span> · @member.RegistryNumber</span>
+                                    }
+                                </small>
+                                <small class="d-block @(member.IdentityUserId != null ? "text-success" : "text-danger")">
+                                    <i class="bi @(member.IdentityUserId != null ? "bi-key-fill" : "bi-key")"></i>
+                                    @(member.IdentityUserId != null
+                                        ? "Giriş hesabı bağlı"
+                                        : "Giriş hesabı yok")
+                                </small>
+                            </td>
+                            <td>
+                                <strong>@member.Specialty</strong>
+                                <small class="d-block">
+                                    @member.City
+                                    @if (!string.IsNullOrWhiteSpace(member.Region))
+                                    {
+                                        <span> / @member.Region</span>
+                                    }
+                                </small>
+                            </td>
+                            <td>
+                                <span class="admin-status-button @(member.IsActive ? "admin-status-button--active" : "admin-status-button--passive")">
+                                    @(member.IsActive ? "Faal" : "Pasif")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="admin-status-button @(appearsInDirectory ? "admin-status-button--active" : "admin-status-button--passive")">
+                                    @(appearsInDirectory ? "Yayında" : "Gizli")
+                                </span>
+                                @if (!member.HasPublicationConsent)
+                                {
+                                    <small class="d-block mt-1 text-danger">Yayın izni yok</small>
+                                }
+                            </td>
+                            <td>
+                                <div class="admin-table-actions justify-content-end">
+                                    @if (canEdit)
+                                    {
+                                        <a asp-action="Edit"
+                                           asp-route-id="@member.Id"
+                                           class="btn btn-outline-secondary btn-sm"
+                                           title="Üye bilgilerini düzenle">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Düzenle
+                                        </a>
+
+                                        <form asp-action="ToggleActive"
+                                              asp-route-id="@member.Id"
+                                              method="post">
+                                            <button type="submit"
+                                                    class="btn btn-outline-secondary btn-sm"
+                                                    title="Üyelik durumunu değiştir">
+                                                <i class="bi @(member.IsActive ? "bi-person-dash" : "bi-person-check")"></i>
+                                            </button>
+                                        </form>
+                                    }
+
+                                    @if (canApprove)
+                                    {
+                                        <form asp-action="TogglePublication"
+                                              asp-route-id="@member.Id"
+                                              method="post">
+                                            <button type="submit"
+                                                    class="btn btn-outline-secondary btn-sm"
+                                                    title="Rehber görünürlüğünü değiştir">
+                                                <i class="bi @(member.IsPublished ? "bi-eye-slash" : "bi-eye")"></i>
+                                            </button>
+                                        </form>
+                                    }
+
+                                    @if (canDelete)
+                                    {
+                                        <form asp-action="Delete"
+                                              asp-route-id="@member.Id"
+                                              method="post"
+                                              onsubmit="return confirm('Bu normal üye kaydını kalıcı olarak silmek istediğinize emin misiniz?');">
+                                            <button type="submit"
+                                                    class="content-admin-delete"
+                                                    title="Üyeyi sil"
+                                                    aria-label="@member.DisplayName üyesini sil">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

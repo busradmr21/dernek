@@ -1,0 +1,71 @@
+@model SigortaDernegi.ViewModels.FaqPageViewModel
+
+@{
+    ViewData["Title"] = Model.HeroTitle;
+    var categories = Model.Items.Select(item => item.Category).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+}
+
+<section class="about-hero faq-hero corporate-managed-hero about-hero--overview">
+    <div class="container">
+        <h1>@Model.HeroTitle</h1>
+        <p>@Model.HeroDescription</p>
+    </div>
+</section>
+
+<main class="faq-page py-5">
+    <div class="container">
+        @if (Model.Items.Count == 0)
+        {
+            <div class="faq-empty"><i class="bi bi-chat-square-question"></i><h2>Henüz soru eklenmedi</h2><p>Yeni sorular eklendiğinde burada görüntülenecektir.</p></div>
+        }
+        else
+        {
+            <div class="faq-category-nav mb-4" aria-label="Soru kategorileri">
+                <button type="button" class="active" data-faq-filter="all">Tümü</button>
+                @foreach (var category in categories)
+                {
+                    <button type="button" data-faq-filter="@category">@category</button>
+                }
+            </div>
+
+            <div class="accordion faq-accordion" id="faqAccordion">
+                @for (var index = 0; index < Model.Items.Count; index++)
+                {
+                    var item = Model.Items[index];
+                    var headingId = $"faqHeading{item.Id}";
+                    var collapseId = $"faqCollapse{item.Id}";
+                    <article class="accordion-item" data-faq-category="@item.Category">
+                        <h2 class="accordion-header" id="@headingId">
+                            <button class="accordion-button @(index == 0 ? "" : "collapsed")" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="@(index == 0 ? "true" : "false")" aria-controls="@collapseId">
+                                <span><small>@item.Category</small>@item.Question</span>
+                            </button>
+                        </h2>
+                        <div id="@collapseId" class="accordion-collapse collapse @(index == 0 ? "show" : "")" aria-labelledby="@headingId" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">@item.Answer</div>
+                        </div>
+                    </article>
+                }
+            </div>
+
+            <section class="faq-contact-card mt-5">
+                <div><span>Sorunuzun yanıtını bulamadınız mı?</span><h2>Bizimle iletişime geçin</h2><p>Ekibimiz sorularınızı yanıtlamak için size yardımcı olacaktır.</p></div>
+                <a asp-controller="Contact" asp-action="Index" class="btn">Bize Ulaşın <i class="bi bi-arrow-right"></i></a>
+            </section>
+        }
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('[data-faq-filter]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                document.querySelectorAll('[data-faq-filter]').forEach(function (item) { item.classList.remove('active'); });
+                button.classList.add('active');
+                var filter = button.dataset.faqFilter;
+                document.querySelectorAll('[data-faq-category]').forEach(function (item) {
+                    item.hidden = filter !== 'all' && item.dataset.faqCategory !== filter;
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,37 @@
+@model MemberSecurityViewModel
+
+@{
+    ViewData["Title"] = "Hesap Güvenliği";
+}
+
+<div class="member-page-heading">
+    <div><span class="member-eyebrow">Hesabım</span><h1>Hesap Güvenliği</h1><p>Giriş hesabınızı ve şifrenizi güvenli biçimde yönetin.</p></div>
+</div>
+
+<div class="member-profile-grid">
+    <section class="member-panel">
+        <div class="member-security-icon"><i class="bi bi-envelope-check"></i></div>
+        <h2>Giriş E-postası</h2>
+        <p class="member-security-value">@Model.Email</p>
+        <span class="member-status @(Model.EmailConfirmed ? "member-status--active" : "member-status--passive")">@(Model.EmailConfirmed ? "Doğrulanmış" : "Doğrulanmamış")</span>
+        <p class="text-secondary mt-3 mb-0">Bu adres yalnızca sisteme giriş için kullanılır ve rehberde yayımlanmaz.</p>
+    </section>
+    <section class="member-panel">
+        <div class="member-security-icon"><i class="bi bi-key"></i></div>
+        <h2>Şifre</h2>
+        <p class="text-secondary">Hesabınızı korumak için güçlü ve başka sistemlerde kullanmadığınız bir şifre tercih edin.</p>
+        @if (Model.HasPassword)
+        {
+            <a asp-area="Identity" asp-page="/Account/Manage/ChangePassword" class="btn btn-primary"><i class="bi bi-shield-lock"></i> Şifremi Değiştir</a>
+        }
+        else
+        {
+            <a asp-area="Identity" asp-page="/Account/Manage/SetPassword" class="btn btn-primary"><i class="bi bi-shield-lock"></i> Şifre Oluştur</a>
+        }
+    </section>
+</div>
+
+<section class="member-panel mt-4 member-security-warning">
+    <i class="bi bi-info-circle"></i>
+    <div><strong>Güvenlik hatırlatması</strong><p>Şifrenizi veya giriş bilgilerinizi dernek personeli dahil hiç kimseyle paylaşmayın. Ortak cihazlarda işlem sonrasında güvenli çıkış yapın.</p></div>
+</section>

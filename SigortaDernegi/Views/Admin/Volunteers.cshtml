@@ -1,52 +1,49 @@
-﻿@model List<SigortaDernegi.Models.Volunteer>
-
+@model SigortaDernegi.Areas.Admin.ViewModels.VolunteerApplicationsAdminViewModel
+@using SigortaDernegi.Areas.Admin.Authorization
+@inject IRolePermissionService PermissionService
 @{
-    ViewData["Title"] = "Gönüllü Listesi";
+    ViewData["Title"] = "Gönüllü Başvuruları";
+    var canApprove = await PermissionService.HasPermissionAsync(User, ManagementArea.ApplicationsAndCommunication, PermissionActionType.Approve);
+    var canDelete = await PermissionService.HasPermissionAsync(User, ManagementArea.ApplicationsAndCommunication, PermissionActionType.Delete);
+    var canEditVolunteerPage = await PermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Edit);
 }
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-dark mb-0"><i class="bi bi-heart-fill text-danger me-2"></i>Gönüllü Başvuruları</h3>
-        <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill">Panele Dön</a>
-    </div>
+<section class="admin-module volunteer-applications-admin">
+    <div class="admin-module__header"><div><span class="admin-module__eyebrow">Gönüllülük Yönetimi</span><h1>Gönüllü Başvuruları</h1><p>Başvuruları inceleyin, durumlarını takip edin, özel not ekleyin ve adaylarla iletişime geçin.</p></div>@if (canEditVolunteerPage) { <a asp-area="Admin" asp-controller="VolunteerSettings" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-pencil-square"></i> Gönüllülük Sayfasını Düzenle</a> }</div>
+    @if (TempData["SuccessMessage"] is string message) { <div class="admin-feedback admin-feedback--success"><i class="bi bi-check-circle-fill"></i><span>@message</span></div> }
 
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-4">Ad Soyad</th>
-                        <th>E-posta / Telefon</th>
-                        <th>Uzmanlık Alanı</th>
-                        <th>Tarih</th>
-                        <th>Notlar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model == null || !Model.Any())
+    <div class="contact-message-summary volunteer-summary"><div><i class="bi bi-people-fill"></i><span>Toplam Başvuru</span><strong>@Model.TotalCount</strong></div><div><i class="bi bi-person-plus-fill"></i><span>Yeni Başvuru</span><strong>@Model.NewCount</strong></div></div>
+
+    <form method="get" class="admin-filter-bar"><div><label for="volunteerSearch">Başvurularda ara</label><input id="volunteerSearch" name="search" value="@Model.Search" class="form-control" placeholder="Ad, e-posta, telefon veya katkı alanı..." /></div><div><label asp-for="Status">Durum</label><select asp-for="Status" class="form-select"><option value="">Tüm durumlar</option><option>Yeni</option><option>İnceleniyor</option><option>İletişime Geçildi</option><option>Onaylandı</option><option>Uygun Değil</option><option>Arşivlendi</option></select></div><button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Filtrele</button>@if (!string.IsNullOrWhiteSpace(Model.Search) || !string.IsNullOrWhiteSpace(Model.Status)) { <a asp-action="Volunteers" class="btn btn-outline-secondary">Temizle</a> }</form>
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="admin-empty-state"><i class="bi bi-people"></i><h2>Başvuru bulunamadı</h2><p>Yeni gönüllü başvuruları burada görüntülenecektir.</p></div>
+    }
+    else
+    {
+        <div class="volunteer-application-list">
+            @foreach (var item in Model.Items)
+            {
+                var replySubject = Uri.EscapeDataString("ELSADER Gönüllülük Başvurunuz");
+                <article class="volunteer-application-card">
+                    <header><div class="volunteer-application-card__identity"><div><i class="bi bi-person-heart"></i></div><span><small>@item.Application.ExpertiseArea</small><strong>@item.Application.FullName</strong></span></div><div class="contact-message-card__date"><time>@item.Application.CreatedDate.ToString("dd.MM.yyyy HH:mm")</time><span class="admin-status-button @(item.Metadata.Status == "Yeni" ? "admin-status-button--active" : "admin-status-button--passive")">@item.Metadata.Status</span></div></header>
+                    <div class="volunteer-application-card__contact"><a href="mailto:@item.Application.Email"><i class="bi bi-envelope"></i>@item.Application.Email</a><a href="tel:@item.Application.Phone"><i class="bi bi-telephone"></i>@item.Application.Phone</a><span><i class="bi bi-shield-check"></i>@(item.Application.HasReadKvkkNotice ? "KVKK aydınlatması okundu" : "Eski kayıt: KVKK kaydı yok")</span></div>
+                    @if (!string.IsNullOrWhiteSpace(item.Application.Notes)) { <div class="contact-message-card__message">@item.Application.Notes</div> }
+                    @if (canApprove)
                     {
-                            <tr>
-                                <td colspan="5" class="text-center py-4 text-muted">Henüz gönüllü başvurusu bulunmuyor.</td>
-                            </tr>
+                        <form asp-action="UpdateVolunteer" method="post" class="contact-message-card__management"><input type="hidden" name="id" value="@item.Application.Id" /><div><label for="status-@item.Application.Id">Durum</label><select id="status-@item.Application.Id" name="status" class="form-select">@foreach (var state in new[] { "Yeni", "İnceleniyor", "İletişime Geçildi", "Onaylandı", "Uygun Değil", "Arşivlendi" }) { if (item.Metadata.Status == state) { <option value="@state" selected>@state</option> } else { <option value="@state">@state</option> } }</select></div><div class="contact-message-card__note"><label for="note-@item.Application.Id">Yönetici Notu</label><textarea id="note-@item.Application.Id" name="adminNote" rows="2" class="form-control" placeholder="Görüşme, uygun çalışma alanı veya takip notu...">@item.Metadata.AdminNote</textarea></div><button class="btn btn-primary" type="submit"><i class="bi bi-check-lg"></i> Kaydet</button><a href="mailto:@item.Application.Email?subject=@replySubject" class="btn btn-outline-secondary"><i class="bi bi-reply"></i> İletişime Geç</a></form>
                     }
                     else
                     {
-                        @foreach (var item in Model)
-                        {
-                                    <tr>
-                                        <td class="ps-4 fw-semibold text-dark">@item.FullName</td>
-                                        <td>
-                                            <div>@item.Email</div>
-                                            <small class="text-muted">@item.Phone</small>
-                                        </td>
-                                        <td><span class="badge bg-info text-dark">@item.ExpertiseArea</span></td>
-                                        <td>@item.CreatedDate.ToString("dd.MM.yyyy")</td>
-                                        <td><small class="text-muted">@item.Notes</small></td>
-                                    </tr>
-                        }
+                        <a href="mailto:@item.Application.Email?subject=@replySubject" class="btn btn-outline-secondary"><i class="bi bi-reply"></i> İletişime Geç</a>
                     }
-                </tbody>
-            </table>
+                    @if (canDelete)
+                    {
+                        <form asp-action="DeleteVolunteer" method="post" class="contact-message-card__delete" onsubmit="return confirm('Bu gönüllü başvurusu kalıcı olarak silinsin mi?');"><input type="hidden" name="id" value="@item.Application.Id" /><button type="submit"><i class="bi bi-trash3"></i> Başvuruyu Sil</button></form>
+                    }
+                </article>
+            }
         </div>
-    </div>
-</div>
+    }
+</section>

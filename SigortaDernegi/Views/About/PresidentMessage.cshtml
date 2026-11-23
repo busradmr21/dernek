@@ -1,0 +1,45 @@
+@model SigortaDernegi.ViewModels.PresidentMessageViewModel
+
+@{
+    ViewData["Title"] = "Yönetim Kurulu Başkanımızdan";
+    var presidentName = string.IsNullOrWhiteSpace(Model.President?.FullName)
+        ? "Yönetim Kurulu Başkanı"
+        : Model.President.FullName;
+}
+
+<section class="president-detail">
+    <div class="container">
+        <nav class="president-detail__breadcrumb" aria-label="Sayfa yolu">
+            <a asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+            <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            <a asp-area="" asp-controller="About" asp-action="Board">Yönetim Kurulu</a>
+            <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            <span>Başkanın Mesajı</span>
+        </nav>
+
+        <div class="president-detail__layout">
+            <aside class="president-detail__profile">
+                <img src="@Url.Content(Model.PhotoUrl)"
+                     alt="@presidentName"
+                     asp-append-version="true" />
+
+                <div>
+                    <strong>@presidentName</strong>
+                    <span>Yönetim Kurulu Başkanı</span>
+                </div>
+            </aside>
+
+            <article class="president-detail__content">
+                <span>Yönetim Kurulu Başkanımızdan</span>
+                <h1>@Model.Title</h1>
+                <p class="president-detail__lead">@Model.Summary</p>
+                <div class="president-detail__message">@Model.Content</div>
+
+                <div class="president-detail__signature">
+                    <strong>@presidentName</strong>
+                    <span>Yönetim Kurulu Başkanı</span>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>

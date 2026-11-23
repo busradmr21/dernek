@@ -1,0 +1,154 @@
+@using System.Globalization
+@model SigortaDernegi.Areas.Member.ViewModels.MemberPaymentHistoryViewModel
+
+@{
+    ViewData["Title"] = "Ödeme Geçmişim";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+<div class="member-page-heading">
+    <div>
+        <span class="member-eyebrow">AİDAT VE ÖDEME</span>
+        <h1>Ödeme Geçmişim</h1>
+        <p>Tamamlanan aidat ödemelerinizi, işlem durumlarını ve ödeme belgelerinizi görüntüleyin.</p>
+    </div>
+
+    <a asp-area="Admin"
+       asp-controller="ManagementDues"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i>
+        Aidatlarıma Dön
+    </a>
+</div>
+
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger rounded-4 border-0 shadow-sm" role="alert">
+        <i class="bi bi-x-circle-fill me-2"></i>
+        @errorMessage
+    </div>
+}
+
+<section class="member-dues-summary" aria-label="Ödeme geçmişi özeti">
+    <article>
+        <span>İşlem Sayısı</span>
+        <strong>@Model.PaymentCount</strong>
+        <small>Kayıtlı ödeme işlemleri</small>
+    </article>
+    <article>
+        <span>Net Ödenen</span>
+        <strong>@Model.NetPaidAmount.ToString("N2", culture) ₺</strong>
+        <small>İadeler düşüldükten sonra</small>
+    </article>
+    <article>
+        <span>İade Edilen</span>
+        <strong>@Model.RefundedAmount.ToString("N2", culture) ₺</strong>
+        <small>Tam ve kısmi iadelerin toplamı</small>
+    </article>
+</section>
+
+@if (Model.Payments.Count == 0)
+{
+    <section class="member-panel member-empty">
+        <i class="bi bi-receipt-cutoff"></i>
+        <p>Henüz hesabınıza ait kayıtlı bir ödeme işlemi bulunmuyor.</p>
+    </section>
+}
+else
+{
+    <section class="member-panel member-payment-history">
+        <div class="member-panel__header">
+            <div>
+                <span>İŞLEM LİSTESİ</span>
+                <h2>Geçmiş Ödemeler</h2>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table member-payment-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Aidat Dönemi</th>
+                        <th>Tutar</th>
+                        <th>Ödeme Yöntemi</th>
+                        <th>Durum</th>
+                        <th>Ödeme Tarihi</th>
+                        <th>Referans</th>
+                        <th class="text-end">Belge</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payment in Model.Payments)
+                    {
+                        var statusClass = payment.Status == DuesPaymentStatuses.Completed
+                            ? "text-bg-success"
+                            : payment.Status == DuesPaymentStatuses.Failed
+                                ? "text-bg-danger"
+                                : payment.Status == DuesPaymentStatuses.Pending
+                                    ? "text-bg-warning"
+                                    : "text-bg-secondary";
+                        var currencySymbol = payment.Currency == "TRY" ? "₺" : payment.Currency;
+
+                        <tr>
+                            <td><strong>@payment.PeriodName</strong></td>
+                            <td>
+                                <strong>@payment.Amount.ToString("N2", culture) @currencySymbol</strong>
+                                @if (payment.RefundedAmount > 0)
+                                {
+                                    <small class="d-block text-muted">
+                                        İade: @payment.RefundedAmount.ToString("N2", culture) @currencySymbol
+                                    </small>
+                                }
+                            </td>
+                            <td>
+                                @payment.PaymentMethod
+                                @if (payment.IsDemo)
+                                {
+                                    <span class="badge text-bg-warning ms-1">Demo</span>
+                                }
+                                else if (!string.IsNullOrWhiteSpace(payment.Provider))
+                                {
+                                    <small class="d-block text-muted">@payment.Provider</small>
+                                }
+                            </td>
+                            <td><span class="badge @statusClass">@payment.Status</span></td>
+                            <td>@TurkeyDateTime.FromUtc(payment.PaidAtUtc).ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(payment.ReferenceNumber))
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                                else
+                                {
+                                    <span class="member-payment-reference">@payment.ReferenceNumber</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                @if (payment.CanViewReceipt)
+                                {
+                                    <a asp-area="Admin"
+                                       asp-controller="ManagementDues"
+                                       asp-action="PaymentReceipt"
+                                       asp-route-id="@payment.Id"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                        Görüntüle
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/member.css" asp-append-version="true" />
+}

@@ -1,0 +1,43 @@
+@model MemberProfileViewModel
+
+@{
+    ViewData["Title"] = "Profilimi Düzenle";
+}
+
+<div class="member-page-heading">
+    <div><span class="member-eyebrow">Kişisel Alan</span><h1>Profilimi Düzenle</h1><p>Üyelik kimliğiniz dışındaki iletişim ve rehber bilgilerinizi güncelleyin.</p></div>
+</div>
+
+<form asp-action="Edit" method="post" class="member-panel member-profile-form">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <div class="member-readonly-note">
+        <i class="bi bi-shield-check"></i>
+        <p><strong>Korunan üyelik bilgileri</strong><span>@Model.DisplayName · @(Model.RegistryNumber ?? "Üye numarası atanmadı") · @Model.MemberType Üye</span></p>
+    </div>
+
+    <div class="member-form-grid">
+        <div><label asp-for="Specialty" class="form-label"></label><input asp-for="Specialty" class="form-control" /><span asp-validation-for="Specialty" class="text-danger small"></span></div>
+        <div><label asp-for="City" class="form-label"></label><input asp-for="City" class="form-control" /><span asp-validation-for="City" class="text-danger small"></span></div>
+        <div><label asp-for="Region" class="form-label"></label><input asp-for="Region" class="form-control" /><span asp-validation-for="Region" class="text-danger small"></span></div>
+        <div><label asp-for="Phone" class="form-label"></label><input asp-for="Phone" class="form-control" /><span asp-validation-for="Phone" class="text-danger small"></span></div>
+        <div class="member-form-grid__wide"><label asp-for="ShortDescription" class="form-label"></label><textarea asp-for="ShortDescription" class="form-control" rows="5"></textarea><span asp-validation-for="ShortDescription" class="text-danger small"></span></div>
+        <div class="member-form-grid__wide">
+            <div class="form-check member-consent-check"><input asp-for="HasPublicationConsent" class="form-check-input" /><label asp-for="HasPublicationConsent" class="form-check-label"></label></div>
+            <small>
+                Yayın izni, genel KVKK aydınlatmasından ayrı bir açık rızadır.
+                <a asp-area="" asp-controller="Home" asp-action="Privacy" asp-fragment="yayin-izni" target="_blank" rel="noopener">Ayrıntılı bilgilendirmeyi inceleyin.</a>
+                Rızanızı kapatırsanız profiliniz rehberden hemen kaldırılır; yeniden yayımlama için yönetim onayı gerekir.
+            </small>
+        </div>
+    </div>
+
+    <div class="member-form-actions">
+        <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Değişiklikleri Kaydet</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,44 @@
+@model SigortaDernegi.Areas.Admin.ViewModels.NewsFormViewModel
+<input asp-for="Id" type="hidden" />
+<input asp-for="ExistingImageUrl" type="hidden" />
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+<div class="admin-form-grid">
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="Summary" class="form-label"></label>
+        <textarea asp-for="Summary" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Summary" class="text-danger"></span>
+    </div>
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="Content" class="form-label"></label>
+        <textarea asp-for="Content" class="form-control" rows="12"></textarea>
+        <div class="admin-form-help">Yeni paragraf için arada bir boş satır bırakın.</div>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="ImageFile" class="form-label"></label>
+        <div class="admin-image-field">
+            <div class="admin-image-preview" data-slider-image-preview>
+                <img src="@(string.IsNullOrWhiteSpace(Model.ExistingImageUrl) ? "" : Url.Content(Model.ExistingImageUrl))" alt="Görsel ön izlemesi" class="@(string.IsNullOrWhiteSpace(Model.ExistingImageUrl) ? "d-none" : "")" data-slider-preview-image />
+                <div class="admin-image-preview__placeholder @(string.IsNullOrWhiteSpace(Model.ExistingImageUrl) ? "" : "d-none")" data-slider-preview-placeholder><i class="bi bi-image"></i><span>Görsel ön izlemesi</span></div>
+            </div>
+            <div><input asp-for="ImageFile" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" data-slider-image-input /><div class="admin-form-help">JPG, PNG veya WEBP; en fazla 5 MB.</div><span asp-validation-for="ImageFile" class="text-danger"></span></div>
+        </div>
+    </div>
+    <div class="admin-form-field">
+        <label asp-for="PublishedAt" class="form-label"></label>
+        <input asp-for="PublishedAt" type="datetime-local" class="form-control" />
+    </div>
+    <div class="admin-form-field">
+        <label class="form-label">İçerik Türü</label>
+        <div class="admin-form-switch"><input asp-for="IsAnnouncement" class="form-check-input" /><label asp-for="IsAnnouncement">Bu içerik bir duyurudur</label></div>
+    </div>
+    <div class="admin-form-field">
+        <label class="form-label">Yayın Durumu</label>
+        <div class="admin-form-switch"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive">Sitede yayınlansın</label></div>
+    </div>
+</div>

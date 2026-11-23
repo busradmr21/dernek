@@ -1,50 +1,379 @@
-﻿@model List<SigortaDernegi.Controllers.NewsItem>
+@using System.Globalization
+@model IReadOnlyList<SigortaDernegi.Models.News>
 
 @{
-    ViewData["Title"] = "Haberler & Duyurular";
+    ViewData["Title"] = "Haberler";
+    var culture = new CultureInfo("tr-TR");
+
+    var latestNews = Model.FirstOrDefault();
+    var otherNews = Model.Skip(1).ToList();
 }
 
-<div class="container py-3">
-    <!-- Başlık -->
-    <div class="text-center mb-5">
-        <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-2">Güncel Gelişmeler</span>
-        <h1 class="fw-bold text-dark display-6">Haberler, Duyurular & Mevzuat</h1>
-        <p class="text-muted col-md-8 mx-auto">
-            Sigorta araştırmacılığı, saha denetimleri, Yargıtay emsal kararları ve dernek faaliyetlerimizle ilgili tüm güncel haberler.
+<!-- Sayfa başlığı -->
+<section class="about-hero news-hero corporate-managed-hero about-hero--overview">
+    <div class="container">
+        <h1>Haberler</h1>
+        <p>
+            Dernek faaliyetleri, sigorta araştırmacılığı ve
+            sektörel gelişmeler hakkındaki güncel haberleri inceleyin.
         </p>
     </div>
+</section>
 
-    @if (Model == null || !Model.Any())
-    {
-            <div class="alert alert-info text-center rounded-4 p-4">
-                Henüz eklenmiş bir haber veya duyuru bulunmuyor.
+<main class="news-page py-5">
+    <div class="container">
+
+        <!-- Haber ve duyuru geçişleri -->
+        <nav class="d-flex flex-wrap gap-2 mb-4" aria-label="Haberler ve duyurular">
+            <a asp-controller="News"
+               asp-action="Index"
+               class="btn event-register-button rounded-pill px-4"
+               aria-current="page">
+                Haberler
+            </a>
+
+            <a asp-controller="News"
+               asp-action="Announcements"
+               class="btn btn-outline-secondary rounded-pill px-4">
+                Duyurular
+            </a>
+        </nav>
+
+        @if (Model.Count > 0)
+        {
+            <!-- Tarih Aralığı Filtreleme Barı -->
+            <div class="date-filter-bar">
+                <div class="date-filter-bar__title">
+                    <i class="bi bi-calendar-range" aria-hidden="true"></i>
+                    <span>Tarihe Göre Filtrele</span>
+                </div>
+
+                <div class="date-filter-bar__controls">
+                    <div class="date-filter-bar__field">
+                        <label for="newsFilterStartDate">Başlangıç:</label>
+                        <input type="date" id="newsFilterStartDate" class="date-filter-bar__input" />
+                    </div>
+
+                    <span class="date-filter-bar__divider">-</span>
+
+                    <div class="date-filter-bar__field">
+                        <label for="newsFilterEndDate">Bitiş:</label>
+                        <input type="date" id="newsFilterEndDate" class="date-filter-bar__input" />
+                    </div>
+
+                    <div class="date-filter-bar__actions">
+                        <button type="button" id="newsFilterApplyBtn" class="date-filter-bar__btn">
+                            <i class="bi bi-funnel-fill" aria-hidden="true"></i>
+                            <span>Filtrele</span>
+                        </button>
+
+                        <button type="button" id="newsFilterResetBtn" class="date-filter-bar__reset" style="display: none;">
+                            <i class="bi bi-x-circle" aria-hidden="true"></i>
+                            <span>Temizle</span>
+                        </button>
+
+                        <span id="newsFilterCountBadge" class="date-filter-bar__badge" style="display: none;"></span>
+                    </div>
+                </div>
             </div>
-    }
-    else
-    {
-            <!-- Haber Kartları Grid -->
-            <div class="row g-4 mb-5">
-            @foreach (var item in Model)
+        }
+
+        @if (Model.Count == 0)
+        {
+            <!-- Haber bulunmuyorsa -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5 text-center">
+                    <div class="news-empty-icon d-inline-flex align-items-center justify-content-center rounded-circle mb-4">
+                        <i class="bi bi-newspaper fs-1"></i>
+                    </div>
+                    <h2 class="h3 fw-bold mb-3">
+                        Henüz yayımlanmış haber bulunmuyor
+                    </h2>
+                    <p class="text-secondary mb-0 mx-auto news-empty-text">
+                        Yeni haberler yayımlandığında bu sayfada görüntülenecektir.
+                    </p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Filtreleme Sonucu Boş Uyarısı -->
+            <div id="newsFilterEmptyAlert" class="alert alert-light border rounded-4 text-center py-5 mb-5 shadow-sm" style="display: none;">
+                <i class="bi bi-calendar-x fs-1 text-secondary mb-3 d-block"></i>
+                <h3 class="h5 fw-bold text-dark">Seçilen tarih aralığında haber bulunamadı</h3>
+                <p class="text-secondary mb-3">Farklı bir tarih aralığı belirtebilir veya filtreyi temizleyebilirsiniz.</p>
+                <button type="button" class="btn btn-outline-primary rounded-pill px-4" id="newsFilterEmptyClearBtn">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Tüm Haberleri Göster
+                </button>
+            </div>
+
+            <!-- En güncel haber (Öne Çıkan Son Haber) -->
+            @if (latestNews != null)
             {
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-                                <div class="p-4 position-relative text-white" style="background-color: #0d233a;">
-                                    <i class="bi bi-newspaper display-5 text-warning"></i>
-                                    <span class="badge @item.BadgeClass position-absolute top-0 end-0 m-3">@item.Category</span>
+                var latestDay = latestNews.CreatedAt.ToLocalTime().ToString("dd");
+                var latestMonth = latestNews.CreatedAt.ToLocalTime().ToString("MMM", culture).ToUpper(culture).Replace(".", "");
+
+                <section class="mb-5 news-filter-section" id="secFeaturedNews" aria-labelledby="latestNewsTitle">
+                    <div class="mb-4">
+                        <span class="news-section-label">En Güncel</span>
+                        <h2 id="latestNewsTitle" class="fw-bold mb-0">Son Haber</h2>
+                    </div>
+
+                    <article class="news-featured-card news-filter-item" data-date="@latestNews.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd")">
+                        <div class="row g-0 h-100 align-items-stretch">
+                            <div class="col-12 col-lg-5">
+                                <div class="news-featured-card__media">
+                                    @if (!string.IsNullOrWhiteSpace(latestNews.ImageUrl))
+                                    {
+                                        <img src="@latestNews.ImageUrl"
+                                             alt="@latestNews.Title"
+                                             class="news-featured-card__img"
+                                             loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="event-card__placeholder">
+                                            <i class="bi bi-newspaper" aria-hidden="true"></i>
+                                        </div>
+                                    }
+
+                                    <!-- Sol Üst: Takvim Damgası -->
+                                    <div class="event-card__date-stamp">
+                                        <span class="event-card__stamp-day">@latestDay</span>
+                                        <span class="event-card__stamp-month">@latestMonth</span>
+                                    </div>
+
+                                    <!-- Sağ Üst: Rozet -->
+                                    <div class="event-card__floating-badges">
+                                        <span class="event-badge event-badge--ongoing">
+                                            <i class="bi bi-lightning-fill me-1" aria-hidden="true"></i>Son Haber
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="card-body p-4 d-flex flex-column">
-                                    <small class="text-muted mb-2"><i class="bi bi-calendar3 me-1"></i> @item.Date</small>
-                                    <h5 class="fw-bold text-dark card-title mb-3">@item.Title</h5>
-                                    <p class="card-text text-muted small lh-lg mb-4">
-                                @item.Summary
+                            </div>
+
+                            <div class="col-12 col-lg-7">
+                                <div class="news-featured-card__body">
+                                    <div class="d-flex align-items-center gap-2 mb-3">
+                                        <span class="event-card__type-pill">
+                                            <i class="bi bi-newspaper" aria-hidden="true"></i> Güncel Haber
+                                        </span>
+                                        <span class="small text-secondary">
+                                            <i class="bi bi-clock me-1" aria-hidden="true"></i>
+                                            @latestNews.CreatedAt.ToLocalTime().ToString("dd MMMM yyyy", culture)
+                                        </span>
+                                    </div>
+
+                                    <h3 class="news-featured-card__title">
+                                        <a asp-controller="News"
+                                           asp-action="Detail"
+                                           asp-route-id="@latestNews.Id">
+                                            @latestNews.Title
+                                        </a>
+                                    </h3>
+
+                                    <p class="news-featured-card__summary">
+                                        @latestNews.Summary
                                     </p>
-                                    <a asp-controller="News" asp-action="Detail" asp-route-id="@item.Id" class="btn btn-outline-primary rounded-pill mt-auto fw-semibold">
-                                        Devamını Oku <i class="bi bi-arrow-right ms-1"></i>
-                                    </a>
+
+                                    <div class="mt-auto pt-3">
+                                        <a asp-controller="News"
+                                           asp-action="Detail"
+                                           asp-route-id="@latestNews.Id"
+                                           class="news-featured-card__btn">
+                                            <span>Haberin Devamını Oku</span>
+                                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </article>
+                </section>
             }
-            </div>
-    }
-</div>
+
+            <!-- Diğer haberler (3'lü Modern Grid) -->
+            @if (otherNews.Count > 0)
+            {
+                <section class="news-filter-section" id="secOtherNews" aria-labelledby="otherNewsTitle">
+                    <div class="mb-4">
+                        <span class="news-section-label">Haber Akışı</span>
+                        <h2 id="otherNewsTitle" class="fw-bold mb-0">Diğer Haberler</h2>
+                    </div>
+
+                    <div class="row g-4">
+                        @foreach (var item in otherNews)
+                        {
+                            var itemDay = item.CreatedAt.ToLocalTime().ToString("dd");
+                            var itemMonth = item.CreatedAt.ToLocalTime().ToString("MMM", culture).ToUpper(culture).Replace(".", "");
+
+                            <div class="col-12 col-md-6 col-lg-4 news-filter-item" data-date="@item.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd")">
+                                <article class="event-card-modern news-card-modern">
+                                    <div class="event-card__media">
+                                        @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                        {
+                                            <img src="@item.ImageUrl"
+                                                 alt="@item.Title"
+                                                 class="event-card__img"
+                                                 loading="lazy" />
+                                        }
+                                        else
+                                        {
+                                            <div class="event-card__placeholder">
+                                                <i class="bi bi-newspaper" aria-hidden="true"></i>
+                                            </div>
+                                        }
+
+                                        <!-- Sol Üst: Takvim Damgası -->
+                                        <div class="event-card__date-stamp">
+                                            <span class="event-card__stamp-day">@itemDay</span>
+                                            <span class="event-card__stamp-month">@itemMonth</span>
+                                        </div>
+
+                                        <!-- Sağ Üst: Haber Rozeti -->
+                                        <div class="event-card__floating-badges">
+                                            <span class="event-badge event-badge--online">
+                                                Haber
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="event-card__body">
+                                        <div class="event-card__type-row">
+                                            <span class="event-card__type-pill">
+                                                <i class="bi bi-newspaper" aria-hidden="true"></i>
+                                                Sektörel Haber
+                                            </span>
+                                        </div>
+
+                                        <h3 class="event-card__title">
+                                            <a asp-controller="News"
+                                               asp-action="Detail"
+                                               asp-route-id="@item.Id"
+                                               title="@item.Title">
+                                                @item.Title
+                                            </a>
+                                        </h3>
+
+                                        <p class="event-card__summary">
+                                            @item.Summary
+                                        </p>
+
+                                        <div class="event-card__meta-bar">
+                                            <div class="event-card__meta-item">
+                                                <i class="bi bi-calendar3" aria-hidden="true"></i>
+                                                <span>@item.CreatedAt.ToLocalTime().ToString("dd MMMM yyyy", culture)</span>
+                                            </div>
+                                            <div class="event-card__meta-item">
+                                                <i class="bi bi-building-check" aria-hidden="true"></i>
+                                                <span>ELSADER Haber Merkezi</span>
+                                            </div>
+                                        </div>
+
+                                        <a asp-controller="News"
+                                           asp-action="Detail"
+                                           asp-route-id="@item.Id"
+                                           class="event-card__btn">
+                                            <span>Devamını Oku</span>
+                                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                </article>
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+        }
+
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        (function () {
+            var startDateInput = document.getElementById('newsFilterStartDate');
+            var endDateInput = document.getElementById('newsFilterEndDate');
+            var applyBtn = document.getElementById('newsFilterApplyBtn');
+            var resetBtn = document.getElementById('newsFilterResetBtn');
+            var countBadge = document.getElementById('newsFilterCountBadge');
+            var emptyAlert = document.getElementById('newsFilterEmptyAlert');
+            var emptyClearBtn = document.getElementById('newsFilterEmptyClearBtn');
+
+            var items = document.querySelectorAll('.news-filter-item');
+            var sections = document.querySelectorAll('.news-filter-section');
+
+            if (!startDateInput || !endDateInput || !applyBtn || items.length === 0) return;
+
+            function applyFilter() {
+                var startVal = startDateInput.value;
+                var endVal = endDateInput.value;
+
+                if (!startVal && !endVal) {
+                    resetFilter();
+                    return;
+                }
+
+                var visibleCount = 0;
+
+                items.forEach(function (item) {
+                    var itemDate = item.getAttribute('data-date');
+                    var matches = true;
+
+                    if (startVal && itemDate < startVal) {
+                        matches = false;
+                    }
+                    if (endVal && itemDate > endVal) {
+                        matches = false;
+                    }
+
+                    if (matches) {
+                        item.style.display = '';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Bölümler içinde görünür eleman kalmadıysa bölümü gizle
+                sections.forEach(function (sec) {
+                    var secVisible = sec.querySelectorAll('.news-filter-item:not([style*="display: none"])').length;
+                    sec.style.display = secVisible > 0 ? '' : 'none';
+                });
+
+                if (resetBtn) resetBtn.style.display = 'inline-flex';
+                if (countBadge) {
+                    countBadge.style.display = 'inline-flex';
+                    countBadge.textContent = visibleCount + ' haber bulundu';
+                }
+                if (emptyAlert) {
+                    emptyAlert.style.display = visibleCount === 0 ? 'block' : 'none';
+                }
+            }
+
+            function resetFilter() {
+                startDateInput.value = '';
+                endDateInput.value = '';
+
+                items.forEach(function (item) {
+                    item.style.display = '';
+                });
+
+                sections.forEach(function (sec) {
+                    sec.style.display = '';
+                });
+
+                if (resetBtn) resetBtn.style.display = 'none';
+                if (countBadge) countBadge.style.display = 'none';
+                if (emptyAlert) emptyAlert.style.display = 'none';
+            }
+
+            applyBtn.addEventListener('click', applyFilter);
+            if (resetBtn) resetBtn.addEventListener('click', resetFilter);
+            if (emptyClearBtn) emptyClearBtn.addEventListener('click', resetFilter);
+
+            startDateInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') applyFilter(); });
+            endDateInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') applyFilter(); });
+        })();
+    </script>
+}

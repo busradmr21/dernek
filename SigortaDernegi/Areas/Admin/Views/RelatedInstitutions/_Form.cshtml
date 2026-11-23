@@ -1,0 +1,54 @@
+@model RelatedInstitutionFormViewModel
+
+<div asp-validation-summary="ModelOnly"
+     class="text-danger mb-3"
+     role="alert"></div>
+
+<input asp-for="Id" type="hidden" />
+
+<div class="admin-form-grid">
+    <div class="admin-form-field">
+        <label asp-for="Abbreviation" class="form-label"></label>
+        <input asp-for="Abbreviation"
+               class="form-control"
+               maxlength="20"
+               placeholder="Örneğin: TSB" />
+        <span asp-validation-for="Abbreviation" class="text-danger"></span>
+        <small class="admin-form-help">Kart üzerinde büyük ve belirgin gösterilecek kısa ad.</small>
+    </div>
+
+    <div class="admin-form-field">
+        <label asp-for="DisplayOrder" class="form-label"></label>
+        <input asp-for="DisplayOrder"
+               class="form-control"
+               min="0"
+               max="999" />
+        <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+        <small class="admin-form-help">Küçük değerler şeritte daha önce gösterilir.</small>
+    </div>
+
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name"
+               class="form-control"
+               maxlength="180"
+               placeholder="Kurumun resmî tam adını yazın" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="WebsiteUrl" class="form-label"></label>
+        <input asp-for="WebsiteUrl"
+               type="url"
+               class="form-control"
+               maxlength="500"
+               placeholder="https://www.example.gov.tr/" />
+        <span asp-validation-for="WebsiteUrl" class="text-danger"></span>
+        <small class="admin-form-help">Ziyaretçi karta tıkladığında bu adres yeni sekmede açılır.</small>
+    </div>
+</div>
+
+<div class="admin-form-switch mt-4">
+    <input asp-for="IsActive" class="form-check-input" />
+    <label asp-for="IsActive" class="form-check-label"></label>
+</div>

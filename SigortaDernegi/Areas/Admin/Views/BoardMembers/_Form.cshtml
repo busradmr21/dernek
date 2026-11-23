@@ -1,0 +1,249 @@
+@model SigortaDernegi.Areas.Admin.ViewModels.BoardMemberFormViewModel
+
+<input asp-for="Id" type="hidden" />
+<input asp-for="ExistingPhotoUrl" type="hidden" />
+
+<div asp-validation-summary="ModelOnly"
+     class="alert alert-danger">
+</div>
+
+<div class="admin-form-grid">
+
+    <div class="admin-form-field">
+        <label asp-for="FullName" class="form-label"></label>
+
+        <input asp-for="FullName"
+               class="form-control"
+               placeholder="Ad ve soyad yazınız" />
+
+        <span asp-validation-for="FullName"
+              class="text-danger">
+        </span>
+    </div>
+
+    <div class="admin-form-field">
+        <label asp-for="Position" class="form-label"></label>
+
+        <select asp-for="Position"
+                asp-items="Html.GetEnumSelectList<BoardPosition>()"
+                class="form-select">
+            <option value="">Görev seçiniz</option>
+        </select>
+
+        <span asp-validation-for="Position"
+              class="text-danger">
+        </span>
+    </div>
+
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="ProfessionalTitle"
+               class="form-label">
+        </label>
+
+        <input asp-for="ProfessionalTitle"
+               class="form-control"
+               placeholder="Örneğin: Sigorta Araştırmacısı" />
+
+        <span asp-validation-for="ProfessionalTitle"
+              class="text-danger">
+        </span>
+    </div>
+
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="Biography" class="form-label"></label>
+
+        <textarea asp-for="Biography"
+                  class="form-control"
+                  rows="5"
+                  placeholder="Dernek yönetim üyesi hakkında kısa bilgi yazınız">
+        </textarea>
+
+        <div class="admin-form-help">
+            En fazla 1000 karakter yazabilirsiniz.
+        </div>
+
+        <span asp-validation-for="Biography"
+              class="text-danger">
+        </span>
+    </div>
+
+    <!-- Yalnızca Dernek Başkanı için gösterilen Ana Sayfa Mesaj Alanı -->
+    <div id="presidentMessageSection" class="admin-form-field admin-form-field--full p-0 border-0" style="@(Model.Position == BoardPosition.President ? "" : "display: none;")">
+        <div class="admin-form-field admin-form-field--full mb-3">
+            <div class="admin-form-section-heading">
+                <span>Ana Sayfa İçeriği</span>
+                <strong>Başkanın Mesajı</strong>
+                <p>
+                    Bu alanlar yalnızca yönetim görevi “Dernek Başkanı” olan
+                    aktif ve yayındaki kişi için ana sayfada kullanılır.
+                </p>
+            </div>
+        </div>
+
+        <div class="admin-form-field admin-form-field--full mb-3">
+            <label asp-for="HomepageMessageTitle" class="form-label"></label>
+            <input asp-for="HomepageMessageTitle" class="form-control" placeholder="Başkan mesajının ana sayfa başlığı" />
+            <div class="admin-form-help">En fazla 180 karakter yazabilirsiniz.</div>
+            <span asp-validation-for="HomepageMessageTitle" class="text-danger"></span>
+        </div>
+
+        <div class="admin-form-field admin-form-field--full mb-3">
+            <label asp-for="HomepageMessageSummary" class="form-label"></label>
+            <textarea asp-for="HomepageMessageSummary" class="form-control" rows="5" placeholder="Ana sayfada gösterilecek orta uzunluktaki mesaj özeti"></textarea>
+            <div class="admin-form-help">En fazla 900 karakter yazabilirsiniz.</div>
+            <span asp-validation-for="HomepageMessageSummary" class="text-danger"></span>
+        </div>
+
+        <div class="admin-form-field admin-form-field--full mb-3">
+            <label asp-for="PresidentMessageContent" class="form-label"></label>
+            <textarea asp-for="PresidentMessageContent" class="form-control" rows="9" placeholder="Başkan mesajının ayrıntılı metnini yazınız"></textarea>
+            <div class="admin-form-help">“Mesajın Tamamını Oku” sayfasında gösterilir. En fazla 4000 karakter yazabilirsiniz.</div>
+            <span asp-validation-for="PresidentMessageContent" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="PhotoFile" class="form-label"></label>
+
+        <div class="admin-image-field">
+            <div class="admin-image-preview"
+                 data-slider-image-preview>
+
+                <img src="@(string.IsNullOrWhiteSpace(
+                    Model.ExistingPhotoUrl)
+                    ? ""
+                    : Url.Content(Model.ExistingPhotoUrl))"
+                     alt="Profil fotoğrafı ön izlemesi"
+                     class="@(string.IsNullOrWhiteSpace(
+                        Model.ExistingPhotoUrl)
+                        ? "d-none"
+                        : "")"
+                     data-slider-preview-image />
+
+                <div class="admin-image-preview__placeholder
+                    @(string.IsNullOrWhiteSpace(
+                        Model.ExistingPhotoUrl)
+                        ? ""
+                        : "d-none")"
+                     data-slider-preview-placeholder>
+
+                    <i class="bi bi-person-bounding-box"></i>
+                    <span>Fotoğraf ön izlemesi</span>
+                </div>
+            </div>
+
+            <div>
+                <input asp-for="PhotoFile"
+                       type="file"
+                       class="form-control"
+                       accept=".jpg,.jpeg,.png,.webp"
+                       data-slider-image-input />
+
+                <div class="admin-form-help">
+                    JPG, JPEG, PNG veya WEBP; en fazla 5 MB.
+                </div>
+
+                <span asp-validation-for="PhotoFile"
+                      class="text-danger">
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-form-field">
+        <label asp-for="TermStart" class="form-label"></label>
+
+        <input asp-for="TermStart"
+               type="date"
+               class="form-control" />
+
+        <span asp-validation-for="TermStart"
+              class="text-danger">
+        </span>
+    </div>
+
+    <div class="admin-form-field">
+        <label asp-for="TermEnd" class="form-label"></label>
+
+        <input asp-for="TermEnd"
+               type="date"
+               class="form-control" />
+
+        <span asp-validation-for="TermEnd"
+              class="text-danger">
+        </span>
+    </div>
+
+    <div class="admin-form-field">
+        <label asp-for="DisplayOrder" class="form-label"></label>
+
+        <input asp-for="DisplayOrder"
+               type="number"
+               min="0"
+               max="100"
+               class="form-control" />
+
+        <div class="admin-form-help">
+            Küçük sayı yazılan kişi listede önce gösterilir.
+        </div>
+
+        <span asp-validation-for="DisplayOrder"
+              class="text-danger">
+        </span>
+    </div>
+
+    <div class="admin-form-field">
+        <label class="form-label">Görev Durumu</label>
+
+        <div class="admin-form-switch">
+            <input asp-for="IsActive"
+                   class="form-check-input" />
+
+            <label asp-for="IsActive">
+                Bu kişinin yönetim görevi devam ediyor
+            </label>
+        </div>
+    </div>
+
+    <div class="admin-form-field">
+        <label class="form-label">Site Görünürlüğü</label>
+
+        <div class="admin-form-switch">
+            <input asp-for="IsPublished"
+                   class="form-check-input" />
+
+            <label asp-for="IsPublished">
+                Bu kişi sitede gösterilsin
+            </label>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var positionSelect = document.getElementById("Position");
+        var presidentSection = document.getElementById("presidentMessageSection");
+        if (positionSelect && presidentSection) {
+            function updatePresidentSection() {
+                if (positionSelect.value === "1") {
+                    presidentSection.style.display = "";
+                } else {
+                    presidentSection.style.display = "none";
+                }
+            }
+            positionSelect.addEventListener("change", updatePresidentSection);
+            updatePresidentSection();
+        }
+
+        var isActiveInput = document.getElementById("IsActive");
+        var isPublishedInput = document.getElementById("IsPublished");
+        if (isActiveInput && isPublishedInput) {
+            isActiveInput.addEventListener("change", function () {
+                if (!this.checked) {
+                    isPublishedInput.checked = false;
+                }
+            });
+        }
+    });
+</script>

@@ -1,140 +1,894 @@
-﻿<!DOCTYPE html>
-<html lang="tr">
+<!DOCTYPE html>
+@using SigortaDernegi.Data
+@{
+    var isManagementUser =
+        User.IsInRole(IdentitySeedData.AdminRole) ||
+        User.IsInRole(IdentitySeedData.VicePresidentRole) ||
+        User.IsInRole(IdentitySeedData.TreasurerRole) ||
+        User.IsInRole(IdentitySeedData.GeneralSecretaryRole);
+
+    var isMemberUser =
+        User.IsInRole(IdentitySeedData.MemberRole);
+
+    var isHomePage =
+        string.Equals(
+            ViewContext.RouteData.Values["controller"]?.ToString(),
+            "Home",
+            StringComparison.OrdinalIgnoreCase)
+        &&
+        string.Equals(
+            ViewContext.RouteData.Values["action"]?.ToString(),
+            "Index",
+            StringComparison.OrdinalIgnoreCase);
+}
+
+<html lang="tr" class="@(isHomePage ? "home-page-root" : null)">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Hi Sigorta | Sigorta Araştırmacıları ve Uzmanları Derneği</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <!-- Üst Bilgi Çubuğu (Top Bar) -->
-        <div class="bg-dark text-white py-1 px-3 fs-7 border-bottom border-secondary">
-            <div class="container d-flex justify-content-between align-items-center small">
-                <div>
-                    <i class="bi bi-envelope-fill me-1 text-warning"></i> info@hisigorta.org.tr
-                </div>
-                <div>
-                    <a asp-controller="Report" asp-action="Index" class="text-decoration-none d-inline-flex align-items-center">
-    <span class="badge bg-warning text-dark me-2">Gizli İhbar Hattı</span>
-    <small class="text-white">Sigorta Suistimal Bildirimi İçin İletişime Geçin</small>
-</a>
-                </div>
-            </div>
-        </div>
 
-       <!-- Ana Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color: #0d233a;">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <meta name="description"
+          content="ELSADER - Elazığ Sigorta Acenteleri Derneği" />
+
+    <title>@ViewData["Title"] - ELSADER</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet"
+          href="~/css/theme.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="@(isHomePage ? "home-page-body" : null)">
+    <div id="pageTop" aria-hidden="true"></div>
+    <header class="hisad-header">
+
+        <nav class="navbar navbar-expand-xl hisad-navbar"
+             aria-label="Ana menü">
+
             <div class="container">
-                <a class="navbar-brand fw-bold d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                    <span class="fs-3 me-2 text-warning">Hi Sigorta</span>
-                    <span class="fs-6 d-none d-sm-inline-block lh-sm border-start border-secondary ps-2 text-light fw-normal">
-                        Sigorta Araştırmacıları ve<br>Uzmanları Derneği
-                    </span>
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#hiSigortaNavbar">
-                    <span class="navbar-toggler-icon"></span>
+
+                <!-- Sol: 3 Çizgi Menü Butonu (Yalnızca Telefon/Tablet) -->
+                <button class="hisad-mobile-menu-btn d-xl-none"
+                        type="button"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#hisadMobileOffcanvas"
+                        aria-controls="hisadMobileOffcanvas"
+                        aria-label="Menüyü aç">
+                    <i class="bi bi-list" aria-hidden="true"></i>
                 </button>
 
-                <div class="collapse navbar-collapse" id="hiSigortaNavbar">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-1 list-unstyled">
-                        <!-- Ana Sayfa -->
+                <!-- Orta: Logo & Dernek İsmi (Mobilde tam ortalanır, PC'de sola yaslı) -->
+                <a class="navbar-brand hisad-brand"
+                   asp-area="" asp-controller="Home"
+                   asp-action="Index"
+                   aria-label="ELSADER ana sayfa">
+
+                    <span class="hisad-brand__mark"
+                          aria-hidden="true">
+                        <img src="~/images/hisad-logo-mark.png"
+                             alt=""
+                             asp-append-version="true" />
+                    </span>
+
+                    <span class="hisad-brand__text">
+
+                        <strong>ELSADER</strong>
+
+                        <small>
+                            Elazığ Sigorta<br />
+                            Acenteleri Derneği
+                        </small>
+
+                    </span>
+                </a>
+
+                <!-- Sağ: Üye İkonu / Menüsü (Yalnızca Telefon/Tablet - PC görünümü %100 korunmuştur) -->
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="dropdown hisad-mobile-user-dropdown d-xl-none">
+                        <a href="#"
+                           class="hisad-mobile-user-btn"
+                           role="button"
+                           id="mobileUserMenuDropdown"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false"
+                           aria-label="Üyelik İşlemleri">
+                            <i class="bi bi-person" aria-hidden="true"></i>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2"
+                            aria-labelledby="mobileUserMenuDropdown"
+                            style="min-width: 170px; border-radius: 12px; margin-top: 8px;">
+                            @if (isMemberUser)
+                            {
+                                <li>
+                                    <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2"
+                                       asp-area="Member"
+                                       asp-controller="Dashboard"
+                                       asp-action="Index">
+                                        <i class="bi bi-person-badge" style="color: #0d9488;" aria-hidden="true"></i>
+                                        <span class="fw-semibold">Üye Paneli</span>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li>
+                                    <form asp-area="Identity"
+                                          asp-page="/Account/Logout"
+                                          asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                                          method="post" class="m-0">
+                                        <button class="dropdown-item py-2 px-3 text-danger d-flex align-items-center gap-2 w-100" type="submit">
+                                            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                            <span class="fw-semibold">Çıkış Yap</span>
+                                        </button>
+                                    </form>
+                                </li>
+                            }
+                            else if (isManagementUser)
+                            {
+                                <li>
+                                    <a class="dropdown-item py-2 px-3 d-flex align-items-center gap-2"
+                                       asp-area="Admin"
+                                       asp-controller="Dashboard"
+                                       asp-action="Index">
+                                        <i class="bi bi-person-gear" style="color: #0d9488;" aria-hidden="true"></i>
+                                        <span class="fw-semibold">Yönetim Paneli</span>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li>
+                                    <form asp-area="Identity"
+                                          asp-page="/Account/Logout"
+                                          asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                                          method="post" class="m-0">
+                                        <button class="dropdown-item py-2 px-3 text-danger d-flex align-items-center gap-2 w-100" type="submit">
+                                            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                            <span class="fw-semibold">Çıkış Yap</span>
+                                        </button>
+                                    </form>
+                                </li>
+                            }
+                            else
+                            {
+                                <li>
+                                    <form asp-area="Identity"
+                                          asp-page="/Account/Logout"
+                                          asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                                          method="post" class="m-0">
+                                        <button class="dropdown-item py-2 px-3 text-danger d-flex align-items-center gap-2 w-100" type="submit">
+                                            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                            <span class="fw-semibold">Çıkış Yap</span>
+                                        </button>
+                                    </form>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a asp-area="Identity"
+                       asp-page="/Account/Login"
+                       class="hisad-mobile-user-btn d-xl-none"
+                       aria-label="Üye Girişi">
+                        <i class="bi bi-person" aria-hidden="true"></i>
+                    </a>
+                }
+
+                <!-- Masaüstü Menüsü (PC tarafı %100 korunmuştur) -->
+                <div class="collapse navbar-collapse d-none d-xl-flex"
+                     id="hisadMainMenu">
+
+                    <ul class="navbar-nav hisad-menu mx-xl-auto">
+
                         <li class="nav-item">
-                            <a class="nav-link text-white fw-semibold" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white fw-semibold" asp-controller="Home" asp-action="Donate">
-                                <i class="bi bi-cash-coin me-1"></i>Bağış Yap
+                            <a class="nav-link"
+                               asp-area="" asp-controller="Home"
+                               asp-action="Index">
+                                Ana Sayfa
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-white fw-semibold" asp-controller="Home" asp-action="Volunteer">
-                                <i class="bi bi-heart-fill me-1"></i>Gönüllü Ol
-                            </a>
-                        </li>
-
-                        <!-- Kurumsal -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white fw-semibold" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               id="aboutDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
                                 Kurumsal
                             </a>
-                            <ul class="dropdown-menu shadow" aria-labelledby="aboutDropdown">
-                                <li><a class="dropdown-item" asp-controller="About" asp-action="Index">Hakkımızda</a></li>
-                                <li><a class="dropdown-item" asp-controller="About" asp-action="Bylaws">Tüzük & Etik İlkeler</a></li>
-                                <li><a class="dropdown-item" asp-controller="About" asp-action="Board">Yönetim Kurulu</a></li>
-                                <li><a class="dropdown-item" asp-controller="About" asp-action="Committees">Komisyonlar</a></li>
+
+                            <ul class="dropdown-menu"
+                                aria-labelledby="aboutDropdown">
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="About"
+                                       asp-action="Index">
+                                        Hakkımızda
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="About"
+                                       asp-action="Bylaws">
+                                        Dernek Tüzüğü ve Etik İlkeler
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="About"
+                                       asp-action="Legislation">
+                                        Mevzuat
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="About"
+                                       asp-action="Board">
+                                        Yönetim Kurulu
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="About"
+                                       asp-action="Committees">
+                                        Komisyonlar
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="Home"
+                                       asp-action="Privacy">
+                                        KVKK Aydınlatma Metni
+                                    </a>
+                                </li>
+
                             </ul>
                         </li>
 
-                        <!-- Üyelik -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white fw-semibold" href="#" id="membershipDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               id="membershipDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
                                 Üyelik
                             </a>
-                            <ul class="dropdown-menu shadow" aria-labelledby="membershipDropdown">
-                                <li><a class="dropdown-item" asp-controller="Membership" asp-action="Conditions">Üyelik Koşulları & Tipleri</a></li>
-                                <li><a class="dropdown-item" asp-controller="Membership" asp-action="Apply">Online Üyelik Başvurusu</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" asp-controller="Membership" asp-action="Directory">Uzman & Üye Rehberi</a></li>
+
+                            <ul class="dropdown-menu"
+                                aria-labelledby="membershipDropdown">
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="Membership"
+                                       asp-action="Conditions">
+                                        Üyelik Koşulları
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="Membership"
+                                       asp-action="Apply">
+                                        Online Üyelik Başvurusu
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="Membership"
+                                       asp-action="Directory">
+                                                       Uzman ve Üye Rehberi
+            </a>
+        </li>
+
+        <li>
+            <a class="dropdown-item"
+               asp-area="" asp-controller="Home"
+               asp-action="Volunteer">
+                Gönüllü Ol
+            </a>
+        </li>
+
+    </ul>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link"
+       asp-area="" asp-controller="Events"
+       asp-action="Index">
+        Etkinlikler
+    </a>
+</li>
+
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle"
+       href="#"
+       id="newsDropdown"
+       role="button"
+       data-bs-toggle="dropdown"
+       aria-expanded="false">
+        Haberler
+    </a>
+
+    <ul class="dropdown-menu shadow-sm"
+        aria-labelledby="newsDropdown">
+        <li>
+            <a class="dropdown-item"
+               asp-area="" asp-controller="News"
+               asp-action="Index">
+                Haberler
+            </a>
+        </li>
+
+        <li>
+            <a class="dropdown-item"
+               asp-area="" asp-controller="News"
+               asp-action="Announcements">
+                Duyurular
+            </a>
+        </li>
+    </ul>
+</li>
+
+                        <li class="nav-item dropdown">
+
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               id="mediaDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                Multimedya
+                            </a>
+
+                            <ul class="dropdown-menu"
+                                aria-labelledby="mediaDropdown">
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="Multimedia"
+                                       asp-action="Index"
+                                       asp-fragment="fotograflar">
+                                        Foto Galeri
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="Multimedia"
+                                       asp-action="Index"
+                                       asp-fragment="basinda-biz">
+                                        Basında Biz
+                                    </a>
+                                </li>
+
                             </ul>
                         </li>
 
-                        <!-- Haberler & Duyurular -->
-                        <li class="nav-item">
-                            <a class="nav-link text-white fw-semibold" asp-controller="News" asp-action="Index">Haberler & Duyurular</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               id="contactDropdown"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                İletişim
+                            </a>
+
+                            <ul class="dropdown-menu"
+                                aria-labelledby="contactDropdown">
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="Contact"
+                                       asp-action="Index">
+                                        Bize Ulaşın
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="Report"
+                                       asp-action="Index">
+                                        Gizli İhbar Hattı
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-area="" asp-controller="Faq"
+                                       asp-action="Index">
+                                        Sıkça Sorulan Sorular
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
 
-                        <!-- İletişim -->
-                        <li class="nav-item">
-                            <a class="nav-link text-white fw-semibold" asp-controller="Contact" asp-action="Index">İletişim</a>
-                        </li>
                     </ul>
 
-                    <partial name="_LoginPartial" />
+                    <div class="hisad-header-actions">
+
+                        @if (isMemberUser)
+                        {
+                            <a class="hisad-header-actions__login"
+                               asp-area="Member"
+                               asp-controller="Dashboard"
+                               asp-action="Index">
+
+                                <i class="bi bi-person-badge"
+                                   aria-hidden="true"></i>
+
+                                <span>Üye Paneli</span>
+                            </a>
+                        }
+
+                        @if (isManagementUser)
+                        {
+                            <a class="hisad-header-actions__login"
+                               asp-area="Admin"
+                               asp-controller="Dashboard"
+                               asp-action="Index">
+
+                                <i class="bi bi-person-gear"
+                                   aria-hidden="true"></i>
+
+                                <span>Yönetim</span>
+                            </a>
+                        }
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <form asp-area="Identity"
+                                  asp-page="/Account/Logout"
+                                  asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                                  method="post">
+
+                                <button class="hisad-header-actions__logout"
+                                        type="submit">
+                                    Çıkış
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a class="hisad-header-actions__login"
+                               asp-area="Identity"
+                               asp-page="/Account/Login">
+
+                                <i class="bi bi-lock"
+                                   aria-hidden="true"></i>
+
+                                <span>Üye Girişi</span>
+                            </a>
+                        }
+
+                        <a class="hisad-header-actions__donate"
+                           asp-area="" asp-controller="Home"
+                           asp-action="Donate">
+
+                            <i class="bi bi-heart"
+                               aria-hidden="true"></i>
+
+                            <span>Bağış Yap</span>
+                        </a>
+
+                        @if (User.Identity?.IsAuthenticated != true)
+                        {
+                            <a class="hisad-header-actions__join"
+                               asp-area="" asp-controller="Membership"
+                               asp-action="Apply">
+                                Üye Ol
+                            </a>
+                        }
+
+                    </div>
                 </div>
             </div>
         </nav>
-    </header>
 
-    <div class="container">
-        <main role="main" class="pb-3 pt-4">
-            @RenderBody()
-        </main>
-    </div>
+        <!-- Soldan Açılan Mobil Çekmece Menü (Yalnızca Telefon/Tablet) -->
+        <div class="offcanvas offcanvas-start hisad-mobile-offcanvas d-xl-none"
+             tabindex="-1"
+             id="hisadMobileOffcanvas"
+             aria-labelledby="hisadMobileOffcanvasLabel">
 
-    <footer class="text-white pt-4 pb-3 mt-5" style="background-color: #0a192f;">
-        <div class="container border-bottom border-secondary pb-3">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <h5 class="text-warning fw-bold">Hi Sigorta</h5>
-                    <p class="small text-light">Hi Sigorta Derneği; sigorta suistimalleriyle mücadele etmek, saha inceleme standartlarını yükseltmek ve sektörde etik ilkeleri yaygınlaştırmak amacıyla kurulmuştur.</p>
+            <div class="offcanvas-header hisad-mobile-offcanvas__header">
+                <div class="hisad-mobile-offcanvas__brand d-flex align-items-center gap-2">
+                    <img src="~/images/hisad-logo-mark.png"
+                         alt=""
+                         class="hisad-mobile-offcanvas__logo"
+                         asp-append-version="true" />
+                    <span class="d-flex flex-column text-start" style="line-height: 1.2;">
+                        <strong style="font-size: 1.05rem; font-weight: 800; color: #071f35; letter-spacing: -0.01em;">ELSADER</strong>
+                        <small style="font-size: 0.72rem; color: #52677c; font-weight: 600;">Elazığ Sigorta Acenteleri Derneği</small>
+                    </span>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <h6 class="text-warning">İletişim & Bildirim</h6>
-                    <p class="small mb-1">
-                        <a asp-controller="Contact" asp-action="Index" class="text-white text-decoration-none">
-                            <i class="bi bi-envelope text-warning me-1"></i> Bize Ulaşın / İletişim
+
+                <button type="button"
+                        class="hisad-mobile-offcanvas__close"
+                        data-bs-dismiss="offcanvas"
+                        aria-label="Kapat">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="offcanvas-body hisad-mobile-offcanvas__body">
+                <ul class="hisad-mobile-nav">
+                    <li>
+                        <a class="hisad-mobile-nav__link"
+                           asp-area="" asp-controller="Home"
+                           asp-action="Index">
+                            <span>ANA SAYFA</span>
                         </a>
-                    </p>
-                    <p class="small mb-0">
-                        <a asp-controller="Report" asp-action="Index" class="text-danger text-decoration-none fw-semibold">
-                            <i class="bi bi-shield-exclamation me-1"></i> Gizli İhbar Yap
+                    </li>
+
+                    <li class="hisad-mobile-nav__item">
+                        <a class="hisad-mobile-nav__link hisad-mobile-nav__toggle collapsed"
+                           data-bs-toggle="collapse"
+                           href="#mobileSubAbout"
+                           role="button"
+                           aria-expanded="false"
+                           aria-controls="mobileSubAbout">
+                            <span>KURUMSAL</span>
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
                         </a>
-                    </p>
+                        <div class="collapse hisad-mobile-subnav" id="mobileSubAbout">
+                            <a asp-area="" asp-controller="About" asp-action="Index">Hakkımızda</a>
+                            <a asp-area="" asp-controller="About" asp-action="Bylaws">Dernek Tüzüğü ve Etik İlkeler</a>
+                            <a asp-area="" asp-controller="About" asp-action="Legislation">Mevzuat</a>
+                            <a asp-area="" asp-controller="About" asp-action="Board">Yönetim Kurulu</a>
+                            <a asp-area="" asp-controller="About" asp-action="Committees">Komisyonlar</a>
+                            <a asp-area="" asp-controller="Home" asp-action="Privacy">KVKK Aydınlatma Metni</a>
+                        </div>
+                    </li>
+
+                    <li class="hisad-mobile-nav__item">
+                        <a class="hisad-mobile-nav__link hisad-mobile-nav__toggle collapsed"
+                           data-bs-toggle="collapse"
+                           href="#mobileSubMembership"
+                           role="button"
+                           aria-expanded="false"
+                           aria-controls="mobileSubMembership">
+                            <span>ÜYELİK</span>
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </a>
+                        <div class="collapse hisad-mobile-subnav" id="mobileSubMembership">
+                            <a asp-area="" asp-controller="Membership" asp-action="Conditions">Üyelik Koşulları</a>
+                            <a asp-area="" asp-controller="Membership" asp-action="Apply">Online Üyelik Başvurusu</a>
+                            <a asp-area="" asp-controller="Membership" asp-action="Directory">Uzman ve Üye Rehberi</a>
+                            <a asp-area="" asp-controller="Home" asp-action="Volunteer">Gönüllü Ol</a>
+                        </div>
+                    </li>
+
+                    <li>
+                        <a class="hisad-mobile-nav__link"
+                           asp-area="" asp-controller="Events"
+                           asp-action="Index">
+                            ETKİNLİKLER
+                        </a>
+                    </li>
+
+                    <li class="hisad-mobile-nav__item">
+                        <a class="hisad-mobile-nav__link hisad-mobile-nav__toggle collapsed"
+                           data-bs-toggle="collapse"
+                           href="#mobileSubNews"
+                           role="button"
+                           aria-expanded="false"
+                           aria-controls="mobileSubNews">
+                            <span>HABERLER</span>
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </a>
+                        <div class="collapse hisad-mobile-subnav" id="mobileSubNews">
+                            <a asp-area="" asp-controller="News" asp-action="Index">Sektörel Haberler</a>
+                            <a asp-area="" asp-controller="News" asp-action="Announcements">Duyurular</a>
+                        </div>
+                    </li>
+
+                    <li class="hisad-mobile-nav__item">
+                        <a class="hisad-mobile-nav__link hisad-mobile-nav__toggle collapsed"
+                           data-bs-toggle="collapse"
+                           href="#mobileSubMedia"
+                           role="button"
+                           aria-expanded="false"
+                           aria-controls="mobileSubMedia">
+                            <span>MULTİMEDYA</span>
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </a>
+                        <div class="collapse hisad-mobile-subnav" id="mobileSubMedia">
+                            <a asp-area="" asp-controller="Multimedia" asp-action="Index" asp-fragment="fotograflar">Foto Galeri</a>
+                            <a asp-area="" asp-controller="Multimedia" asp-action="Index" asp-fragment="basinda-biz">Basında Biz</a>
+                        </div>
+                    </li>
+
+                    <li class="hisad-mobile-nav__item">
+                        <a class="hisad-mobile-nav__link hisad-mobile-nav__toggle collapsed"
+                           data-bs-toggle="collapse"
+                           href="#mobileSubContact"
+                           role="button"
+                           aria-expanded="false"
+                           aria-controls="mobileSubContact">
+                            <span>İLETİŞİM</span>
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </a>
+                        <div class="collapse hisad-mobile-subnav" id="mobileSubContact">
+                            <a asp-area="" asp-controller="Contact" asp-action="Index">Bize Ulaşın</a>
+                            <a asp-area="" asp-controller="Report" asp-action="Index">Gizli İhbar Hattı</a>
+                            <a asp-area="" asp-controller="Faq" asp-action="Index">Sıkça Sorulan Sorular</a>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="hisad-mobile-offcanvas__actions">
+                    @if (isMemberUser)
+                    {
+                        <a class="btn hisad-mobile-btn--login"
+                           asp-area="Member"
+                           asp-controller="Dashboard"
+                           asp-action="Index">
+                            <i class="bi bi-person-badge" aria-hidden="true"></i>
+                            <span>Üye Paneli</span>
+                        </a>
+                    }
+                    else if (isManagementUser)
+                    {
+                        <a class="btn hisad-mobile-btn--login"
+                           asp-area="Admin"
+                           asp-controller="Dashboard"
+                           asp-action="Index">
+                            <i class="bi bi-person-gear" aria-hidden="true"></i>
+                            <span>Yönetim Paneli</span>
+                        </a>
+                    }
+                    else if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form asp-area="Identity"
+                              asp-page="/Account/Logout"
+                              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                              method="post">
+                            <button class="btn hisad-mobile-btn--logout w-100" type="submit">
+                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                <span>Çıkış Yap</span>
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="btn hisad-mobile-btn--login"
+                           asp-area="Identity"
+                           asp-page="/Account/Login">
+                            <i class="bi bi-lock-fill" aria-hidden="true"></i>
+                            <span>Üye Girişi</span>
+                        </a>
+
+                        <a class="btn hisad-mobile-btn--join"
+                           asp-area="" asp-controller="Membership"
+                           asp-action="Apply">
+                            <i class="bi bi-person-plus-fill" aria-hidden="true"></i>
+                            <span>Üye Ol</span>
+                        </a>
+                    }
+
+                    <a class="btn hisad-mobile-btn--donate"
+                       asp-area="" asp-controller="Home"
+                       asp-action="Donate">
+                        <i class="bi bi-heart-fill" aria-hidden="true"></i>
+                        <span>Bağış Yap</span>
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="container text-center pt-3 small text-muted">
-            &copy; 2026 - Hi Sigorta | Sigorta Araştırmacıları ve Uzmanları Derneği - Tüm Hakları Saklıdır.
+    </header>
+
+    <div class="@(isHomePage ? "container-fluid px-0 home-page-shell" : "container")">
+
+        <main role="main"
+              class="@(isHomePage ? "pb-3" : "pb-3 pt-4")">
+
+            @RenderBody()
+
+        </main>
+    </div>
+
+    <footer class="hisad-footer mt-5">
+        <div class="container py-5">
+            <div class="row g-4 g-xl-5">
+                <div class="col-12 col-lg-4">
+                    <a class="hisad-footer__brand"
+                       asp-area="" asp-controller="Home"
+                       asp-action="Index"
+                       aria-label="ELSADER ana sayfa">
+                        <img class="hisad-footer__logo"
+                             src="~/images/hisad-logo-mark.png"
+                             alt=""
+                             asp-append-version="true" />
+
+                        <span>
+                            <strong>ELSADER</strong>
+                            <small>Elazığ Sigorta Acenteleri Derneği</small>
+                        </span>
+                    </a>
+
+                    <p class="hisad-footer__description mb-0">
+                        Sigorta araştırmalarında mesleki standartları yükseltmek,
+                        bilgi paylaşımını geliştirmek ve etik ilkeleri yaygınlaştırmak
+                        amacıyla faaliyet gösteriyoruz.
+                    </p>
+
+                    @await Component.InvokeAsync("FooterContact")
+                </div>
+
+                <nav class="col-6 col-md-3 col-lg-2"
+                     aria-labelledby="footerCorporateTitle">
+                    <h2 id="footerCorporateTitle"
+                        class="hisad-footer__title">
+                        Kurumsal
+                    </h2>
+
+                    <ul class="hisad-footer__links list-unstyled mb-0">
+                        <li>
+                            <a asp-area="" asp-controller="About" asp-action="Index">Hakkımızda</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="About" asp-action="Bylaws">Tüzük ve Etik İlkeler</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="About" asp-action="Legislation">Mevzuat</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="About" asp-action="Board">Yönetim Kurulu</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="About" asp-action="Committees">Komisyonlar</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Home" asp-action="Privacy">KVKK Aydınlatma Metni</a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <nav class="col-6 col-md-3 col-lg-2"
+                     aria-labelledby="footerMembershipTitle">
+                    <h2 id="footerMembershipTitle"
+                        class="hisad-footer__title">
+                        Üyelik
+                    </h2>
+
+                    <ul class="hisad-footer__links list-unstyled mb-0">
+                        <li>
+                            <a asp-area="" asp-controller="Membership" asp-action="Conditions">Üyelik Koşulları</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Membership" asp-action="Apply">Online Başvuru</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Membership" asp-action="Directory">Uzman ve Üye Rehberi</a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <nav class="col-6 col-md-3 col-lg-2"
+                     aria-labelledby="footerContentTitle">
+                    <h2 id="footerContentTitle"
+                        class="hisad-footer__title">
+                        İçerikler
+                    </h2>
+
+                    <ul class="hisad-footer__links list-unstyled mb-0">
+                        <li>
+                            <a asp-area="" asp-controller="Events" asp-action="Index">Etkinlikler</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="News" asp-action="Index">Haberler</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="News" asp-action="Announcements">Duyurular</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Multimedia"
+                               asp-action="Index"
+                               asp-fragment="fotograflar">
+                                Foto Galeri
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Multimedia"
+                               asp-action="Index"
+                               asp-fragment="basinda-biz">
+                                Basında Biz
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <nav class="col-6 col-md-3 col-lg-2"
+                     aria-labelledby="footerContactTitle">
+                    <h2 id="footerContactTitle"
+                        class="hisad-footer__title">
+                        İletişim
+                    </h2>
+
+                    <ul class="hisad-footer__links list-unstyled mb-0">
+                        <li>
+                            <a asp-area="" asp-controller="Contact" asp-action="Index">Bize Ulaşın</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Faq" asp-action="Index">Sıkça Sorulan Sorular</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Report"
+                               asp-action="Index">Gizli İhbar Hattı</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Home" asp-action="Volunteer">Gönüllü Ol</a>
+                        </li>
+                        <li>
+                            <a asp-area="" asp-controller="Home" asp-action="Donate">Bağış Yap</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <div class="hisad-footer__bottom">
+            <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 hisad-footer__bottom-layout--home">
+                <span>
+                    &copy; @DateTime.Now.Year ELSADER. Tüm hakları saklıdır.
+                </span>
+
+                <span>
+                    Elazığ Sigorta Acenteleri Derneği
+                </span>
+
+                <a class="hisad-footer__back-to-top"
+                   href="#pageTop"
+                   data-back-to-top
+                   aria-label="Sayfanın en başına dön">
+                    <i class="bi bi-arrow-up" aria-hidden="true"></i>
+                </a>
+            </div>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
+    @await RenderSectionAsync(
+                "Scripts",
+                required: false)
+
 </body>
 </html>

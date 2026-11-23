@@ -1,0 +1,235 @@
+﻿@model IReadOnlyList<SigortaDernegi.Models.MembershipApplication>
+
+@using SigortaDernegi.Areas.Admin.Authorization
+@using SigortaDernegi.Models
+@inject IRolePermissionService PermissionService
+
+@{
+    ViewData["Title"] = "Üyelik Başvuruları";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    var canApprove = await PermissionService.HasPermissionAsync(
+        User,
+        ManagementArea.ApplicationsAndCommunication,
+        PermissionActionType.Approve);
+
+    var canAddMember = await PermissionService.HasPermissionAsync(
+        User,
+        ManagementArea.MemberManagement,
+        PermissionActionType.Add);
+
+    var canDelete = await PermissionService.HasPermissionAsync(
+        User,
+        ManagementArea.ApplicationsAndCommunication,
+        PermissionActionType.Delete);
+}
+
+<main class="admin-applications-page">
+
+    <div class="container">
+
+        <!-- Sayfa başlığı -->
+        <div class="admin-applications-heading">
+
+            <div>
+
+                <span>Yönetim Paneli</span>
+
+                <h1>Üyelik Başvuruları</h1>
+
+                <p>
+                    İnternet sitesi üzerinden gönderilen üyelik
+                    ön başvurularını görüntüleyebilirsiniz.
+                </p>
+
+            </div>
+
+        </div>
+
+        @if (TempData["SuccessMessage"] is string successMessage)
+        {
+                <div class="admin-feedback admin-feedback--success" role="status">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>@successMessage</span>
+                </div>
+        }
+
+        @if (TempData["ErrorMessage"] is string errorMessage)
+        {
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    @errorMessage
+                </div>
+        }
+
+        <!-- Toplam kayıt -->
+        <div class="admin-applications-summary">
+
+            <div class="admin-applications-summary__icon"
+                 aria-hidden="true">
+                <i class="bi bi-person-plus"></i>
+            </div>
+
+            <div>
+                <span>Toplam Başvuru</span>
+                <strong>@Model.Count</strong>
+            </div>
+
+        </div>
+
+        @if (Model.Count == 0)
+        {
+                <!-- Başvuru yoksa -->
+                <div class="admin-applications-empty">
+
+                    <i class="bi bi-inbox"
+                       aria-hidden="true"></i>
+
+                    <h2>Henüz başvuru bulunmuyor</h2>
+
+                    <p>
+                        Yeni üyelik başvuruları gönderildiğinde
+                        burada listelenecektir.
+                    </p>
+
+                </div>
+        }
+        else
+        {
+                <!-- Başvuru tablosu -->
+                <div class="admin-applications-table-wrapper">
+
+                    <table class="admin-applications-table">
+
+                        <thead>
+                            <tr>
+                                <th>Başvuru Sahibi</th>
+                                <th>Üyelik Türü</th>
+                                <th>İletişim</th>
+                                <th>Uzmanlık</th>
+                                <th>Şehir</th>
+                                <th>Başvuru Tarihi</th>
+                                <th>Durum</th>
+                                <th class="text-end">İşlem</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        @foreach (var application in Model)
+                        {
+                                    <tr class="admin-application-row">
+
+                                        <td>
+                                            <strong>
+                                        @application.ApplicantName
+                                            </strong>
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                       application.Message))
+                                    {
+                                                    <details class="admin-application-message">
+
+                                                        <summary>
+                                                            Açıklamayı göster
+                                                        </summary>
+
+                                                        <p>@application.Message</p>
+
+                                                    </details>
+                                    }
+                                        </td>
+
+                                        <td>
+                                            <span class="admin-application-type">
+                                        @application.MembershipType
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <a href="mailto:@application.Email">
+                                        @application.Email
+                                            </a>
+
+                                            <small>@application.Phone</small>
+                                        </td>
+
+                                        <td>
+                                    @(string.IsNullOrWhiteSpace(
+                                            application.Specialty)
+                                            ? "Belirtilmedi"
+                                            : application.Specialty)
+                                        </td>
+
+                                        <td>@application.City</td>
+
+                                        <td>
+                                    @(application.CreatedAt
+                                        .ToLocalTime()
+                                        .ToString("dd.MM.yyyy HH:mm"))
+                                        </td>
+
+                                        <td>
+                                            <span class="admin-application-status">
+                                        @application.ApplicationStatus
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <div class="d-flex flex-wrap justify-content-end gap-2">
+                                    @if (application.MemberProfile != null)
+                                    {
+                                                <a asp-area="Admin"
+                                                   asp-controller="MemberManagement"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@application.MemberProfile.Id"
+                                                   class="btn btn-outline-secondary btn-sm">
+                                                    <i class="bi bi-person-check"></i>
+                                                    Üyeyi Gör
+                                                </a>
+                                    }
+                                    else if (canApprove && canAddMember)
+                                    {
+                                                <a asp-action="ApproveMembershipApplication"
+                                                   asp-route-id="@application.Id"
+                                                   class="btn btn-primary btn-sm">
+                                                    <i class="bi bi-check2-circle"></i>
+                                                    Başvuruyu Onayla
+                                                </a>
+                                    }
+
+                                    @if (canDelete &&
+                                        application.MemberProfile == null &&
+                                        application.ApplicationStatus !=
+                                            MembershipApplicationStatuses.Approved)
+                                    {
+                                                <form asp-action="DeleteMembershipApplication"
+                                                      method="post"
+                                                      class="d-inline"
+                                                      onsubmit="return confirm('Bu üyelik başvurusu kalıcı olarak silinsin mi?');">
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@application.Id" />
+                                                    <button type="submit"
+                                                            class="btn btn-outline-danger btn-sm">
+                                                        <i class="bi bi-trash3"></i>
+                                                        Başvuruyu Sil
+                                                    </button>
+                                                </form>
+                                    }
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                        }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+        }
+
+    </div>
+
+</main>

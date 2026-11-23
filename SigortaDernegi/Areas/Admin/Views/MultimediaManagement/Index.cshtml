@@ -1,0 +1,29 @@
+@using System.Globalization
+@model IReadOnlyList<SigortaDernegi.Areas.Admin.ViewModels.MultimediaFormViewModel>
+@{
+    ViewData["Title"] = "Multimedya";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+    var canAdd = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Add);
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Edit);
+    var canApprove = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Approve);
+    var canDelete = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Delete);
+}
+<section class="admin-module content-admin-page">
+    <div class="admin-module__header"><div><span class="admin-module__eyebrow">Site Yönetimi</span><h1>Multimedya ve Basın İçerikleri</h1><p>Foto galeri, basın açıklaması, röportaj ve uzman görüşlerini yönetin.</p></div>@if (canAdd) { <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Yeni İçerik</a> }</div>
+    @if (TempData["SuccessMessage"] is string message) { <div class="admin-feedback admin-feedback--success"><i class="bi bi-check-circle-fill"></i><span>@message</span></div> }
+    <div class="content-admin-list">
+        @foreach (var mediaItem in Model)
+        {
+            <article class="content-admin-card">
+                <img src="@(string.IsNullOrWhiteSpace(mediaItem.ExistingImageUrl) ? "/images/multimedia/basin-aciklamasi.jpg" : Url.Content(mediaItem.ExistingImageUrl))" alt="" />
+                <div class="content-admin-card__body"><div class="content-admin-card__meta"><span class="content-admin-type">@(mediaItem.IsGallery ? "Foto Galeri" : "Basında Biz")</span><span class="content-admin-type">@mediaItem.Category</span><time>@mediaItem.PublishedAt.ToString("dd MMMM yyyy", culture)</time></div><h2>@mediaItem.Title</h2><p>@mediaItem.Summary</p></div>
+                <span class="admin-status-button @(mediaItem.IsActive ? "admin-status-button--active" : "admin-status-button--passive")">@(mediaItem.IsActive ? "Yayında" : "Pasif")</span>
+                <div class="content-admin-card__actions">
+                    @if (canEdit) { <a asp-action="Edit" asp-route-id="@mediaItem.Id" class="btn btn-outline-secondary"><i class="bi bi-pencil-square"></i> Düzenle</a> }
+                    @if (canApprove) { <form asp-action="ToggleStatus" asp-route-id="@mediaItem.Id" method="post"><button type="submit" class="btn btn-outline-secondary"><i class="bi @(mediaItem.IsActive ? "bi-eye-slash" : "bi-eye")"></i></button></form> }
+                    @if (canDelete) { <form asp-action="Delete" asp-route-id="@mediaItem.Id" method="post" onsubmit="return confirm('Bu multimedya içeriğini kalıcı olarak silmek istediğinize emin misiniz?');"><button type="submit" class="content-admin-delete" aria-label="@mediaItem.Title içeriğini sil"><i class="bi bi-trash3"></i></button></form> }
+                </div>
+            </article>
+        }
+    </div>
+</section>

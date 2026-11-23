@@ -1,0 +1,154 @@
+@model SigortaDernegi.Areas.Admin.ViewModels.MemberProfileFormViewModel
+
+<input asp-for="Id" type="hidden" />
+
+<div asp-validation-summary="ModelOnly"
+     class="alert alert-danger">
+</div>
+
+@if (Model.Id == 0)
+{
+    <div class="alert alert-info mb-4">
+        <i class="bi bi-key me-2"></i>
+        Bu bilgiler üyenin sisteme giriş hesabını oluşturur. Giriş e-postası
+        rehberde otomatik olarak yayımlanmaz.
+    </div>
+
+    <div class="admin-form-grid mb-4">
+        <div class="admin-form-field admin-form-field--full">
+            <label asp-for="LoginEmail" class="form-label"></label>
+            <input asp-for="LoginEmail"
+                   type="email"
+                   class="form-control"
+                   autocomplete="username"
+                   placeholder="uye@example.com" />
+            <div class="admin-form-help">
+                Üye sisteme bu e-posta adresiyle giriş yapacaktır.
+            </div>
+            <span asp-validation-for="LoginEmail" class="text-danger"></span>
+        </div>
+
+        <div class="admin-form-field">
+            <label asp-for="TemporaryPassword" class="form-label"></label>
+            <input asp-for="TemporaryPassword"
+                   class="form-control"
+                   autocomplete="new-password" />
+            <span asp-validation-for="TemporaryPassword"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="admin-form-field">
+            <label asp-for="ConfirmPassword" class="form-label"></label>
+            <input asp-for="ConfirmPassword"
+                   class="form-control"
+                   autocomplete="new-password" />
+            <span asp-validation-for="ConfirmPassword"
+                  class="text-danger"></span>
+        </div>
+    </div>
+}
+
+<div class="admin-form-grid">
+    <div class="admin-form-field">
+        <label asp-for="MemberType" class="form-label"></label>
+        <select asp-for="MemberType" class="form-select">
+            <option value="Bireysel">Bireysel Üye</option>
+            <option value="Kurumsal">Kurumsal Üye</option>
+        </select>
+        <span asp-validation-for="MemberType" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field">
+        <label asp-for="RegistryNumber" class="form-label"></label>
+        <input asp-for="RegistryNumber"
+               class="form-control"
+               placeholder="Örneğin: HSD-2026-001" />
+        <span asp-validation-for="RegistryNumber" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="DisplayName" class="form-label"></label>
+        <input asp-for="DisplayName"
+               class="form-control"
+               placeholder="Ad soyad veya kurum adı" />
+        <span asp-validation-for="DisplayName" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="Specialty" class="form-label"></label>
+        <input asp-for="Specialty"
+               class="form-control"
+               placeholder="Örneğin: Hasar Araştırma ve Ekspertiz" />
+        <span asp-validation-for="Specialty" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field">
+        <label asp-for="City" class="form-label"></label>
+        <input asp-for="City"
+               class="form-control"
+               placeholder="Örneğin: İstanbul" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field">
+        <label asp-for="Region" class="form-label"></label>
+        <input asp-for="Region"
+               class="form-control"
+               placeholder="Örneğin: Marmara" />
+        <span asp-validation-for="Region" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="ShortDescription" class="form-label"></label>
+        <textarea asp-for="ShortDescription"
+                  class="form-control"
+                  rows="4"
+                  placeholder="Üyenin uzmanlığı ve çalışma alanı hakkında kısa bilgi"></textarea>
+        <div class="admin-form-help">En fazla 500 karakter yazabilirsiniz.</div>
+        <span asp-validation-for="ShortDescription" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field">
+        <label class="form-label">Üyelik Durumu</label>
+        <div class="admin-form-switch">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label asp-for="IsActive">Üyeliği devam ediyor</label>
+        </div>
+    </div>
+
+    <div class="admin-form-field">
+        <label class="form-label">Üye Rehberi Açık Rızası</label>
+        <div class="admin-form-switch" aria-live="polite">
+            @if (Model.HasPublicationConsent)
+            {
+                <input type="checkbox" class="form-check-input" checked disabled />
+            }
+            else
+            {
+                <input type="checkbox" class="form-check-input" disabled />
+            }
+            <span>
+                @(Model.HasPublicationConsent
+                    ? "Üye kendi panelinden açık rıza verdi"
+                    : "Üye henüz açık rıza vermedi")
+            </span>
+        </div>
+        <div class="admin-form-help">
+            Bu seçim yönetim panelinden değiştirilemez. Yayın iznini yalnızca üye kendi panelinden verebilir veya geri çekebilir.
+        </div>
+    </div>
+
+    <div class="admin-form-field admin-form-field--full">
+        <label class="form-label">Rehber Görünürlüğü</label>
+        <div class="admin-form-switch">
+            <input asp-for="IsPublished" class="form-check-input" />
+            <label asp-for="IsPublished">
+                Uzman ve Üye Rehberinde göster
+            </label>
+        </div>
+        <div class="admin-form-help">
+            Bunun açılabilmesi için üyelik durumu ve yayın izni de açık olmalıdır.
+        </div>
+        <span asp-validation-for="IsPublished" class="text-danger"></span>
+    </div>
+</div>

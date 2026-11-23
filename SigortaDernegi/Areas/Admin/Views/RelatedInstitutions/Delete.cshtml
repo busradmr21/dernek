@@ -1,0 +1,50 @@
+@model RelatedInstitution
+
+@{
+    ViewData["Title"] = "Kurum Kartını Sil";
+}
+
+<section class="admin-delete-page">
+    <div class="admin-delete-card">
+        <div class="admin-delete-card__icon" aria-hidden="true">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+
+        <div class="admin-delete-card__content">
+            <span class="admin-module__eyebrow">Silme Onayı</span>
+            <h1>Bu kurum kartı silinsin mi?</h1>
+            <p>
+                Bu işlem geri alınamaz. Kart yönetim panelinden ve ana sayfadaki
+                hareketli kurum şeridinden kalıcı olarak kaldırılır.
+            </p>
+
+            <div class="institution-delete-preview">
+                <span class="institution-admin-mark">@Model.Abbreviation</span>
+                <div>
+                    <strong>@Model.Name</strong>
+                    <span>Sıra: @Model.DisplayOrder</span>
+                    <span>@(Model.IsActive ? "Yayında" : "Pasif")</span>
+                </div>
+            </div>
+
+            <form asp-area="Admin"
+                  asp-controller="RelatedInstitutions"
+                  asp-action="Delete"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  class="admin-form-actions">
+                <a asp-area="Admin"
+                   asp-controller="RelatedInstitutions"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Vazgeç
+                </a>
+
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash" aria-hidden="true"></i>
+                    Kurum Kartını Kalıcı Olarak Sil
+                </button>
+            </form>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,147 @@
+﻿@using System.Globalization
+@model SigortaDernegi.Areas.Member.ViewModels.DemoPaymentViewModel
+
+@{
+    ViewData["Title"] = "PayTR Demo Ödeme";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+<div class="member-page-heading">
+    <div>
+        <span class="member-eyebrow">TEST ÖDEME EKRANI</span>
+        <h1>PayTR Demo Ödeme</h1>
+        <p>Bu ekran yalnızca projenin ödeme akışını test etmek amacıyla hazırlanmıştır.</p>
+    </div>
+</div>
+
+<div class="alert alert-warning rounded-4 border-0 shadow-sm" role="alert">
+    <div class="d-flex align-items-start gap-3">
+        <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+
+        <div>
+            <strong>Bu bir test ve demo ödeme ekranıdır.</strong>
+            <div>
+                Gerçek kart bilgisi kullanmayın. Bu işlemde gerçek para çekilmez
+                ve PayTR sistemine herhangi bir bilgi gönderilmez.
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger rounded-4 border-0 shadow-sm" role="alert">
+        <i class="bi bi-x-circle-fill me-2"></i>
+        @errorMessage
+    </div>
+}
+
+<section class="member-panel">
+    <div class="member-panel__header">
+        <div>
+            <span>PAYTR DEMO</span>
+            <h2>Ödeme Bilgileri</h2>
+        </div>
+
+        <span class="badge rounded-pill text-bg-warning">
+            Test İşlemi
+        </span>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-md-6">
+            <div class="border rounded-4 p-3 h-100">
+                <small class="text-secondary d-block mb-1">Üye</small>
+                <strong>@Model.MemberName</strong>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="border rounded-4 p-3 h-100">
+                <small class="text-secondary d-block mb-1">Aidat dönemi</small>
+                <strong>@Model.PeriodName</strong>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="border rounded-4 p-3 h-100">
+                <small class="text-secondary d-block mb-1">Son ödeme tarihi</small>
+                <strong>@Model.DueDate.ToString("dd.MM.yyyy")</strong>
+
+                @if (Model.IsOverdue)
+                {
+                    <div class="text-danger fw-semibold mt-2">
+                        <i class="bi bi-clock-history"></i>
+                        Bu aidatın son ödeme tarihi geçmiştir.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="border rounded-4 p-3 h-100">
+                <small class="text-secondary d-block mb-1">Ödenecek sabit tutar</small>
+                <strong class="fs-3 text-primary">
+                    @Model.Amount.ToString("N2", culture) ₺
+                </strong>
+                <div class="small text-secondary">
+                    Bu tutar üye tarafından değiştirilemez.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="d-flex flex-wrap gap-2">
+        <form asp-area="Admin"
+              asp-controller="ManagementDues"
+              asp-action="SimulateDemoPayment"
+              method="post"
+              class="m-0">
+            <input type="hidden"
+                   name="memberDueId"
+                   value="@Model.MemberDueId" />
+            <input type="hidden"
+                   name="outcome"
+                   value="success" />
+
+            <button type="submit"
+                    class="btn btn-success"
+                    onclick="return confirm('Demo ödemesini başarılı olarak tamamlamak istiyor musunuz?');">
+                <i class="bi bi-check-circle"></i>
+                Başarılı Ödemeyi Simüle Et
+            </button>
+        </form>
+
+        <form asp-area="Admin"
+              asp-controller="ManagementDues"
+              asp-action="SimulateDemoPayment"
+              method="post"
+              class="m-0">
+            <input type="hidden"
+                   name="memberDueId"
+                   value="@Model.MemberDueId" />
+            <input type="hidden"
+                   name="outcome"
+                   value="failure" />
+
+            <button type="submit"
+                    class="btn btn-outline-danger">
+                <i class="bi bi-x-circle"></i>
+                Başarısız Ödemeyi Simüle Et
+            </button>
+        </form>
+
+        <a asp-area="Admin"
+           asp-controller="ManagementDues"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Aidatlarıma Dön
+        </a>
+    </div>
+
+    <p class="text-secondary small mt-3 mb-0">
+        Bu işlemler yalnızca demo amaçlıdır. Gerçek kart kullanılmaz ve gerçek para çekilmez.
+    </p>
+</section>

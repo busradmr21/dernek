@@ -1,49 +1,1175 @@
-﻿@{
+@inject SigortaDernegi.Data.ApplicationDbContext DbContext
+@{
     ViewData["Title"] = "Ana Sayfa";
+    var sliders = ViewBag.Sliders as IReadOnlyList<Slider> ?? Array.Empty<Slider>();
+    var relatedInstitutions = ViewBag.RelatedInstitutions as IReadOnlyList<RelatedInstitution>
+        ?? Array.Empty<RelatedInstitution>();
+    var president = ViewBag.President as BoardMember;
+    var presidentName = string.IsNullOrWhiteSpace(president?.FullName)
+        ? "Yönetim Kurulu Başkanı"
+        : president.FullName;
+    var presidentMessageTitle = string.IsNullOrWhiteSpace(
+        president?.HomepageMessageTitle)
+        ? PresidentMessageDefaults.Title
+        : president.HomepageMessageTitle;
+    var presidentMessageSummary = string.IsNullOrWhiteSpace(
+        president?.HomepageMessageSummary)
+        ? PresidentMessageDefaults.Summary
+        : president.HomepageMessageSummary;
+    var presidentPhotoUrl = !string.IsNullOrWhiteSpace(president?.PhotoUrl) && !president.PhotoUrl.Contains("/images/board/")
+        ? president.PhotoUrl
+        : PresidentMessageDefaults.PhotoUrl;
+    var homeMissionSettings = ViewBag.HomeMissionSettings as HomeMissionSettings
+        ?? new HomeMissionSettings();
+    var contactSettings = ViewBag.ContactSettings as ContactSettings
+        ?? new ContactSettings();
+    var homeContactSubjects = contactSettings.SubjectOptions
+        .Split(
+            new[] { '\r', '\n' },
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToList();
+    var heroSlideCount = sliders.Count + 1;
+    var trCulture = new System.Globalization.CultureInfo("tr-TR");
+
+    bool IsSafeSliderLink(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return false;
+        }
+
+        if (url.StartsWith("/", StringComparison.Ordinal) &&
+            !url.StartsWith("//", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return Uri.TryCreate(url, UriKind.Absolute, out var parsedUrl) &&
+               (parsedUrl.Scheme == Uri.UriSchemeHttp ||
+                parsedUrl.Scheme == Uri.UriSchemeHttps);
+    }
 }
 
-<!-- Hero / Karşılama Alanı -->
-<div class="bg-navy text-white rounded-4 p-5 mb-5 shadow-sm position-relative overflow-hidden" style="background-color: #0d233a;">
-    <div class="row align-items-center position-relative z-1">
-        <div class="col-lg-8">
-            <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-3">Sigorta Araştırmacıları ve Uzmanları Derneği</span>
-            <h1 class="display-5 fw-bold mb-3">Hi Sigorta Portalına Hoş Geldiniz</h1>
-            <p class="lead text-light mb-4">
-                Sigorta sektöründe şeffaflık, güvenilirlik ve suistimallerle mücadele amacıyla geliştirilmiş resmi uzman ve araştırma platformu.
+@model SigortaDernegi.ViewModels.HomePageViewModel
+
+<!-- Ana sayfa karşılama alanı -->
+<div id="homeHeroCarousel"
+     class="carousel slide home-slider"
+     data-bs-ride="carousel"
+     data-bs-interval="3000"
+     data-bs-pause="false"
+     data-bs-wrap="true"
+     aria-label="ELSADER tanıtım ve çalışma alanları">
+
+    @if (heroSlideCount > 1)
+    {
+        <div class="carousel-indicators">
+            @for (var index = 0; index < heroSlideCount; index++)
+            {
+                <button type="button"
+                        data-bs-target="#homeHeroCarousel"
+                        data-bs-slide-to="@index"
+                        class="@(index == 0 ? "active" : null)"
+                        aria-current="@(index == 0 ? "true" : null)"
+                        aria-label="@(index + 1). slayt"></button>
+            }
+        </div>
+    }
+
+    <div class="carousel-inner">
+        <section class="carousel-item home-hero active"
+                 aria-labelledby="homeHeroTitle">
+            <div class="container home-hero__grid">
+                <div class="home-hero__content">
+                    <span class="home-hero__badge">
+                        <i class="bi bi-patch-check" aria-hidden="true"></i>
+                        Elazığ Sigorta Acentelerinin Ortak Çatısı
+                    </span>
+
+                    <h1 id="homeHeroTitle">
+                        Uzmanlığı, Etik Değerleri ve
+                        <span>Güveni</span>
+                        Bir Araya Getiriyoruz
+                    </h1>
+
+                    <p>
+                        ELSADER; Elazığ sigorta acenteleri arasında
+                        bilgi paylaşımını, mesleki dayanışmayı ve etik
+                        standartları güçlendiren ortak bir platformdur.
+                    </p>
+                </div>
+
+                <div class="home-hero__visual">
+                    <img src="~/images/hisad-hero.png"
+                         alt="ELSADER Elazığ sigorta acenteleri"
+                         class="home-hero__image" />
+                </div>
+            </div>
+        </section>
+
+        @foreach (var slider in sliders)
+        {
+            var titleId = $"homeSliderTitle{slider.Id}";
+            var imageUrl = string.IsNullOrWhiteSpace(slider.ImageUrl)
+                ? Url.Content("~/images/hisad-hero.png")
+                : Url.Content(slider.ImageUrl);
+
+            <section class="carousel-item home-hero"
+                     aria-labelledby="@titleId">
+                <div class="container home-hero__grid">
+                    <div class="home-hero__content">
+                        <h1 id="@titleId">@slider.Title</h1>
+
+                        @if (!string.IsNullOrWhiteSpace(slider.Description))
+                        {
+                            <p>@slider.Description</p>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(slider.ButtonText) &&
+                             IsSafeSliderLink(slider.ButtonUrl))
+                        {
+                            <a href="@slider.ButtonUrl" class="home-hero__button">
+                                <span>@slider.ButtonText</span>
+                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        }
+                    </div>
+
+                    <div class="home-hero__visual">
+                        <img src="@imageUrl"
+                             alt="@slider.Title"
+                             class="home-hero__image" />
+                    </div>
+                </div>
+            </section>
+        }
+    </div>
+
+    @if (heroSlideCount > 1)
+    {
+        <button class="carousel-control-prev"
+                type="button"
+                data-bs-target="#homeHeroCarousel"
+                data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Önceki</span>
+        </button>
+
+        <button class="carousel-control-next"
+                type="button"
+                data-bs-target="#homeHeroCarousel"
+                data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Sonraki</span>
+        </button>
+    }
+</div>
+
+<!-- Yönetim Kurulu Başkanı ve misyon alanı -->
+@if (homeMissionSettings.IsActive)
+{
+    <section class="home-purpose"
+             aria-label="Başkan mesajı, misyonumuz ve kuruluş amacımız"
+             data-president-message>
+        <div class="container">
+            <div class="home-purpose__panel">
+                <article class="home-purpose__president"
+                         aria-labelledby="presidentMessageTitle">
+                    <div class="home-purpose__president-body">
+                        <img src="@Url.Content(presidentPhotoUrl)"
+                             alt="@presidentName"
+                             asp-append-version="true" />
+                        <span class="home-purpose__photo-overlay" aria-hidden="true"></span>
+
+                        <div class="home-purpose__president-heading president-message__reveal">
+                            Yönetim Kurulu Başkanımızdan
+                        </div>
+
+                        <div class="home-purpose__president-content">
+                            <h2 id="presidentMessageTitle" class="president-message__reveal">
+                                @presidentMessageTitle
+                            </h2>
+
+                            <p class="home-purpose__president-summary president-message__reveal">
+                                @presidentMessageSummary
+                            </p>
+
+                            <div class="home-purpose__president-footer president-message__reveal">
+                                <div class="home-purpose__identity">
+                                    <strong>@presidentName</strong>
+                                    <span>Yönetim Kurulu Başkanı</span>
+                                </div>
+
+                                <a asp-area=""
+                                   asp-controller="About"
+                                   asp-action="PresidentMessage"
+                                   class="home-purpose__message-button">
+                                    <span>Mesajın Tamamını Oku</span>
+                                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="home-purpose__mission"
+                         aria-labelledby="homeMissionTitle">
+                    <span class="home-purpose__mission-eyebrow president-message__reveal">
+                        @homeMissionSettings.Eyebrow
+                    </span>
+
+                    <h2 id="homeMissionTitle" class="president-message__reveal">
+                        @homeMissionSettings.Title
+                    </h2>
+
+                    <p class="home-purpose__mission-description president-message__reveal">
+                        @homeMissionSettings.Description
+                    </p>
+
+                    <div class="home-purpose__principles president-message__reveal">
+                        <article class="home-purpose__principle">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                            <h3>@homeMissionSettings.ResearchTitle</h3>
+                            <p>@homeMissionSettings.ResearchDescription</p>
+                        </article>
+
+                        <article class="home-purpose__principle">
+                            <i class="bi bi-shield-check" aria-hidden="true"></i>
+                            <h3>@homeMissionSettings.FraudTitle</h3>
+                            <p>@homeMissionSettings.FraudDescription</p>
+                        </article>
+
+                        <article class="home-purpose__principle">
+                            <i class="bi bi-bank" aria-hidden="true"></i>
+                            <h3>@homeMissionSettings.EthicsTitle</h3>
+                            <p>@homeMissionSettings.EthicsDescription</p>
+                        </article>
+                    </div>
+
+                    <div class="home-purpose__legal president-message__reveal">
+                        <i class="bi bi-patch-check" aria-hidden="true"></i>
+                        <span>@homeMissionSettings.LegalReference</span>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Etkinlikler ve güncel haberler -->
+<section class="home-updates"
+         aria-label="Etkinlikler ve güncel haberler"
+         data-home-updates>
+    <div class="container">
+        <div class="home-updates__layout">
+            <section class="home-updates__events home-update-reveal"
+                     aria-labelledby="homeEventsTitle">
+                <header class="home-updates__header">
+                    <h2 id="homeEventsTitle">Etkinlikler</h2>
+                    <a id="homeAllEventsLink"
+                       asp-controller="Events"
+                       asp-action="Index"
+                       class="home-updates__all-link">
+                        <span>Tüm Etkinlikler</span>
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </header>
+
+                <nav class="home-event-filters" aria-label="Etkinlik türleri">
+                    <button type="button"
+                            class="home-event-filter-btn is-active"
+                            data-event-filter="all"
+                            aria-pressed="true">Tümü</button>
+                    <button type="button"
+                            class="home-event-filter-btn"
+                            data-event-filter="Seminer"
+                            aria-pressed="false">Seminerler</button>
+                    <button type="button"
+                            class="home-event-filter-btn"
+                            data-event-filter="Webinar"
+                            aria-pressed="false">Webinarlar</button>
+                    <button type="button"
+                            class="home-event-filter-btn"
+                            data-event-filter="Eğitim"
+                            aria-pressed="false">Eğitimler</button>
+                    <button type="button"
+                            class="home-event-filter-btn"
+                            data-event-filter="Söyleşi"
+                            aria-pressed="false">Söyleşiler</button>
+                </nav>
+
+                @{
+                    var allEventsList = (Model.UpcomingEvents != null && Model.UpcomingEvents.Count > 3)
+                        ? Model.UpcomingEvents
+                        : DbContext.AssociationEvents
+                            .Where(e => e.IsActive)
+                            .OrderByDescending(e => e.IsFeatured)
+                            .ThenByDescending(e => e.StartDate)
+                            .ToList();
+                }
+
+                @if (allEventsList.Count > 0)
+                {
+                    <div class="home-event-grid" id="homeEventsGrid">
+                        @{
+                            var eventCardIdx = 0;
+                        }
+                        @foreach (var eventItem in allEventsList)
+                        {
+                            var isInitiallyVisible = eventCardIdx < 3;
+                            eventCardIdx++;
+                            var eventImage = string.IsNullOrWhiteSpace(eventItem.ImageUrl)
+                                ? null
+                                : Url.Content(eventItem.ImageUrl);
+                            var eventLocation = eventItem.IsOnline
+                                ? "Çevrim içi"
+                                : string.IsNullOrWhiteSpace(eventItem.Location)
+                                    ? "Konum yakında açıklanacak"
+                                    : eventItem.Location;
+
+                            <article class="home-event-card"
+                                     data-event-type="@(eventItem.EventType?.Trim() ?? "")"
+                                     style="@(isInitiallyVisible ? "" : "display: none;")">
+                                <div class="home-event-card__content">
+                                    <span class="home-update-badge">
+                                        @(string.IsNullOrWhiteSpace(eventItem.EventType)
+                                            ? "Etkinlik"
+                                            : eventItem.EventType)
+                                    </span>
+
+                                    <time datetime="@eventItem.StartDate.ToString("yyyy-MM-dd")">
+                                        @eventItem.StartDate.ToString("dd MMMM yyyy", trCulture)
+                                    </time>
+
+                                    <h3>
+                                        <a asp-controller="Events"
+                                           asp-action="Detail"
+                                           asp-route-id="@eventItem.Id">
+                                            @eventItem.Title
+                                        </a>
+                                    </h3>
+
+                                    <p class="home-event-card__location">
+                                        <i class="bi @(eventItem.IsOnline ? "bi-camera-video" : "bi-geo-alt")"
+                                           aria-hidden="true"></i>
+                                        <span>@eventLocation</span>
+                                    </p>
+                                </div>
+
+                                <a asp-controller="Events"
+                                   asp-action="Detail"
+                                   asp-route-id="@eventItem.Id"
+                                   class="home-event-card__visual"
+                                   aria-label="@eventItem.Title etkinliğini incele">
+                                    @if (eventImage != null)
+                                    {
+                                        <img src="@eventImage" alt="" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <span class="home-update-placeholder" aria-hidden="true">
+                                            <i class="bi bi-calendar2-event"></i>
+                                        </span>
+                                    }
+                                </a>
+                            </article>
+                        }
+
+                        <div id="homeEventFilterEmpty"
+                             class="home-updates__empty"
+                             style="display: none; grid-column: 1 / -1; width: 100%;">
+                            <i class="bi bi-calendar2-event" aria-hidden="true"></i>
+                            <p>Bu kategoride henüz yayınlanmış etkinlik bulunmamaktadır.</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="home-updates__empty">
+                        <i class="bi bi-calendar2-event" aria-hidden="true"></i>
+                        <p>Yeni etkinlikler hazırlandığında bu alanda yayınlanacaktır.</p>
+                    </div>
+                }
+            </section>
+
+            <section class="home-updates__news home-update-reveal"
+                     aria-labelledby="homeNewsTitle">
+                <header class="home-updates__header home-updates__header--news">
+                    <h2 id="homeNewsTitle">Güncel Haberler</h2>
+                </header>
+
+                @if (Model.LatestNews.Count > 0)
+                {
+                    var featuredNews = Model.LatestNews[0];
+                    var featuredNewsImage = string.IsNullOrWhiteSpace(featuredNews.ImageUrl)
+                        ? null
+                        : Url.Content(featuredNews.ImageUrl);
+
+                    <div class="home-news-list">
+                        <article class="home-news-featured">
+                            <a asp-controller="News"
+                               asp-action="Detail"
+                               asp-route-id="@featuredNews.Id"
+                               class="home-news-featured__link">
+                                @if (featuredNewsImage != null)
+                                {
+                                    <img src="@featuredNewsImage" alt="" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span class="home-update-placeholder" aria-hidden="true">
+                                        <i class="bi bi-newspaper"></i>
+                                    </span>
+                                }
+
+                                <span class="home-news-featured__overlay" aria-hidden="true"></span>
+                                <span class="home-news-featured__content">
+                                    <span class="home-news-featured__meta">
+                                        <span class="home-update-badge home-update-badge--news">
+                                            Haber
+                                        </span>
+                                        <time datetime="@featuredNews.CreatedAt.ToString("yyyy-MM-dd")">
+                                            @featuredNews.CreatedAt.ToString("dd MMMM yyyy", trCulture)
+                                        </time>
+                                    </span>
+                                    <strong>@featuredNews.Title</strong>
+                                    <span class="home-news-featured__summary">@featuredNews.Summary</span>
+                                </span>
+                            </a>
+                        </article>
+
+                        @foreach (var newsItem in Model.LatestNews.Skip(1))
+                        {
+                            var newsItemImage = string.IsNullOrWhiteSpace(newsItem.ImageUrl)
+                                ? null
+                                : Url.Content(newsItem.ImageUrl);
+
+                            <article class="home-news-compact">
+                                <a asp-controller="News"
+                                   asp-action="Detail"
+                                   asp-route-id="@newsItem.Id">
+                                    <span class="home-news-compact__visual" aria-hidden="true">
+                                        @if (newsItemImage != null)
+                                        {
+                                            <img src="@newsItemImage" alt="" loading="lazy" />
+                                        }
+                                        else
+                                        {
+                                            <span class="home-update-placeholder">
+                                                <i class="bi bi-newspaper"></i>
+                                            </span>
+                                        }
+                                    </span>
+
+                                    <span class="home-news-compact__content">
+                                        <span class="home-news-compact__meta">
+                                            <span class="home-update-badge home-update-badge--muted">
+                                                Haber
+                                            </span>
+                                            <time datetime="@newsItem.CreatedAt.ToString("yyyy-MM-dd")">
+                                                @newsItem.CreatedAt.ToString("dd MMMM yyyy", trCulture)
+                                            </time>
+                                        </span>
+                                        <strong>@newsItem.Title</strong>
+                                        <span class="home-news-compact__summary">@newsItem.Summary</span>
+                                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                                    </span>
+                                </a>
+                            </article>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="home-updates__empty">
+                        <i class="bi bi-newspaper" aria-hidden="true"></i>
+                        <p>Güncel haberler yayınlandığında bu alanda görüntülenecektir.</p>
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+</section>
+@*
+<!-- Rakamlarla ELSADER -->
+<section class="hisad-statistics"
+         aria-labelledby="hisadStatisticsTitle">
+
+    <div class="container">
+
+        <!-- Bölüm başlığı -->
+        <div class="hisad-statistics__heading">
+
+            <span class="hisad-statistics__eyebrow">
+                Mesleki Birikim ve Dayanışma
+            </span>
+
+            <h2 id="hisadStatisticsTitle">
+                Rakamlarla ELSADER
+            </h2>
+
+            <p>
+                Üyelerimiz, uzmanlarımız ve mesleki çalışmalarımızla
+                sigorta araştırmaları alanında güçlü bir dayanışma
+                ağı oluşturuyoruz.
             </p>
-            <div class="d-flex gap-3 flex-wrap">
-                <a asp-controller="Membership" asp-action="Apply" class="btn btn-warning btn-lg fw-bold rounded-pill px-4">
-                    <i class="bi bi-person-plus-fill me-2"></i> Derneğe Üye Ol
-                </a>
-                <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light btn-lg rounded-pill px-4">
-                    <i class="bi bi-shield-exclamation me-2"></i> Şüpheli Hasar Bildir
-                </a>
+
+        </div>
+
+        <!-- İstatistik kartları -->
+        <div class="hisad-statistics__grid">
+
+            <!-- Aktif üye sayısı -->
+            <article class="statistic-card">
+
+                <div class="statistic-card__icon"
+                     aria-hidden="true">
+
+                    <i class="bi bi-people-fill"></i>
+
+                </div>
+
+                <strong class="statistic-card__number">
+                    32
+                </strong>
+
+                <h3>
+                    Aktif Üye
+                </h3>
+
+                <p>
+                    Mesleki dayanışmaya katkı sağlayan
+                    aktif dernek üyelerimiz.
+                </p>
+
+            </article>
+
+            <!-- Eğitim ve etkinlik sayısı -->
+            <article class="statistic-card">
+
+                <div class="statistic-card__icon"
+                     aria-hidden="true">
+
+                    <i class="bi bi-calendar-event"></i>
+
+                </div>
+
+                <strong class="statistic-card__number">
+                    100
+                </strong>
+
+                <h3>
+                    Eğitim ve Etkinlik
+                </h3>
+
+                <p>
+                    Bilgi paylaşımı ve mesleki gelişim
+                    amacıyla düzenlenen çalışmalar.
+                </p>
+
+            </article>
+
+            <!-- Uzman ve araştırmacı sayısı -->
+            <article class="statistic-card">
+
+                <div class="statistic-card__icon"
+                     aria-hidden="true">
+
+                    <i class="bi bi-person-badge"></i>
+
+                </div>
+
+                <strong class="statistic-card__number">
+                    88
+                </strong>
+
+                <h3>
+                    Uzman ve Araştırmacı
+                </h3>
+
+                <p>
+                    Farklı sigorta branşlarında çalışan
+                    deneyimli sektör profesyonelleri.
+                </p>
+
+            </article>
+
+            <!-- Kuruluş yılı -->
+            <article class="statistic-card">
+
+                <div class="statistic-card__icon"
+                     aria-hidden="true">
+
+                    <i class="bi bi-building"></i>
+
+                </div>
+
+                <strong class="statistic-card__number">
+                    2024
+                </strong>
+
+                <h3>
+                    Kuruluş Yılı
+                </h3>
+
+                <p>
+                    Etik, güven ve mesleki gelişim
+                    ilkeleriyle başlayan yolculuğumuz.
+                </p>
+
+            </article>
+
+        </div>
+
+    </div>
+</section>
+*@
+
+<!-- İletişim ve gizli ihbar alanı -->
+<section class="home-contact-report"
+         id="homeContactReport"
+         aria-labelledby="homeContactReportTitle">
+    <div class="container">
+        <header class="home-contact-report__heading">
+            <span>İletişim ve Güvenli Bildirim</span>
+            <h2 id="homeContactReportTitle">Size uygun kanaldan bize ulaşın</h2>
+            <p>Genel başvurularınızı iletin veya şüpheli bir durumu kimlik bilgisi vermeden bildirin.</p>
+        </header>
+
+        <div class="home-contact-report__grid">
+            <article class="home-form-panel home-form-panel--contact"
+                     aria-labelledby="homeContactTitle">
+                <div class="home-form-panel__header">
+                    <span class="home-form-panel__eyebrow">
+                        <i class="bi bi-chat-square-text" aria-hidden="true"></i>
+                        ELSADER İletişim
+                    </span>
+                    <h3 id="homeContactTitle">İletişim ve Bilgi Talebi</h3>
+                    <p>Üyelik süreçleri, bilgi talepleri ve kurumsal iş birlikleri hakkında bize ulaşın.</p>
+                </div>
+
+                @if (TempData["HomeContactSuccess"] is string contactSuccess)
+                {
+                    <div class="home-form-alert home-form-alert--success" role="status">
+                        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                        <span>@contactSuccess</span>
+                    </div>
+                }
+
+                <form asp-controller="Home"
+                      asp-action="SubmitHomeContact"
+                      method="post"
+                      class="home-form">
+                    <div asp-validation-summary="ModelOnly"
+                         class="home-form__validation-summary"></div>
+                    <div class="home-form__honeypot" aria-hidden="true">
+                        <label for="contactWebsite">Bu alanı boş bırakın</label>
+                        <input id="contactWebsite"
+                               name="contactWebsite"
+                               type="text"
+                               tabindex="-1"
+                               autocomplete="off" />
+                    </div>
+
+                    <div class="home-form__two-columns">
+                        <div class="home-form__field">
+                            <label asp-for="ContactForm.FullName"></label>
+                            <input asp-for="ContactForm.FullName"
+                                   autocomplete="name"
+                                   placeholder="Adınız Soyadınız" />
+                            <span asp-validation-for="ContactForm.FullName"></span>
+                        </div>
+
+                        <div class="home-form__field">
+                            <label asp-for="ContactForm.Email"></label>
+                            <input asp-for="ContactForm.Email"
+                                   autocomplete="email"
+                                   placeholder="ornek@eposta.com" />
+                            <span asp-validation-for="ContactForm.Email"></span>
+                        </div>
+                    </div>
+
+                    <div class="home-form__field">
+                        <label asp-for="ContactForm.Subject"></label>
+                        <select asp-for="ContactForm.Subject">
+                            <option value="">Seçiniz...</option>
+                            @foreach (var subject in homeContactSubjects)
+                            {
+                                <option value="@subject">@subject</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ContactForm.Subject"></span>
+                    </div>
+
+                    <div class="home-form__field">
+                        <label asp-for="ContactForm.Message"></label>
+                        <textarea asp-for="ContactForm.Message"
+                                  rows="6"
+                                  style="resize: none;"
+                                  placeholder="İletmek istediğiniz mesajı detaylı olarak yazınız..."></textarea>
+                        <span asp-validation-for="ContactForm.Message"></span>
+                    </div>
+
+                    <div class="home-form__check">
+                        <input asp-for="ContactForm.HasReadKvkkNotice" />
+                        <label asp-for="ContactForm.HasReadKvkkNotice">
+                            <a asp-controller="Home" asp-action="Privacy" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>’ni
+                            okudum ve iletişim talebim kapsamında kişisel verilerimin işlenmesi hakkında bilgi edindim.
+                        </label>
+                    </div>
+                    <span asp-validation-for="ContactForm.HasReadKvkkNotice"
+                          class="home-form__validation"></span>
+
+                    <button type="submit" class="home-form__submit home-form__submit--contact">
+                        <span>Mesaj Gönder</span>
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </form>
+
+                <footer class="home-form-panel__footer">
+                    <span><i class="bi bi-telephone" aria-hidden="true"></i> @contactSettings.PhoneDisplay</span>
+                    <span><i class="bi bi-envelope" aria-hidden="true"></i> @contactSettings.Email</span>
+                </footer>
+            </article>
+
+            <article class="home-form-panel home-form-panel--report"
+                     aria-labelledby="homeReportTitle">
+                <div class="home-form-panel__header home-form-panel__header--report">
+                    <div>
+                        <span class="home-form-panel__eyebrow">
+                            <i class="bi bi-shield-lock" aria-hidden="true"></i>
+                            Gizlilik ve Güvenlik
+                        </span>
+                        <h3 id="homeReportTitle">Gizli İhbar ve Suistimal Bildirim Hattı</h3>
+                    </div>
+                    <span class="home-form-panel__privacy-badge">
+                        <i class="bi bi-incognito" aria-hidden="true"></i>
+                        Kimlik bilgisi vermeden bildirim
+                    </span>
+                    <p>Şüpheli hasar, organize suistimal ve sahte belge vakalarına ilişkin bildirimlerinizi yetkili inceleme birimine iletin.</p>
+                </div>
+
+                @* Ana sayfadaki ihbar formu bağımsız Gizli İhbar Hattı sayfasına taşındı.
+                @if (TempData["HomeReportSuccess"] is string reportSuccess)
+                {
+                    <div class="home-form-alert home-form-alert--success" role="status">
+                        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                        <span>@reportSuccess</span>
+                    </div>
+                }
+
+                <form asp-controller="Home"
+                      asp-action="SubmitHomeReport"
+                      method="post"
+                      enctype="multipart/form-data"
+                      class="home-form"
+                      data-confidential-report-form>
+                    <div asp-validation-summary="ModelOnly"
+                         class="home-form__validation-summary"></div>
+                    <div class="home-form__honeypot" aria-hidden="true">
+                        <label for="reportWebsite">Bu alanı boş bırakın</label>
+                        <input id="reportWebsite"
+                               name="reportWebsite"
+                               type="text"
+                               tabindex="-1"
+                               autocomplete="off" />
+                    </div>
+
+                    <div class="home-report-mode">
+                        <span class="home-report-mode__state">
+                            <i class="bi bi-person-x" aria-hidden="true"></i>
+                            <strong data-report-mode-label>
+                                @(Model.ReportForm.WantsContact
+                                    ? "İletişim bilgilerimi paylaşacağım"
+                                    : "Kimlik bilgisi vermeden bildirim")
+                            </strong>
+                        </span>
+                        <label class="home-report-switch">
+                            <input asp-for="ReportForm.WantsContact"
+                                   data-report-contact-toggle />
+                            <span aria-hidden="true"></span>
+                            Benimle iletişime geçilsin
+                        </label>
+                    </div>
+
+                    <div class="home-form__two-columns">
+                        <div class="home-form__field">
+                            <label asp-for="ReportForm.InsuranceBranch"></label>
+                            <select asp-for="ReportForm.InsuranceBranch">
+                                <option value="">Seçiniz...</option>
+                                <option>Kara Araçları</option>
+                                <option>Yangın ve Mühendislik</option>
+                                <option>Sağlık, Hayat ve Ferdi Kaza</option>
+                                <option>Denizcilik, Havacılık ve Raylı Sistemler</option>
+                                <option>Sorumluluk ve Diğer</option>
+                            </select>
+                            <span asp-validation-for="ReportForm.InsuranceBranch"></span>
+                        </div>
+
+                        <div class="home-form__field">
+                            <label asp-for="ReportForm.Category"></label>
+                            <select asp-for="ReportForm.Category">
+                                <option value="">Seçiniz...</option>
+                                <option>Organize Hasar</option>
+                                <option>Kurgusal Kaza / Sahte Tutanak</option>
+                                <option>Sahte Belge / Rapor</option>
+                                <option>Mükerrer veya Şüpheli Hasar</option>
+                                <option>Eksper Raporu Uyuşmazlığı</option>
+                                <option>Diğer</option>
+                            </select>
+                            <span asp-validation-for="ReportForm.Category"></span>
+                        </div>
+                    </div>
+
+                    <div class="home-form__two-columns home-form__two-columns--three">
+                        <div class="home-form__field">
+                            <label asp-for="ReportForm.City"></label>
+                            <input asp-for="ReportForm.City" placeholder="Örn. Ankara" />
+                            <span asp-validation-for="ReportForm.City"></span>
+                        </div>
+                        <div class="home-form__field">
+                            <label asp-for="ReportForm.Location"></label>
+                            <input asp-for="ReportForm.Location" placeholder="İlçe veya konum" />
+                            <span asp-validation-for="ReportForm.Location"></span>
+                        </div>
+                        <div class="home-form__field">
+                            <label asp-for="ReportForm.IncidentDate"></label>
+                            <input asp-for="ReportForm.IncidentDate" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="ReportForm.IncidentDate"></span>
+                        </div>
+                    </div>
+
+                    <div class="home-form__field">
+                        <label asp-for="ReportForm.ReferenceInformation"></label>
+                        <input asp-for="ReportForm.ReferenceInformation"
+                               placeholder="Varsa plaka, hasar dosyası veya referans numarası" />
+                        <span asp-validation-for="ReportForm.ReferenceInformation"></span>
+                    </div>
+
+                    <div class="home-report-contact-fields @(Model.ReportForm.WantsContact ? "is-visible" : null)"
+                         data-report-contact-fields>
+                        <div class="home-form__two-columns home-form__two-columns--three">
+                            <div class="home-form__field">
+                                <label asp-for="ReportForm.ReporterName"></label>
+                                <input asp-for="ReportForm.ReporterName" autocomplete="name" />
+                                <span asp-validation-for="ReportForm.ReporterName"></span>
+                            </div>
+                            <div class="home-form__field">
+                                <label asp-for="ReportForm.ReporterEmail"></label>
+                                <input asp-for="ReportForm.ReporterEmail" autocomplete="email" />
+                                <span asp-validation-for="ReportForm.ReporterEmail"></span>
+                            </div>
+                            <div class="home-form__field">
+                                <label asp-for="ReportForm.ReporterPhone"></label>
+                                <input asp-for="ReportForm.ReporterPhone" autocomplete="tel" />
+                                <span asp-validation-for="ReportForm.ReporterPhone"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="home-form__field">
+                        <label for="reportAttachments">Kanıt ve Belge Ekle</label>
+                        <input id="reportAttachments"
+                               name="reportAttachments"
+                               type="file"
+                               multiple
+                               accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" />
+                        <small>PDF, JPG veya PNG — dosya başına 10 MB, toplam 20 MB.</small>
+                        <span class="home-form__validation">@Html.ValidationMessage("ReportAttachments")</span>
+                    </div>
+
+                    <div class="home-form__field home-form__field--grow">
+                        <label asp-for="ReportForm.Details"></label>
+                        <textarea asp-for="ReportForm.Details"
+                                  rows="5"
+                                  style="resize: none;"
+                                  placeholder="Olayı, şüphe nedenlerini ve bilinen ayrıntıları yazınız..."></textarea>
+                        <span asp-validation-for="ReportForm.Details"></span>
+                    </div>
+
+                    <div class="home-report-notice">
+                        <i class="bi bi-shield-check" aria-hidden="true"></i>
+                        <p>Kimlik bilgisi vermeden bildirim yapabilirsiniz. Kayıtlar yalnızca yetkili inceleme birimi tarafından değerlendirilir.</p>
+                    </div>
+
+                    <button type="submit" class="home-form__submit home-form__submit--report">
+                        <span>Bildirimi Güvenle İlet</span>
+                        <i class="bi bi-lock-fill" aria-hidden="true"></i>
+                    </button>
+                </form>
+                *@
+
+                <div class="home-report-overview">
+                    <p class="home-report-overview__lead">
+                        Bildirimlerinizi kimlik veya iletişim bilgisi paylaşmadan iletebilir;
+                        olayla ilgili belge ve görselleri güvenli bildirim formuna ekleyebilirsiniz.
+                    </p>
+
+                    <div class="home-report-overview__items" aria-label="Gizli ihbar hattı özellikleri">
+                        <div class="home-report-overview__item">
+                            <span><i class="bi bi-person-x" aria-hidden="true"></i></span>
+                            <div>
+                                <h4>Kimlik bilgisi isteğe bağlı</h4>
+                                <p>Ad, e-posta veya telefon bilgisi vermeden bildirim oluşturabilirsiniz.</p>
+                            </div>
+                        </div>
+
+                        <div class="home-report-overview__item">
+                            <span><i class="bi bi-paperclip" aria-hidden="true"></i></span>
+                            <div>
+                                <h4>Belge ve kanıt ekleme</h4>
+                                <p>İncelemeyi destekleyen PDF, fotoğraf ve ilgili belgeleri forma ekleyebilirsiniz.</p>
+                            </div>
+                        </div>
+
+                        <div class="home-report-overview__item">
+                            <span><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+                            <div>
+                                <h4>Yetkili birim değerlendirmesi</h4>
+                                <p>Gönderilen kayıtlar yalnızca yetkili inceleme birimi tarafından ele alınır.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="home-report-overview__notice">
+                        <i class="bi bi-info-circle" aria-hidden="true"></i>
+                        <p>Bu kanal acil yardım veya resmî suç duyurusu hattı değildir. Acil durumlarda 112’ye başvurunuz.</p>
+                    </div>
+
+                    <a class="home-report-overview__action"
+                       asp-controller="Report"
+                       asp-action="Index">
+                        <span>İhbar Bildirimi Yap</span>
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+@if (relatedInstitutions.Count > 0)
+{
+    var halfCount = (int)Math.Ceiling(relatedInstitutions.Count / 2.0);
+    var row1Institutions = relatedInstitutions.Take(halfCount).ToList();
+    var row2Institutions = relatedInstitutions.Skip(halfCount).ToList();
+
+    <!-- İlgili kurumlar ve sektörel paydaşlar -->
+    <section class="institution-showcase"
+             aria-labelledby="institutionShowcaseTitle">
+    <div class="container">
+        <div class="institution-showcase__heading">
+            <span class="institution-showcase__eyebrow">
+                Kurumsal Bağlantılar
+            </span>
+
+            <h2 id="institutionShowcaseTitle">
+                İlgili Kurumlar ve Sektörel Paydaşlar
+            </h2>
+
+            <p>
+                Sigortacılık, eğitim, düzenleme ve sivil toplum alanındaki
+                ilgili kurumların resmî internet sayfalarına hızlı erişim.
+            </p>
+        </div>
+    </div>
+
+    <!-- Masaüstü & Tablet: Tek sıralı orijinal şerit -->
+    <div class="institution-showcase__viewport institution-showcase__viewport--desktop">
+        <div class="institution-showcase__track">
+            <div class="institution-showcase__group">
+                @foreach (var institution in relatedInstitutions)
+                {
+                    <a class="institution-card"
+                       href="@institution.WebsiteUrl"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="@institution.Name resmî internet sitesini yeni sekmede aç">
+                        <span class="institution-card__mark" aria-hidden="true">
+                            @institution.Abbreviation
+                        </span>
+
+                        <span class="institution-card__name">
+                            @institution.Name
+                        </span>
+                    </a>
+                }
+            </div>
+
+            <div class="institution-showcase__group"
+                 aria-hidden="true">
+                @foreach (var institution in relatedInstitutions)
+                {
+                    <a class="institution-card"
+                       href="@institution.WebsiteUrl"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       tabindex="-1">
+                        <span class="institution-card__mark">
+                            @institution.Abbreviation
+                        </span>
+
+                        <span class="institution-card__name">
+                            @institution.Name
+                        </span>
+                    </a>
+                }
             </div>
         </div>
     </div>
-</div>
 
-<!-- Öne Çıkan Bilgilendirme Alanı -->
-<div class="row g-4 mb-5">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-            <div class="text-primary fs-1 mb-2"><i class="bi bi-shield-check"></i></div>
-            <h5 class="fw-bold text-dark">Saha İnceleme Standartları</h5>
-            <p class="text-muted small mb-0">Uzman kadromuz ile kasko, trafik ve yangın hasarlarında mevzuata uygun araştırma standartları sunuyoruz.</p>
+    <!-- Mobil: Çift sıralı (Double-Row) akışkan şerit -->
+    <div class="institution-showcase__viewport institution-showcase__viewport--mobile">
+        <!-- 1. Sıra (İlk yarı kurumlar - Sola Akan) -->
+        <div class="institution-showcase__track institution-showcase__track--row1">
+            <div class="institution-showcase__group">
+                @foreach (var institution in row1Institutions)
+                {
+                    <a class="institution-card"
+                       href="@institution.WebsiteUrl"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       aria-label="@institution.Name resmî internet sitesini yeni sekmede aç">
+                        <span class="institution-card__mark" aria-hidden="true">
+                            @institution.Abbreviation
+                        </span>
+
+                        <span class="institution-card__name">
+                            @institution.Name
+                        </span>
+                    </a>
+                }
+            </div>
+            <div class="institution-showcase__group" aria-hidden="true">
+                @foreach (var institution in row1Institutions)
+                {
+                    <a class="institution-card"
+                       href="@institution.WebsiteUrl"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       tabindex="-1">
+                        <span class="institution-card__mark">
+                            @institution.Abbreviation
+                        </span>
+
+                        <span class="institution-card__name">
+                            @institution.Name
+                        </span>
+                    </a>
+                }
+            </div>
         </div>
+
+        @if (row2Institutions.Count > 0)
+        {
+            <!-- 2. Sıra (İkinci yarı kurumlar - Sağa Akan / Zikzak) -->
+            <div class="institution-showcase__track institution-showcase__track--row2">
+                <div class="institution-showcase__group">
+                    @foreach (var institution in row2Institutions)
+                    {
+                        <a class="institution-card"
+                           href="@institution.WebsiteUrl"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           aria-label="@institution.Name resmî internet sitesini yeni sekmede aç">
+                            <span class="institution-card__mark" aria-hidden="true">
+                                @institution.Abbreviation
+                            </span>
+
+                            <span class="institution-card__name">
+                                @institution.Name
+                            </span>
+                        </a>
+                    }
+                </div>
+                <div class="institution-showcase__group" aria-hidden="true">
+                    @foreach (var institution in row2Institutions)
+                    {
+                        <a class="institution-card"
+                           href="@institution.WebsiteUrl"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           tabindex="-1">
+                            <span class="institution-card__mark">
+                                @institution.Abbreviation
+                            </span>
+
+                            <span class="institution-card__name">
+                                @institution.Name
+                            </span>
+                        </a>
+                    }
+                </div>
+            </div>
+        }
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-            <div class="text-warning fs-1 mb-2"><i class="bi bi-person-vcard"></i></div>
-            <h5 class="fw-bold text-dark">Uzman & Üye Rehberi</h5>
-            <p class="text-muted small mb-0">Sektörde aktif görev yapan akredite sigorta araştırmacıları ve ekspertiz kadromuzu inceleyin.</p>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-            <div class="text-danger fs-1 mb-2"><i class="bi bi-lock"></i></div>
-            <h5 class="fw-bold text-dark">Güvenli İhbar Hattı</h5>
-            <p class="text-muted small mb-0">Organize suistimal ve şüpheli vakaları 256-bit SSL korumasıyla tamamen anonim olarak bildirin.</p>
-        </div>
-    </div>
-</div>
+    </section>
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            function initHomeEventFilter() {
+                var filterButtons = document.querySelectorAll('.home-event-filter-btn');
+                var cards = document.querySelectorAll('#homeEventsGrid .home-event-card');
+                var emptyMsg = document.getElementById('homeEventFilterEmpty');
+                var allEventsLink = document.getElementById('homeAllEventsLink');
+
+                if (!filterButtons.length || !cards.length) return;
+
+                filterButtons.forEach(function (btn) {
+                    btn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        var selectedFilter = (btn.getAttribute('data-event-filter') || 'all').trim();
+                        var normalizedFilter = selectedFilter.toLocaleLowerCase('tr-TR');
+
+                        filterButtons.forEach(function (b) {
+                            b.classList.remove('is-active');
+                            b.setAttribute('aria-pressed', 'false');
+                        });
+                        btn.classList.add('is-active');
+                        btn.setAttribute('aria-pressed', 'true');
+
+                        if (allEventsLink) {
+                            var baseUrl = allEventsLink.getAttribute('href').split('?')[0];
+                            if (normalizedFilter === 'all') {
+                                allEventsLink.setAttribute('href', baseUrl);
+                            } else {
+                                allEventsLink.setAttribute('href', baseUrl + '?type=' + encodeURIComponent(selectedFilter));
+                            }
+                        }
+
+                        var visibleCount = 0;
+                        cards.forEach(function (card) {
+                            var cardType = (card.getAttribute('data-event-type') || '').trim();
+                            var normalizedType = cardType.toLocaleLowerCase('tr-TR');
+                            var isMatch = (normalizedFilter === 'all') || (normalizedType === normalizedFilter);
+
+                            if (isMatch && visibleCount < 3) {
+                                card.style.display = '';
+                                card.classList.remove('is-filtering');
+                                void card.offsetWidth;
+                                card.classList.add('is-filtering');
+                                visibleCount++;
+                            } else {
+                                card.style.display = 'none';
+                                card.classList.remove('is-filtering');
+                            }
+                        });
+
+                        if (emptyMsg) {
+                            emptyMsg.style.display = (visibleCount === 0) ? 'block' : 'none';
+                        }
+                    });
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initHomeEventFilter);
+            } else {
+                initHomeEventFilter();
+            }
+        })();
+    </script>
+}

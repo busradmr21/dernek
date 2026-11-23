@@ -1,102 +1,172 @@
-﻿@{
-    ViewData["Title"] = "İletişim & Konum";
+@model SigortaDernegi.ViewModels.ContactPageViewModel
+
+@{
+    ViewData["Title"] = "İletişim";
+    var settings = Model.Settings;
+    var socialLinks = new[]
+    {
+        new { Name = "Instagram", Url = settings.InstagramUrl, Icon = "bi-instagram" },
+        new { Name = "LinkedIn", Url = settings.LinkedInUrl, Icon = "bi-linkedin" },
+        new { Name = "YouTube", Url = settings.YouTubeUrl, Icon = "bi-youtube" },
+        new { Name = "X", Url = settings.XUrl, Icon = "bi-twitter-x" }
+    }.Where(item => !string.IsNullOrWhiteSpace(item.Url)).ToList();
+    var departments = new[]
+    {
+        new { Name = "Üyelik Birimi", Email = settings.MembershipEmail },
+        new { Name = "Basın Birimi", Email = settings.PressEmail },
+        new { Name = "Muhasebe Birimi", Email = settings.FinanceEmail }
+    }.Where(item => !string.IsNullOrWhiteSpace(item.Email)).ToList();
+    var weekendHours = string.Equals(
+        settings.SaturdayHours,
+        settings.SundayHours,
+        StringComparison.OrdinalIgnoreCase)
+        ? settings.SaturdayHours
+        : $"Cumartesi {settings.SaturdayHours} · Pazar {settings.SundayHours}";
+    var fullAddress = string.Join(", ", new[] { settings.AddressLine1, settings.AddressLine2 }
+        .Where(value => !string.IsNullOrWhiteSpace(value)));
+    var encodedAddress = Uri.EscapeDataString(fullAddress);
+    var mapEmbedUrl = !string.IsNullOrWhiteSpace(settings.MapEmbedUrl)
+        ? settings.MapEmbedUrl
+        : $"https://www.google.com/maps?q={encodedAddress}&output=embed";
+    var mapLink = !string.IsNullOrWhiteSpace(settings.MapLink)
+        ? settings.MapLink
+        : $"https://www.google.com/maps/search/?api=1&query={encodedAddress}";
 }
 
-<div class="container py-3">
-    <!-- Başlık -->
-    <div class="text-center mb-5">
-        <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-2">Bize Ulaşın</span>
-        <h1 class="fw-bold text-dark display-6">İletişim Bilgileri</h1>
-        <p class="text-muted col-md-8 mx-auto">
-            Dernek faaliyetleri, üyelik süreçleri veya genel sorularınız için bizimle iletişime geçebilirsiniz.
-        </p>
-    </div>
-
-    @if (ViewBag.SuccessMessage != null)
-    {
-            <div class="alert alert-success border-0 shadow-sm rounded-4 p-4 text-center mb-4">
-                <i class="bi bi-check-circle-fill text-success fs-2 d-block mb-2"></i>
-                <h5 class="fw-bold mb-0">@ViewBag.SuccessMessage</h5>
+<main class="contact-page py-5">
+    <div class="container">
+        @if (TempData["SuccessMessage"] is string successMessage)
+        {
+            <div class="alert alert-success border-0 shadow-sm rounded-4 d-flex align-items-start gap-3 p-4 mb-4" role="alert">
+                <i class="bi bi-check-circle-fill fs-3" aria-hidden="true"></i>
+                <div><strong class="d-block mb-1">Mesajınız alındı</strong><span>@successMessage</span></div>
             </div>
-    }
+        }
 
-    <div class="row g-4 mb-5">
-        <!-- İletişim Bilgileri & Kartlar -->
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="bg-light p-3 rounded-circle text-primary fs-3 me-3">
-                        <i class="bi bi-geo-alt-fill"></i>
+        <div class="row g-4 g-xl-5 align-items-start">
+            <section class="col-12 col-lg-7" aria-labelledby="contactInformationTitle">
+                <div class="contact-information-panel rounded-4">
+                    <div class="p-4 p-xl-5 pb-xl-4">
+                        <span class="contact-section-label">Doğrudan İletişim</span>
+                        <h2 id="contactInformationTitle" class="display-6 fw-bold mb-3">İletişim bilgilerimiz</h2>
+                        <p class="contact-information-lead mb-0">Sorularınız ve kurumsal görüşmeleriniz için bize telefonla veya e-postayla doğrudan ulaşabilirsiniz.</p>
                     </div>
-                    <div>
-                        <h6 class="fw-bold text-dark mb-1">Dernek Genel Merkezi</h6>
-                        <p class="text-muted small mb-0">Barbaros Bulvarı No: 123 Kat: 4, Beşiktaş / İstanbul</p>
-                    </div>
-                </div>
-            </div>
 
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="bg-light p-3 rounded-circle text-warning fs-3 me-3">
-                        <i class="bi bi-telephone-fill"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold text-dark mb-1">Telefon & Faks</h6>
-                        <p class="text-muted small mb-0">+90 (212) 300 00 00 / +90 (212) 300 00 01</p>
-                    </div>
-                </div>
-            </div>
+                    <div class="px-4 px-xl-5 pb-4 pb-xl-5">
+                        <article class="contact-location-card rounded-4 mb-3">
+                            <div class="contact-location-details">
+                                <div class="contact-location-icon" aria-hidden="true"><i class="bi bi-geo-alt-fill"></i></div>
+                                <div>
+                                    <span class="contact-card-label">Genel Merkez</span>
+                                    <h3 class="h4 fw-bold mb-2">@settings.OrganizationName</h3>
+                                    <address class="mb-0">@settings.AddressLine1<br />@settings.AddressLine2</address>
+                                    <a class="btn contact-map-link mt-2" href="@mapLink" target="_blank" rel="noopener noreferrer">
+                                        <i class="bi bi-map me-2" aria-hidden="true"></i> Haritada Aç
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="contact-location-map">
+                                <iframe src="@mapEmbedUrl" title="@settings.OrganizationName haritası" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                <span class="contact-location-map__badge"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i>@settings.OrganizationName</span>
+                            </div>
+                        </article>
 
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="bg-light p-3 rounded-circle text-danger fs-3 me-3">
-                        <i class="bi bi-envelope-fill"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold text-dark mb-1">E-Posta Adresleri</h6>
-                        <p class="text-muted small mb-0">info@hisigorta.org.tr / bilgi@hisigorta.org.tr</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Aidat / Banka Hesabı Bilgisi -->
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-navy text-white" style="background-color: #0d233a;">
-                <h6 class="fw-bold text-warning mb-2"><i class="bi bi-bank me-2"></i>Dernek Banka Hesap Bilgileri</h6>
-                <small class="text-light d-block mb-1"><strong>Banka:</strong> Türkiye İş Bankası - Beşiktaş Şubesi</small>
-                <small class="text-light d-block mb-1"><strong>Alıcı:</strong> Sigorta Araştırmacıları ve Uzmanları Derneği</small>
-                <small class="text-light d-block"><strong>IBAN:</strong> TR00 0006 4000 0001 2345 6789 00</small>
-            </div>
-        </div>
-
-        <!-- İletişim Formu -->
-        <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
-                <h4 class="fw-bold text-dark mb-4 border-bottom pb-3">Mesaj Gönderin</h4>
-                <form asp-controller="Contact" asp-action="Index" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-dark small">Adınız Soyadınız</label>
-                            <input type="text" name="name" class="form-control" placeholder="Örn: Ahmet Yılmaz" required>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <article class="contact-detail-card h-100 rounded-4">
+                                    <div class="contact-info-icon"><i class="bi bi-telephone-fill"></i></div>
+                                    <div class="contact-detail-card__content">
+                                        <span class="contact-card-label">Telefon</span>
+                                        <h3 class="h5 fw-bold mb-1">Bizi arayın</h3>
+                                        <a class="contact-info-link" href="tel:@settings.PhoneLink">@settings.PhoneDisplay</a>
+                                        <small class="d-block text-secondary mt-1">Hafta içi @settings.WeekdayHours</small>
+                                    </div>
+                                </article>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <article class="contact-detail-card h-100 rounded-4">
+                                    <div class="contact-info-icon"><i class="bi bi-envelope-fill"></i></div>
+                                    <div class="contact-detail-card__content">
+                                        <span class="contact-card-label">E-posta</span>
+                                        <h3 class="h5 fw-bold mb-1">Bize yazın</h3>
+                                        <a class="contact-info-link" href="mailto:@settings.Email">@settings.Email</a>
+                                        <small class="d-block text-secondary mt-1">Mesajlarınıza en kısa sürede dönüş yapılır.</small>
+                                    </div>
+                                </article>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-dark small">E-Posta Adresiniz</label>
-                            <input type="email" name="email" class="form-control" placeholder="ahmet@example.com" required>
-                        </div>
+
+                        @if (departments.Count > 0)
+                        {
+                            <section class="contact-departments rounded-4 p-4 mt-3" aria-labelledby="departmentContactTitle">
+                                <h3 id="departmentContactTitle" class="h5 fw-bold mb-3">Birim İletişimleri</h3>
+                                <div class="row g-3">
+                                    @foreach (var department in departments)
+                                    {
+                                        <div class="col-12 col-md-4"><strong class="d-block">@department.Name</strong><a href="mailto:@department.Email">@department.Email</a></div>
+                                    }
+                                </div>
+                            </section>
+                        }
+
+                        <section class="contact-working-hours mt-3" aria-labelledby="workingHoursTitle">
+                            <div class="contact-working-hours__card">
+                                <div class="contact-working-hours__icon" aria-hidden="true">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                                <div class="contact-working-hours__heading">
+                                    <span>Dernek Genel Merkezi</span>
+                                    <h3 id="workingHoursTitle">Çalışma Saatleri</h3>
+                                </div>
+                                <div class="contact-working-hours__summary">
+                                    <span><small>Hafta içi</small><strong>@settings.WeekdayHours</strong></span>
+                                    <span><small>Hafta sonu</small><strong>@weekendHours</strong></span>
+                                </div>
+                            </div>
+                        </section>
+
+                        @if (socialLinks.Count > 0)
+                        {
+                            <div class="contact-social-links mt-3" aria-label="Sosyal medya hesapları">
+                                @foreach (var social in socialLinks)
+                                {
+                                    <a href="@social.Url" target="_blank" rel="noopener noreferrer" aria-label="@social.Name"><i class="bi @social.Icon"></i><span>@social.Name</span></a>
+                                }
+                            </div>
+                        }
+
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold text-dark small">Konu</label>
-                        <input type="text" name="subject" class="form-control" placeholder="Mesaj konusu" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold text-dark small">Mesajınız</label>
-                        <textarea name="message" class="form-control" rows="5" placeholder="İletmek istediğiniz notu yazınız..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold rounded-3">
-                        <i class="bi bi-send me-2"></i> Mesajı Gönder
-                    </button>
-                </form>
-            </div>
+                </div>
+            </section>
+
+            <section class="col-12 col-lg-5" aria-labelledby="contactFormTitle">
+                <div class="card contact-form-card rounded-4"><div class="card-body p-4 p-xl-5">
+                    <span class="contact-section-label">Mesaj Formu</span><h2 id="contactFormTitle" class="h3 fw-bold mb-2">Mesaj bırakın</h2>
+                    @if (!settings.FormEnabled)
+                    {
+                        <div class="alert alert-warning mt-4 mb-0"><i class="bi bi-info-circle me-2"></i>İletişim formu geçici olarak kapalıdır. Telefon veya e-posta bilgilerimizden bize ulaşabilirsiniz.</div>
+                    }
+                    else
+                    {
+                        <p class="text-secondary mb-4">Doğrudan ulaşamıyorsanız formu doldurabilirsiniz.</p>
+                        <form asp-controller="Contact" asp-action="Index" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-4"></div>
+                            <div class="visually-hidden" aria-hidden="true"><label asp-for="Website">Web sitesi</label><input asp-for="Website" tabindex="-1" autocomplete="off" /></div>
+                            <div class="vstack gap-3">
+                                <div><label asp-for="Message.FullName" class="form-label fw-semibold">Adınız Soyadınız *</label><input asp-for="Message.FullName" class="form-control" placeholder="Adınızı ve soyadınızı yazın" /><span asp-validation-for="Message.FullName" class="text-danger small"></span></div>
+                                <div><label asp-for="Message.Email" class="form-label fw-semibold">E-posta Adresiniz *</label><input asp-for="Message.Email" class="form-control" placeholder="ornek@eposta.com" /><span asp-validation-for="Message.Email" class="text-danger small"></span></div>
+                                <div><label asp-for="Message.Phone" class="form-label fw-semibold"></label><input asp-for="Message.Phone" class="form-control" placeholder="05XX XXX XX XX" /><span asp-validation-for="Message.Phone" class="text-danger small"></span></div>
+                                <div><label asp-for="Message.Subject" class="form-label fw-semibold">Konu *</label><select asp-for="Message.Subject" class="form-select"><option value="">Konu seçiniz</option>@foreach (var subject in Model.Subjects) { <option value="@subject">@subject</option> }</select><span asp-validation-for="Message.Subject" class="text-danger small"></span></div>
+                                <div><label asp-for="Message.Message" class="form-label fw-semibold">Mesajınız *</label><textarea asp-for="Message.Message" class="form-control" rows="5" style="resize: none;" placeholder="Size nasıl yardımcı olabileceğimizi yazın..."></textarea><span asp-validation-for="Message.Message" class="text-danger small"></span></div>
+                                <div><div class="form-check"><input asp-for="Message.HasReadKvkkNotice" class="form-check-input" /><label asp-for="Message.HasReadKvkkNotice" class="form-check-label text-secondary small"><a asp-controller="Home" asp-action="Privacy" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>’ni okudum ve iletişim talebim kapsamında kişisel verilerimin işlenmesi hakkında bilgi edindim. *</label></div><span asp-validation-for="Message.HasReadKvkkNotice" class="text-danger small d-block"></span></div>
+                                <button type="submit" class="btn contact-submit-button w-100 d-flex align-items-center justify-content-center gap-2"><span>Mesajı Gönder</span><i class="bi bi-send-check"></i></button>
+                            </div>
+                        </form>
+                    }
+                </div></div>
+            </section>
         </div>
     </div>
-</div>
+</main>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

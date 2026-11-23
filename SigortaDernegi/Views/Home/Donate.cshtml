@@ -3,51 +3,156 @@
     ViewData["Title"] = "Bağış Yap";
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body p-4 p-md-5">
-                <h1 class="h3 fw-bold">Bağış Bildirimi</h1>
-                <p class="text-muted">Yaptığınız bağışı kayıt altına almak için formu doldurun.</p>
+<main class="donation-page">
+    <div class="container donation-container">
+        <nav class="donation-breadcrumb" aria-label="Sayfa konumu">
+            <a asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Bağış</span>
+        </nav>
+
+        <div class="donation-layout">
+            <section class="donation-information" aria-label="Bağış hakkında">
+                <article class="donation-info-card donation-intro-card">
+                    <h1>Bağışınızla mesleki dayanışmayı güçlendirin</h1>
+                    <div class="donation-card-rule" aria-hidden="true"></div>
+                    <p>ELSADER’e yapacağınız bağışlar; Elazığ sigorta acenteleri arasında mesleki dayanışmanın, bilgi paylaşımının ve mesleki gelişimin desteklenmesine katkı sağlar.</p>
+                </article>
+
+                <article class="donation-info-card donation-purpose-card">
+                    <h2>Bağışınız hangi çalışmalara katkı sağlar?</h2>
+                    <div class="donation-card-rule" aria-hidden="true"></div>
+                    <p>Bağışlar; hasar incelemelerinin niteliğinin artırılmasına, sigorta suistimalleriyle mücadeleye ve etik çalışma ilkelerinin yaygınlaştırılmasına yönelik dernek faaliyetlerini destekler.</p>
+
+                    <div class="donation-focus-grid">
+                        <div class="donation-focus-card">
+                            <h3>Mesleki gelişim</h3>
+                            <p>Araştırma, eğitim ve mesleki gelişim amaçlı çalışmalara katkı sağlar.</p>
+                        </div>
+                        <div class="donation-focus-card">
+                            <h3>Etik çalışma ilkeleri</h3>
+                            <p>Etik ilke ve standartların yaygınlaştırılması için yürütülen faaliyetleri destekler.</p>
+                        </div>
+                        <div class="donation-focus-card">
+                            <h3>Suistimalle mücadele</h3>
+                            <p>Sigorta suistimalleriyle mücadeleye yönelik araştırma ve farkındalık çalışmalarına katkıda bulunur.</p>
+                        </div>
+                    </div>
+
+                    <aside class="donation-impact-note">
+                        <h3>Daha güçlü bir sigorta ekosistemi için birlikte.</h3>
+                        <p>Yapacağınız her bağış, daha şeffaf, güvenilir ve sürdürülebilir bir sigorta sektörü için atılan ortak bir adımdır.</p>
+                    </aside>
+                </article>
+            </section>
+
+            <section class="donation-form-card" aria-labelledby="donationFormTitle">
+                <header class="donation-form-header">
+                    <h2 id="donationFormTitle">Bağış Bilgileri</h2>
+                    <p>Bağış bildiriminizi kayıt altına alabilmemiz için bilgilerinizi doldurunuz.</p>
+                </header>
+
                 @if (TempData["SuccessMessage"] is string successMessage)
                 {
-                    <div class="alert alert-success" role="alert">@successMessage</div>
+                    <div class="alert alert-success" role="status">@successMessage</div>
                 }
-                <form asp-action="Donate" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                    <div class="mb-3">
-                        <label asp-for="DonorName" class="form-label">Bağışçı Adı</label>
-                        <input asp-for="DonorName" class="form-control" />
-                        <span asp-validation-for="DonorName" class="text-danger"></span>
+
+                <form asp-action="Donate" method="post" class="donation-form">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                    <div class="donation-field donation-field--wide">
+                        <label asp-for="DonorName" class="form-label">Ad Soyad / Kurum Unvanı *</label>
+                        <input asp-for="DonorName" class="form-control" autocomplete="name" maxlength="150" placeholder="Adınızı, soyadınızı veya kurum unvanını giriniz" />
+                        <span asp-validation-for="DonorName" class="text-danger small"></span>
                     </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label asp-for="Amount" class="form-label">Tutar (₺)</label>
-                            <input asp-for="Amount" class="form-control" min="1" step="0.01" />
-                            <span asp-validation-for="Amount" class="text-danger"></span>
+
+                    <div class="donation-field">
+                        <label asp-for="Email" class="form-label">E-posta Adresi *</label>
+                        <input asp-for="Email" type="email" class="form-control" autocomplete="email" maxlength="100" placeholder="ornek@eposta.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="donation-field">
+                        <label asp-for="Phone" class="form-label">Telefon Numarası *</label>
+                        <input asp-for="Phone" type="tel" class="form-control" autocomplete="tel" maxlength="20" placeholder="5XX XXX XX XX" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="donation-field donation-field--wide">
+                        <label asp-for="Amount" class="form-label">Bağış Tutarı (₺) *</label>
+                        <div class="donation-amount-entry">
+                            <div class="donation-amount-presets" role="group" aria-label="Önerilen bağış tutarları">
+                                <button type="button" class="donation-amount-preset" data-donation-amount="500">500 ₺</button>
+                                <button type="button" class="donation-amount-preset" data-donation-amount="1000">1.000 ₺</button>
+                                <button type="button" class="donation-amount-preset" data-donation-custom>Diğer</button>
+                            </div>
+                            <input asp-for="Amount" class="form-control" type="number" min="1" max="100000000" step="0.01" inputmode="decimal" placeholder="Tutar giriniz" />
                         </div>
-                        <div class="col-md-6">
-                            <label asp-for="PaymentMethod" class="form-label">Ödeme Yöntemi</label>
-                            <select asp-for="PaymentMethod" class="form-select">
-                                <option value="">Seçiniz</option>
-                                <option>Havale / EFT</option>
-                                <option>Kredi Kartı</option>
-                                <option>Nakit</option>
-                            </select>
-                            <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                        <span asp-validation-for="Amount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="donation-field donation-field--wide">
+                        <label asp-for="Description" class="form-label">Açıklama <span>(İsteğe bağlı)</span></label>
+                        <textarea asp-for="Description" class="form-control" rows="2" maxlength="2000" placeholder="Bağışınızla ilgili iletmek istediğiniz bir not varsa yazabilirsiniz."></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <fieldset class="donation-approvals donation-field--wide">
+                        <legend>Onaylar</legend>
+                        <div class="form-check">
+                            <input asp-for="HasReadKvkkNotice" class="form-check-input" />
+                            <label asp-for="HasReadKvkkNotice" class="form-check-label">
+                                <a asp-controller="Home" asp-action="Privacy" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>’ni okudum ve bağış bildirimim kapsamında kişisel verilerimin işlenmesi hakkında bilgi edindim.
+                            </label>
+                        </div>
+                        <span asp-validation-for="HasReadKvkkNotice" class="text-danger small"></span>
+                        <div class="form-check">
+                            <input asp-for="HasReadDonationInformation" class="form-check-input" />
+                            <label asp-for="HasReadDonationInformation" class="form-check-label">Bağış ve ödeme bilgilendirmesini okudum.</label>
+                        </div>
+                        <span asp-validation-for="HasReadDonationInformation" class="text-danger small"></span>
+                    </fieldset>
+
+                    <div class="donation-paytr-notice donation-field--wide" role="note">
+                        <span class="donation-paytr-lock" aria-hidden="true"><i class="bi bi-lock-fill"></i></span>
+                        <div>
+                            <strong>PayTR ile güvenli ödeme</strong>
+                            <p>Online ödeme altyapısı PayTR üzerinden sunulacaktır. Bu aşamada form üzerinden ödeme alınmamaktadır.</p>
                         </div>
                     </div>
-                    <div class="mb-4">
-                        <label asp-for="Description" class="form-label">Açıklama</label>
-                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+
+                    <div class="donation-form-footer donation-field--wide">
+                        <button type="submit" class="btn donation-submit">Bağış Bildirimini Gönder <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                        <p>Bağış bildiriminiz dernek kayıtlarına alınır; bu işlem ödeme veya tahsilat oluşturmaz.</p>
                     </div>
-                    <button type="submit" class="btn btn-success rounded-pill px-4">Bağışı Kaydet</button>
                 </form>
-            </div>
+            </section>
         </div>
     </div>
-</div>
+</main>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const amountInput = document.getElementById("Amount");
+            document.querySelectorAll("[data-donation-amount]").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    if (!amountInput) return;
+                    amountInput.value = button.dataset.donationAmount;
+                    amountInput.dispatchEvent(new Event("input", { bubbles: true }));
+                    amountInput.dispatchEvent(new Event("change", { bubbles: true }));
+                    document.querySelectorAll(".donation-amount-preset").forEach(function (preset) {
+                        preset.classList.toggle("is-selected", preset === button);
+                    });
+                });
+            });
+            document.querySelector("[data-donation-custom]")?.addEventListener("click", function () {
+                document.querySelectorAll(".donation-amount-preset").forEach(function (preset) {
+                    preset.classList.toggle("is-selected", preset === this);
+                }, this);
+                amountInput?.focus();
+            });
+        });
+    </script>
 }

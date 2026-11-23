@@ -1,0 +1,255 @@
+﻿@model SigortaDernegi.Areas.Admin.ViewModels.RolePermissionsViewModel
+
+@{
+    ViewData["Title"] = "Rol ve Yetki Yönetimi";
+    var enabledCount = Model.Permissions.Sum(permission =>
+        (permission.CanView ? 1 : 0) +
+        (permission.CanAdd ? 1 : 0) +
+        (permission.CanEdit ? 1 : 0) +
+        (permission.CanApprove ? 1 : 0) +
+        (permission.CanDelete ? 1 : 0));
+}
+
+<section class="admin-module role-permissions-page">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">
+                Yetkilendirme Merkezi
+            </span>
+
+            <h1>Rol ve Yetki Yönetimi</h1>
+
+            <p>
+                Dernek yönetim üyelerinin panelde
+                görüntüleyebileceği ve işlem yapabileceği
+                alanları belirleyin.
+            </p>
+        </div>
+    </div>
+
+    <div class="role-permissions-security">
+        <div class="role-permissions-security__icon">
+            <i class="bi bi-shield-check"></i>
+        </div>
+
+        <div>
+            <strong>Başkan hesabı korunmaktadır</strong>
+
+            <p>
+                Başkan bütün sistem yetkilerine sahiptir.
+                Diğer rollerin izinlerini yalnızca Başkan
+                değiştirebilir.
+            </p>
+        </div>
+
+        <span>
+            <i class="bi bi-lock-fill"></i>
+            Tam yetki
+        </span>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="admin-feedback admin-feedback--success"
+             role="status">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@successMessage</span>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger" role="alert">
+            @errorMessage
+        </div>
+    }
+
+    <div class="role-permissions-layout">
+        <aside class="role-permissions-roles">
+            <div class="role-permissions-panel-heading">
+                <span>Yönetim Rolleri</span>
+                <h2>Rol seçimi</h2>
+            </div>
+
+            <div class="role-permissions-role-list">
+                @foreach (var role in Model.Roles)
+                {
+                    var isSelected =
+                    role.RoleName ==
+                    Model.SelectedRoleName;
+
+                    <a asp-action="Index"
+                       asp-route-role="@role.RoleName"
+                       class="role-permissions-role
+                              @(isSelected ? "is-active" : null)">
+
+                        <span class="role-permissions-role__icon">
+                            <i class="bi @role.IconClass"></i>
+                        </span>
+
+                        <span class="role-permissions-role__content">
+                            <strong>@role.DisplayName</strong>
+                            <small>@role.Description</small>
+                        </span>
+
+                        <span class="role-permissions-role__count">
+                            @role.EnabledPermissionCount/
+                            @role.TotalPermissionCount
+                        </span>
+
+                        @if (role.IsLocked)
+                        {
+                            <i class="bi bi-lock-fill
+                                      role-permissions-role__lock">
+                            </i>
+                        }
+                    </a>
+                }
+            </div>
+        </aside>
+
+        <section class="role-permissions-table-panel">
+            <div class="role-permissions-selected">
+                <div>
+                    <span>Seçili Rol</span>
+                    <h2>@Model.SelectedRoleDisplayName</h2>
+                    <p>@Model.SelectedRoleDescription</p>
+                </div>
+
+                <span class="role-permissions-selected__count"
+                      data-permission-count>
+                    @enabledCount yetki açık
+                </span>
+            </div>
+
+            <form asp-action="Save"
+                  method="post"
+                  data-permission-form>
+
+                <input asp-for="SelectedRoleName"
+                       type="hidden" />
+
+                <div class="role-permissions-table-wrapper">
+                    <div class="role-permissions-table">
+
+                        <div class="role-permissions-row
+                                    role-permissions-row--header">
+                            <span>Yönetim alanı</span>
+                            <span>Görüntüle</span>
+                            <span>Ekle</span>
+                            <span>Düzenle</span>
+                            <span>Onayla</span>
+                            <span>Sil</span>
+                        </div>
+
+                        @for (var index = 0;
+                        index < Model.Permissions.Count;
+                        index++)
+                        {
+                            <input asp-for="Permissions[index].Area"
+                                   type="hidden" />
+
+                            <div class="role-permissions-row"
+                                 data-permission-row>
+
+                                <div class="role-permissions-area">
+                                    <span class="role-permissions-area__icon">
+                                        <i class="bi
+                                            @Model.Permissions[index].IconClass">
+                                        </i>
+                                    </span>
+
+                                    <span>
+                                        <strong>
+                                            @Model.Permissions[index].AreaName
+                                        </strong>
+
+                                        <small>
+                                            @Model.Permissions[index].Description
+                                        </small>
+                                    </span>
+                                </div>
+
+                                <label class="role-permission-switch"
+                                       title="Görüntüle">
+                                    <input asp-for="Permissions[index].CanView"
+                                           disabled="@Model.IsLocked"
+                                           data-view-permission />
+                                    <span></span>
+                                </label>
+
+                                <label class="role-permission-switch"
+                                       title="Ekle">
+                                    <input asp-for="Permissions[index].CanAdd"
+                                           disabled="@Model.IsLocked"
+                                           data-action-permission />
+                                    <span></span>
+                                </label>
+
+                                <label class="role-permission-switch"
+                                       title="Düzenle">
+                                    <input asp-for="Permissions[index].CanEdit"
+                                           disabled="@Model.IsLocked"
+                                           data-action-permission />
+                                    <span></span>
+                                </label>
+
+                                <label class="role-permission-switch"
+                                       title="Onayla">
+                                    <input asp-for="Permissions[index].CanApprove"
+                                           disabled="@Model.IsLocked"
+                                           data-action-permission />
+                                    <span></span>
+                                </label>
+
+                                <label class="role-permission-switch"
+                                       title="Sil">
+                                    <input asp-for="Permissions[index].CanDelete"
+                                           disabled="@Model.IsLocked"
+                                           data-action-permission />
+                                    <span></span>
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="role-permissions-actions">
+                    <span>
+                        <i class="bi bi-info-circle"></i>
+
+                        @if (Model.IsLocked)
+                        {
+                            <text>
+                                Başkanın yetkileri güvenlik
+                                nedeniyle değiştirilemez.
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                Değişiklikler bu role sahip
+                                kullanıcılara uygulanır.
+                            </text>
+                        }
+                    </span>
+
+                    @if (!Model.IsLocked)
+                    {
+                        <button type="submit"
+                                class="btn btn-primary">
+                            <i class="bi bi-check2"></i>
+                            Yetkileri Kaydet
+                        </button>
+                    }
+                </div>
+            </form>
+        </section>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/admin-role-permissions.js"
+            asp-append-version="true">
+    </script>
+}

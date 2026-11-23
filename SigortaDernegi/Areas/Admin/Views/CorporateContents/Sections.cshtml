@@ -1,0 +1,88 @@
+@model SigortaDernegi.Areas.Admin.ViewModels.CorporateSectionsViewModel
+@{
+    ViewData["Title"] = $"{Model.Page.MenuTitle} İçerikleri";
+    var canAdd = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Add);
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Edit);
+    var canDelete = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Delete);
+}
+
+<section class="admin-module corporate-admin-page">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">İçerik Bölümleri</span>
+            <h1>@Model.Page.MenuTitle</h1>
+            <p>Sayfada gösterilecek metinleri, belgeleri, görselleri ve sıralamayı yönetin.</p>
+        </div>
+        <div class="admin-module__header-actions">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                Sayfalara Dön
+            </a>
+            @if (canAdd)
+            {
+                <a asp-action="CreateSection" asp-route-pageId="@Model.Page.Id" class="btn btn-primary">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                    Yeni Bölüm Ekle
+                </a>
+            }
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="admin-feedback admin-feedback--success" role="status">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+            <span>@successMessage</span>
+        </div>
+    }
+
+    @if (Model.Sections.Count == 0)
+    {
+        <div class="admin-module__empty">
+            <i class="bi bi-layout-text-window-reverse" aria-hidden="true"></i>
+            <h2>Henüz içerik bölümü yok</h2>
+            <p>Sayfaya ilk içeriği eklemek için “Yeni Bölüm Ekle” butonunu kullanın.</p>
+        </div>
+    }
+    else
+    {
+        <div class="corporate-section-list">
+            @foreach (var contentSection in Model.Sections)
+            {
+                <article class="corporate-section-card">
+                    <div class="corporate-section-card__order">@contentSection.DisplayOrder</div>
+                    @if (!string.IsNullOrWhiteSpace(contentSection.ImageUrl))
+                    {
+                        <img src="@Url.Content(contentSection.ImageUrl)" alt="" />
+                    }
+                    <div class="corporate-section-card__content">
+                        <span>@(contentSection.Eyebrow ?? "İçerik Bölümü")</span>
+                        <h2>@contentSection.Title</h2>
+                        <div class="corporate-section-card__preview">@Html.Raw(contentSection.ContentHtml)</div>
+                    </div>
+                    <span class="admin-status-button @(contentSection.IsActive ? "admin-status-button--active" : "admin-status-button--passive")">
+                        @(contentSection.IsActive ? "Yayında" : "Pasif")
+                    </span>
+                    <div class="corporate-section-card__actions">
+                        @if (canEdit)
+                        {
+                            <a asp-action="EditSection" asp-route-id="@contentSection.Id" class="btn btn-outline-secondary" title="Düzenle">
+                                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                Düzenle
+                            </a>
+                        }
+                        @if (canDelete)
+                        {
+                            <form asp-action="DeleteSection" asp-route-id="@contentSection.Id" method="post"
+                                  onsubmit="return confirm('Bu içerik bölümünü kalıcı olarak silmek istediğinize emin misiniz?');">
+                                <button type="submit" class="corporate-section-delete" title="Sil" aria-label="@contentSection.Title bölümünü sil">
+                                    <i class="bi bi-trash3" aria-hidden="true"></i>
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

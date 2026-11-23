@@ -1,0 +1,53 @@
+@model IReadOnlyList<SigortaDernegi.Models.CorporateContentSection>
+@{
+    ViewData["Title"] = "Sıkça Sorulan Sorular";
+    var canAdd = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Add);
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Edit);
+    var canApprove = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Approve);
+    var canDelete = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Delete);
+}
+<section class="admin-module content-admin-page">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Site Yönetimi</span>
+            <h1>Sıkça Sorulan Sorular</h1>
+            <p>Soruları, yanıtları, kategorileri ve gösterim sırasını yönetin.</p>
+        </div>
+        <div class="admin-module__header-actions">
+            <a asp-area="" asp-controller="Faq" asp-action="Index" target="_blank" class="btn btn-outline-secondary"><i class="bi bi-box-arrow-up-right"></i> Sayfayı Gör</a>
+            @if (canAdd)
+            {
+                <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Yeni Soru</a>
+            }
+        </div>
+    </div>
+    @if (TempData["SuccessMessage"] is string message) { <div class="admin-feedback admin-feedback--success"><i class="bi bi-check-circle-fill"></i><span>@message</span></div> }
+    <div class="content-admin-list">
+        @foreach (var item in Model)
+        {
+            <article class="content-admin-card faq-admin-card">
+                <span class="corporate-admin-card__order">@item.DisplayOrder</span>
+                <div class="content-admin-card__body">
+                    <div class="content-admin-card__meta"><span class="content-admin-type">@(item.Eyebrow ?? "Genel")</span></div>
+                    <h2>@item.Title</h2>
+                    <p>@item.ContentHtml</p>
+                </div>
+                <span class="admin-status-button @(item.IsActive ? "admin-status-button--active" : "admin-status-button--passive")">@(item.IsActive ? "Yayında" : "Pasif")</span>
+                <div class="content-admin-card__actions">
+                    @if (canEdit)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary"><i class="bi bi-pencil-square"></i> Düzenle</a>
+                    }
+                    @if (canApprove)
+                    {
+                        <form asp-action="ToggleStatus" asp-route-id="@item.Id" method="post"><button class="btn btn-outline-secondary" type="submit"><i class="bi @(item.IsActive ? "bi-eye-slash" : "bi-eye")"></i></button></form>
+                    }
+                    @if (canDelete)
+                    {
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Bu soru ve yanıt kalıcı olarak silinsin mi?');"><button class="content-admin-delete" type="submit" aria-label="Soruyu sil"><i class="bi bi-trash3"></i></button></form>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+</section>

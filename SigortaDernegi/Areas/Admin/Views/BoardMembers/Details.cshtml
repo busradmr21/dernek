@@ -1,0 +1,283 @@
+@using SigortaDernegi.Areas.Admin.Authorization
+@using SigortaDernegi.Data
+@using SigortaDernegi.Models
+@inject IRolePermissionService PermissionService
+@model SigortaDernegi.Areas.Admin.ViewModels.BoardMemberDetailsViewModel
+
+@{
+    ViewData["Title"] = $"{Model.Form.FullName} - Üye Detayı";
+    var isAdmin = User.IsInRole(IdentitySeedData.AdminRole);
+    var canEdit = await PermissionService.HasPermissionAsync(User, ManagementArea.BoardManagement, PermissionActionType.Edit);
+}
+
+@functions {
+    private static string GetPositionName(BoardPosition position)
+    {
+        return position switch
+        {
+            BoardPosition.President => "Dernek Başkanı",
+            BoardPosition.VicePresident => "Başkan Yardımcısı",
+            BoardPosition.Treasurer => "Sayman",
+            BoardPosition.GeneralSecretary => "Genel Sekreter",
+            _ => "Yönetim Kurulu Üyesi"
+        };
+    }
+}
+
+<section class="admin-module board-detail-page">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Yönetim Kurulu</span>
+            <h1>@Model.Form.FullName</h1>
+            <p>@GetPositionName(Model.Form.Position) görevindeki üyenin detayları, düzenleme formu ve giriş hesabı yönetimi.</p>
+        </div>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Üye Listesine Dön
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="admin-feedback admin-feedback--success" role="status">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@successMessage</span>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger" role="alert">@errorMessage</div>
+    }
+
+<!-- Sekmeler -->
+    <ul class="nav nav-pills board-detail-tabs mb-4" id="boardDetailTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(Model.ActiveTab != "account" ? "active" : "")"
+                    id="info-tab"
+                    data-bs-toggle="pill"
+                    data-bs-target="#info-pane"
+                    type="button"
+                    role="tab"
+                    aria-controls="info-pane"
+                    aria-selected="@(Model.ActiveTab != "account" ? "true" : "false")">
+                <i class="bi bi-pencil-square me-1"></i>
+                Üye Bilgileri ve Düzenleme
+            </button>
+        </li>
+
+        @if (isAdmin)
+        {
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(Model.ActiveTab == "account" ? "active" : "")"
+                        id="account-tab"
+                        data-bs-toggle="pill"
+                        data-bs-target="#account-pane"
+                        type="button"
+                        role="tab"
+                        aria-controls="account-pane"
+                        aria-selected="@(Model.ActiveTab == "account" ? "true" : "false")">
+                    <i class="bi bi-key me-1"></i>
+                    Giriş Hesabı
+                    @if (Model.Account.HasAccount)
+                    {
+                        <span class="badge bg-success ms-2">Bağlı</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary ms-2">Yok</span>
+                    }
+                </button>
+            </li>
+        }
+    </ul>
+
+    <!-- Sekme İçerikleri -->
+    <div class="tab-content" id="boardDetailTabContent">
+        <!-- 1. DÜZENLEME SEKMESİ -->
+        <div class="tab-pane fade @(Model.ActiveTab != "account" ? "show active" : "")"
+             id="info-pane"
+             role="tabpanel"
+             aria-labelledby="info-tab"
+             tabindex="0">
+
+            @if (canEdit)
+            {
+                <form asp-action="Edit"
+                      asp-route-id="@Model.Form.Id"
+                      method="post"
+                      enctype="multipart/form-data"
+                      class="admin-form-card">
+
+                    <partial name="_Form" model="Model.Form" />
+
+                    <div class="admin-form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i>
+                            Değişiklikleri Kaydet
+                        </button>
+
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            İptal
+                        </a>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-info">Bu bilgileri düzenleme yetkiniz bulunmamaktadır.</div>
+            }
+        </div>
+
+        <!-- 2. GİRİŞ HESABI SEKMESİ -->
+        @if (isAdmin)
+        {
+            <div class="tab-pane fade @(Model.ActiveTab == "account" ? "show active" : "")"
+                 id="account-pane"
+                 role="tabpanel"
+                 aria-labelledby="account-tab"
+                 tabindex="0">
+
+                <div class="board-account-layout">
+                    <aside class="board-account-summary">
+                        <span class="board-account-summary__icon">
+                            <i class="bi bi-person-badge"></i>
+                        </span>
+
+                        <span class="board-account-summary__eyebrow">Yönetim Üyesi</span>
+                        <h2>@Model.Account.FullName</h2>
+                        <p>@Model.Account.RoleDisplayName</p>
+
+                        <span class="admin-status-button @(Model.Account.HasAccount ? "admin-status-button--active" : "admin-status-button--passive")">
+                            @(Model.Account.HasAccount ? "Giriş hesabı bağlı" : "Giriş hesabı yok")
+                        </span>
+                    </aside>
+
+                    <div class="board-account-panel">
+                        @if (Model.Account.HasAccount)
+                        {
+                            <div class="board-account-result">
+                                <span class="board-account-result__icon">
+                                    <i class="bi bi-shield-check"></i>
+                                </span>
+
+                                <div>
+                                    <span>Bağlı giriş hesabı</span>
+                                    <h2>@Model.Account.ExistingEmail</h2>
+                                    <p>
+                                        Bu kullanıcı yönetim paneline <strong>@Model.Account.RoleDisplayName</strong>
+                                        rolü ve yetkileriyle giriş yapabilir.
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                        else if (Model.Account.IsPresident)
+                        {
+                            <div class="board-account-panel__heading">
+                                <span>Başkan Hesabı</span>
+                                <h2>Mevcut admin hesabını bağla</h2>
+                                <p>
+                                    Yeni bir Başkan hesabı oluşturulmaz. Oturum açtığınız mevcut
+                                    admin hesabı Başkan kaydıyla eşleştirilir.
+                                </p>
+                            </div>
+
+                            <div class="board-account-current-user">
+                                <i class="bi bi-envelope-check"></i>
+                                <div>
+                                    <span>Bağlanacak hesap</span>
+                                    <strong>@Model.Account.CurrentAdminEmail</strong>
+                                </div>
+                            </div>
+
+                            <form asp-action="LinkCurrentAdmin"
+                                  asp-route-id="@Model.Account.BoardMemberId"
+                                  method="post"
+                                  class="board-account-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-link-45deg"></i>
+                                    Admin Hesabını Başkana Bağla
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="board-account-panel__heading">
+                                <span>Yeni Giriş Hesabı</span>
+                                <h2>@Model.Account.RoleDisplayName hesabı oluştur</h2>
+                                <p>
+                                    Yönetim üyesinin panele giriş yapabilmesi için kurumsal e-posta ve
+                                    geçici şifre belirleyin. Rol ataması otomatik yapılır.
+                                </p>
+                            </div>
+
+                            <form asp-action="CreateAccount"
+                                  method="post"
+                                  class="admin-form-card board-account-form">
+
+                                <input type="hidden" name="BoardMemberId" value="@Model.Account.BoardMemberId" />
+                                <input type="hidden" name="FullName" value="@Model.Account.FullName" />
+                                <input type="hidden" name="Position" value="@Model.Account.Position" />
+                                <input type="hidden" name="RoleDisplayName" value="@Model.Account.RoleDisplayName" />
+
+                                <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                                <div class="admin-form-grid">
+                                    <div class="admin-form-field admin-form-field--full">
+                                        <label for="Account_Email" class="form-label">Giriş E-postası</label>
+                                        <input id="Account_Email"
+                                               name="Email"
+                                               type="email"
+                                               value="@Model.Account.Email"
+                                               class="form-control"
+                                               placeholder="ornek@elsader.org.tr"
+                                               required />
+                                        <div class="admin-form-help">
+                                            Bu e-posta adresi yönetim panelinde oturum açmak için kullanılır.
+                                        </div>
+                                    </div>
+
+                                    <div class="admin-form-field">
+                                        <label for="Account_TemporaryPassword" class="form-label">Geçici Şifre</label>
+                                        <input id="Account_TemporaryPassword"
+                                               name="TemporaryPassword"
+                                               type="password"
+                                               class="form-control"
+                                               placeholder="En az 8 karakter"
+                                               required />
+                                        <div class="admin-form-help">
+                                            İlk giriş için en az bir büyük harf, küçük harf ve rakam önerilir.
+                                        </div>
+                                    </div>
+
+                                    <div class="admin-form-field">
+                                        <label for="Account_ConfirmPassword" class="form-label">Geçici Şifre Tekrarı</label>
+                                        <input id="Account_ConfirmPassword"
+                                               name="ConfirmPassword"
+                                               type="password"
+                                               class="form-control"
+                                               placeholder="Şifreyi tekrar yazınız"
+                                               required />
+                                    </div>
+                                </div>
+
+                                <div class="admin-form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-person-plus"></i>
+                                        Giriş Hesabı Oluştur
+                                    </button>
+                                </div>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/admin-slider-form.js" asp-append-version="true"></script>
+}

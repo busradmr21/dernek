@@ -1,0 +1,70 @@
+@model SigortaDernegi.Areas.Admin.ViewModels.ContactMessagesAdminViewModel
+
+@using SigortaDernegi.Areas.Admin.Authorization
+@inject IRolePermissionService PermissionService
+
+@{
+    ViewData["Title"] = "İletişim Mesajları";
+    var canEdit = await PermissionService.HasPermissionAsync(User, ManagementArea.ApplicationsAndCommunication, PermissionActionType.Edit);
+    var canDelete = await PermissionService.HasPermissionAsync(User, ManagementArea.ApplicationsAndCommunication, PermissionActionType.Delete);
+}
+
+<section class="admin-module contact-messages-admin">
+    <div class="admin-module__header"><div><span class="admin-module__eyebrow">İletişim Yönetimi</span><h1>İletişim Mesajları</h1><p>Mesajları arayın, durumunu değiştirin, yönetici notu ekleyin veya silin.</p></div></div>
+    @if (TempData["SuccessMessage"] is string message) { <div class="admin-feedback admin-feedback--success"><i class="bi bi-check-circle-fill"></i><span>@message</span></div> }
+
+    <div class="contact-message-summary">
+        <div><i class="bi bi-envelope-paper"></i><span>Toplam Mesaj</span><strong>@Model.TotalCount</strong></div>
+        <div><i class="bi bi-envelope-exclamation"></i><span>Yeni Mesaj</span><strong>@Model.NewCount</strong></div>
+        <div><i class="bi bi-person-lines-fill"></i><span>Rehber Mesajı</span><strong>@Model.MemberMessageCount</strong></div>
+    </div>
+
+    <form method="get" class="admin-filter-bar">
+        <div><label for="messageSearch">Mesajlarda ara</label><input id="messageSearch" name="search" value="@Model.Search" class="form-control" placeholder="Ad, e-posta, konu veya mesaj..." /></div>
+        <div><label asp-for="Status">Durum</label><select asp-for="Status" class="form-select"><option value="">Tüm durumlar</option><option>Yeni</option><option>Okundu</option><option>Yanıtlandı</option><option>Arşivlendi</option></select></div>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Filtrele</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Search) || !string.IsNullOrWhiteSpace(Model.Status)) { <a asp-action="ContactMessages" class="btn btn-outline-secondary">Temizle</a> }
+    </form>
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="admin-empty-state"><i class="bi bi-inbox"></i><h2>Mesaj bulunamadı</h2><p>Yeni mesajlar veya arama sonucundaki kayıtlar burada görüntülenecektir.</p></div>
+    }
+    else
+    {
+        <div class="contact-message-list">
+            @foreach (var item in Model.Items)
+            {
+                var replySubject = Uri.EscapeDataString($"ELSADER - {item.Message.Subject}");
+                <article class="contact-message-card">
+                    <header><div><span class="content-admin-type">@(item.Message.RecipientDisplayName == null ? item.Message.Subject : $"Rehber Mesajı · {item.Message.Subject}")</span><h2>@item.Message.FullName</h2>@if (!string.IsNullOrWhiteSpace(item.Message.RecipientDisplayName)) { <p class="mb-2"><strong>Alıcı üye:</strong> @item.Message.RecipientDisplayName</p> }<div class="contact-message-card__contact"><a href="mailto:@item.Message.Email"><i class="bi bi-envelope"></i>@item.Message.Email</a>@if (!string.IsNullOrWhiteSpace(item.Message.Phone)) { <a href="tel:@item.Message.Phone"><i class="bi bi-telephone"></i>@item.Message.Phone</a> }</div></div><div class="contact-message-card__date"><time>@item.Message.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</time><span class="admin-status-button @(item.Message.Status == "Yeni" ? "admin-status-button--active" : "admin-status-button--passive")">@item.Message.Status</span></div></header>
+                    <div class="contact-message-card__message">@item.Message.Message</div>
+                    @if (canEdit)
+                    {
+                        <form asp-action="UpdateContactMessage" method="post" class="contact-message-card__management">
+                            <input type="hidden" name="id" value="@item.Message.Id" />
+                            <div><label for="status-@item.Message.Id">Durum</label><select id="status-@item.Message.Id" name="status" class="form-select">
+                                @foreach (var state in new[] { "Yeni", "Okundu", "Yanıtlandı", "Arşivlendi" })
+                                {
+                                    if (item.Message.Status == state) { <option value="@state" selected>@state</option> }
+                                    else { <option value="@state">@state</option> }
+                                }
+                            </select></div>
+                            <div class="contact-message-card__note"><label for="note-@item.Message.Id">Yönetici Notu</label><textarea id="note-@item.Message.Id" name="adminNote" rows="2" class="form-control" placeholder="Bu mesajla ilgili özel not...">@item.AdminNote</textarea></div>
+                            <button class="btn btn-primary" type="submit"><i class="bi bi-check-lg"></i> Kaydet</button>
+                            <a href="mailto:@item.Message.Email?subject=@replySubject" class="btn btn-outline-secondary"><i class="bi bi-reply"></i> Yanıtla</a>
+                        </form>
+                    }
+                    else
+                    {
+                        <a href="mailto:@item.Message.Email?subject=@replySubject" class="btn btn-outline-secondary"><i class="bi bi-reply"></i> Yanıtla</a>
+                    }
+                    @if (canDelete)
+                    {
+                        <form asp-action="DeleteContactMessage" method="post" class="contact-message-card__delete" onsubmit="return confirm('Bu iletişim mesajı kalıcı olarak silinsin mi?');"><input type="hidden" name="id" value="@item.Message.Id" /><button type="submit"><i class="bi bi-trash3"></i> Mesajı Sil</button></form>
+                    }
+                </article>
+            }
+        </div>
+    }
+</section>

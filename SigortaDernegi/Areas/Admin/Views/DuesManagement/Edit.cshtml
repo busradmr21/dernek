@@ -1,0 +1,21 @@
+@model DuesPeriodFormViewModel
+
+@{
+    ViewData["Title"] = "Aidat Dönemini Düzenle";
+}
+
+<section class="admin-module">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Aidat ve Ödemeler</span>
+            <h1>Aidat Dönemini Düzenle</h1>
+            <p>Henüz üyelere tahakkuk ettirilmemiş dönemin bilgilerini düzenleyin.</p>
+        </div>
+    </div>
+
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        <partial name="_Form" model="Model" />
+    </form>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,365 @@
+@using System.Globalization
+@model SigortaDernegi.ViewModels.DuesPaymentReceiptViewModel
+
+@{
+    ViewData["Title"] = "Ödeme Belgesi";
+
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+    var paymentDate = TurkeyDateTime.FromUtc(Model.PaidAtUtc);
+    var currencySymbol = Model.Currency == "TRY"
+        ? "₺"
+        : Model.Currency;
+}
+
+<section class="admin-module payment-receipt-page">
+    <div class="receipt-actions">
+        <a asp-action="Payments"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Ödeme Geçmişi
+        </a>
+
+        <button type="button"
+                class="btn btn-primary"
+                onclick="window.print()">
+            <i class="bi bi-printer"></i>
+            Belgeyi Yazdır
+        </button>
+    </div>
+
+    <article class="payment-receipt">
+        <header class="payment-receipt__header">
+            <div class="payment-receipt__brand">
+                <img src="~/images/hisad-logo-mark.png"
+                     alt=""
+                     asp-append-version="true" />
+
+                <div>
+                    <strong>ELSADER</strong>
+                    <span>Ödeme Bilgilendirme Belgesi</span>
+                </div>
+            </div>
+
+            <div class="payment-receipt__number">
+                <span>Belge Numarası</span>
+                <strong>@Model.DocumentNumber</strong>
+            </div>
+        </header>
+
+        @if (Model.IsDemo)
+        {
+            <div class="alert alert-warning border-0 rounded-4">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>PAYTR DEMO İŞLEMİ:</strong>
+                Bu belge gerçek bir tahsilatı göstermez ve gerçek para çekilmemiştir.
+            </div>
+        }
+
+        <div class="payment-receipt__status">
+            <span>Ödeme Durumu</span>
+            <strong class="badge text-bg-success">
+                @Model.Status
+            </strong>
+        </div>
+
+        <section class="payment-receipt__section">
+            <h2>
+                <i class="bi bi-person-vcard" aria-hidden="true"></i>
+                Üye Bilgileri
+            </h2>
+
+            <dl>
+                <div>
+                    <dt>Üye / Kurum</dt>
+                    <dd>@Model.MemberName</dd>
+                </div>
+
+                <div>
+                    <dt>Üye Numarası</dt>
+                    <dd>
+                        @(string.IsNullOrWhiteSpace(Model.RegistryNumber)
+                            ? "Belirtilmedi"
+                            : Model.RegistryNumber)
+                    </dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="payment-receipt__section">
+            <h2>
+                <i class="bi bi-calendar2-check" aria-hidden="true"></i>
+                Aidat Bilgileri
+            </h2>
+
+            <dl>
+                <div>
+                    <dt>Aidat Dönemi</dt>
+                    <dd>@Model.PeriodName</dd>
+                </div>
+
+                <div>
+                    <dt>Dönem Türü</dt>
+                    <dd>@Model.PeriodType</dd>
+                </div>
+
+                <div>
+                    <dt>Ödenen Tutar</dt>
+                    <dd class="payment-receipt__amount">
+                        @Model.Amount.ToString("N2", culture)
+                        @currencySymbol
+                    </dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="payment-receipt__section">
+            <h2>
+                <i class="bi bi-credit-card-2-front" aria-hidden="true"></i>
+                İşlem Bilgileri
+            </h2>
+
+            <dl>
+                <div>
+                    <dt>Ödeme Tarihi</dt>
+                    <dd>@paymentDate.ToString("dd.MM.yyyy HH:mm")</dd>
+                </div>
+
+                <div>
+                    <dt>Ödeme Yöntemi</dt>
+                    <dd>@Model.PaymentMethod</dd>
+                </div>
+
+                <div>
+                    <dt>Ödeme Sağlayıcısı</dt>
+                    <dd>
+                        @(string.IsNullOrWhiteSpace(Model.Provider)
+                            ? "Manuel kayıt"
+                            : Model.Provider)
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Referans Numarası</dt>
+                    <dd class="font-monospace">
+                        @(string.IsNullOrWhiteSpace(Model.ReferenceNumber)
+                            ? Model.DocumentNumber
+                            : Model.ReferenceNumber)
+                    </dd>
+                </div>
+            </dl>
+        </section>
+
+        <footer class="payment-receipt__footer">
+            <p>
+                Bu belge sistem tarafından oluşturulmuş bir ödeme bilgilendirme
+                belgesidir. Resmî mali makbuz veya fatura yerine geçmez.
+            </p>
+
+            <small>
+                Belge oluşturma tarihi:
+                @TurkeyDateTime.FromUtc(DateTime.UtcNow).ToString("dd.MM.yyyy HH:mm")
+            </small>
+        </footer>
+    </article>
+</section>
+
+@section Styles {
+    <style>
+        .receipt-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: .75rem;
+            max-width: 900px;
+            margin: 0 auto 1rem;
+        }
+
+        .payment-receipt {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #fff;
+            border: 1px solid #dbe4ec;
+            border-radius: 24px;
+            box-shadow: 0 18px 45px rgba(15, 39, 68, .08);
+        }
+
+        .payment-receipt__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e7eef4;
+        }
+
+        .payment-receipt__brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .payment-receipt__brand img {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+        }
+
+        .payment-receipt__brand strong,
+        .payment-receipt__brand span,
+        .payment-receipt__number span,
+        .payment-receipt__number strong {
+            display: block;
+        }
+
+        .payment-receipt__brand strong {
+            color: #002b50;
+            font-size: 1.5rem;
+        }
+
+        .payment-receipt__brand span,
+        .payment-receipt__number span {
+            color: #667b8f;
+        }
+
+        .payment-receipt__number {
+            text-align: right;
+        }
+
+        .payment-receipt__number strong {
+            color: #002b50;
+            overflow-wrap: anywhere;
+        }
+
+        .payment-receipt__status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            background: #f4f8fb;
+            border-radius: 16px;
+        }
+
+        .payment-receipt__section {
+            margin-top: 2rem;
+        }
+
+        .payment-receipt__section h2 {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            margin: 0 0 .9rem;
+            padding: .85rem 1rem;
+            color: #002b50;
+            background: #eef7f7;
+            border-left: 5px solid #0f8f88;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: .01em;
+        }
+
+        .payment-receipt__section h2 i {
+            color: #0f8f88;
+            font-size: 1.25rem;
+        }
+
+        .payment-receipt__section dl {
+            margin: 0;
+            border: 1px solid #e3ebf2;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .payment-receipt__section dl > div {
+            display: grid;
+            grid-template-columns: minmax(160px, .7fr) 1.3fr;
+            gap: 1rem;
+            padding: .9rem 1rem;
+            border-bottom: 1px solid #e3ebf2;
+        }
+
+        .payment-receipt__section dl > div:last-child {
+            border-bottom: 0;
+        }
+
+        .payment-receipt__section dt {
+            color: #667b8f;
+            font-weight: 600;
+        }
+
+        .payment-receipt__section dd {
+            margin: 0;
+            color: #002b50;
+            font-weight: 700;
+        }
+
+        .payment-receipt__amount {
+            font-size: 1.2rem;
+        }
+
+        .payment-receipt__footer {
+            margin-top: 2rem;
+            padding-top: 1.25rem;
+            color: #667b8f;
+            border-top: 1px solid #e3ebf2;
+        }
+
+        .payment-receipt__footer p {
+            margin-bottom: .5rem;
+        }
+
+        @@media (max-width: 600px) {
+            .payment-receipt {
+                padding: 1.25rem;
+            }
+
+            .payment-receipt__header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .payment-receipt__number {
+                text-align: left;
+            }
+
+            .payment-receipt__section dl > div {
+                grid-template-columns: 1fr;
+                gap: .25rem;
+            }
+        }
+
+        @@media print {
+            .payment-receipt,
+            .payment-receipt__section h2 {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .admin-sidebar,
+            .admin-topbar,
+            .receipt-actions {
+                display: none !important;
+            }
+
+            .admin-page {
+                margin: 0 !important;
+                width: 100% !important;
+            }
+
+            .admin-content {
+                padding: 0 !important;
+            }
+
+            .payment-receipt {
+                max-width: none;
+                padding: 20px;
+                border: 1px solid #999;
+                border-radius: 0;
+                box-shadow: none;
+            }
+        }
+    </style>
+}

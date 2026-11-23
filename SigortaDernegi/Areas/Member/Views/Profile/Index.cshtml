@@ -1,0 +1,48 @@
+@model MemberProfileViewModel
+
+@{
+    ViewData["Title"] = "Profil Bilgilerim";
+}
+
+<div class="member-page-heading">
+    <div><span class="member-eyebrow">Kişisel Alan</span><h1>Profil Bilgilerim</h1><p>Üyelik ve rehber bilgilerinizin güncel durumunu inceleyin.</p></div>
+    <a asp-action="Edit" class="btn btn-primary"><i class="bi bi-pencil-square"></i> Düzenle</a>
+</div>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success rounded-4 border-0 shadow-sm"><i class="bi bi-check-circle-fill me-2"></i>@successMessage</div>
+}
+
+<div class="member-profile-grid">
+    <section class="member-panel">
+        <div class="member-panel__header"><div><span>Değiştirilemeyen Bilgiler</span><h2>Üyelik Kaydı</h2></div></div>
+        <dl class="member-detail-list">
+            <div><dt>Üye / Kurum Adı</dt><dd>@Model.DisplayName</dd></div>
+            <div><dt>Üye Türü</dt><dd>@Model.MemberType</dd></div>
+            <div><dt>Üye Numarası</dt><dd>@(Model.RegistryNumber ?? "Henüz atanmadı")</dd></div>
+            <div><dt>Giriş E-postası</dt><dd>@Model.LoginEmail</dd></div>
+            <div><dt>Üyelik Tarihi</dt><dd>@Model.MembershipDate.ToLocalTime().ToString("dd.MM.yyyy")</dd></div>
+            <div><dt>Üyelik Durumu</dt><dd><span class="member-status member-status--active">Faal</span></dd></div>
+        </dl>
+    </section>
+
+    <section class="member-panel">
+        <div class="member-panel__header"><div><span>Profil ve Rehber</span><h2>İletişim Bilgileri</h2></div></div>
+        <dl class="member-detail-list">
+            <div><dt>Uzmanlık</dt><dd>@Model.Specialty</dd></div>
+            <div><dt>Şehir / Bölge</dt><dd>@Model.City@(string.IsNullOrWhiteSpace(Model.Region) ? "" : $" / {Model.Region}")</dd></div>
+            <div><dt>Telefon</dt><dd>@(Model.Phone ?? "Belirtilmedi")</dd></div>
+            <div><dt>Yayın İzni</dt><dd>@(Model.HasPublicationConsent ? "İzin verildi" : "İzin verilmedi")</dd></div>
+            <div><dt>Rehber Durumu</dt><dd><span class="member-status @(Model.IsPublished ? "member-status--active" : "member-status--passive")">@(Model.IsPublished ? "Yayında" : "Yayında değil")</span></dd></div>
+        </dl>
+    </section>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.ShortDescription))
+{
+    <section class="member-panel mt-4">
+        <div class="member-panel__header"><div><span>Rehber Tanıtımı</span><h2>Kısa Tanıtım</h2></div></div>
+        <p class="mb-0 text-secondary lh-lg">@Model.ShortDescription</p>
+    </section>
+}

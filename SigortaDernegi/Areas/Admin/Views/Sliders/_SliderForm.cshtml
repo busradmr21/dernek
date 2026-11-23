@@ -1,0 +1,100 @@
+@model SigortaDernegi.Areas.Admin.ViewModels.SliderFormViewModel
+
+<input asp-for="Id" type="hidden" />
+<input asp-for="ExistingImageUrl" type="hidden" />
+
+<div asp-validation-summary="ModelOnly"
+     class="alert alert-danger"
+     role="alert"></div>
+
+<div class="admin-form-grid">
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title"
+               class="form-control"
+               placeholder="Örneğin: ELSADER ile Güvenli Gelecek" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description"
+                  class="form-control"
+                  rows="4"
+                  placeholder="Slider hakkında kısa bir açıklama yazın."></textarea>
+        <div class="admin-form-help">En fazla 250 karakter yazabilirsiniz.</div>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field admin-form-field--full">
+        <label asp-for="ImageFile" class="form-label"></label>
+
+        <div class="admin-image-field">
+            <div class="admin-image-preview" data-slider-image-preview>
+                <img src="@(string.IsNullOrWhiteSpace(Model.ExistingImageUrl) ? "" : Url.Content(Model.ExistingImageUrl))"
+                     alt="Seçilen slider görselinin ön izlemesi"
+                     class="@(string.IsNullOrWhiteSpace(Model.ExistingImageUrl) ? "d-none" : "")"
+                     data-slider-preview-image />
+
+                <div class="admin-image-preview__placeholder @(string.IsNullOrWhiteSpace(Model.ExistingImageUrl) ? "" : "d-none")"
+                     data-slider-preview-placeholder>
+                    <i class="bi bi-image" aria-hidden="true"></i>
+                    <span>Görsel ön izlemesi</span>
+                </div>
+            </div>
+
+            <div>
+                <input asp-for="ImageFile"
+                       class="form-control"
+                       type="file"
+                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                       data-slider-image-input />
+                <div class="admin-form-help">
+                    JPG, JPEG, PNG veya WEBP biçiminde, en fazla 5 MB.
+                    Düzenleme sırasında yeni görsel seçmezseniz mevcut görsel korunur.
+                </div>
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-form-field">
+        <label asp-for="ButtonText" class="form-label"></label>
+        <input asp-for="ButtonText"
+               class="form-control"
+               placeholder="Örneğin: Detaylı Bilgi" />
+        <span asp-validation-for="ButtonText" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field">
+        <label asp-for="ButtonUrl" class="form-label"></label>
+        <input asp-for="ButtonUrl"
+               class="form-control"
+               placeholder="Örneğin: /About/Index" />
+        <div class="admin-form-help">
+            Site içi adresler / ile başlamalıdır. Buton istemiyorsanız iki alanı da boş bırakın.
+        </div>
+        <span asp-validation-for="ButtonUrl" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field">
+        <label asp-for="Order" class="form-label"></label>
+        <input asp-for="Order"
+               class="form-control"
+               type="number"
+               min="0"
+               max="999" />
+        <div class="admin-form-help">Küçük numaralı slider önce gösterilir.</div>
+        <span asp-validation-for="Order" class="text-danger"></span>
+    </div>
+
+    <div class="admin-form-field">
+        <label class="form-label">Yayın Durumu</label>
+        <div class="admin-form-switch">
+            <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+            <label asp-for="IsActive" class="form-check-label">
+                Slider ana sayfada yayınlansın
+            </label>
+        </div>
+    </div>
+</div>

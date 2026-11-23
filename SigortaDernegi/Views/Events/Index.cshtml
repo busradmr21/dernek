@@ -1,0 +1,332 @@
+@model IReadOnlyList<SigortaDernegi.Models.AssociationEvent>
+
+@{
+    ViewData["Title"] = "Etkinlikler";
+
+    var eventTypes =
+        ViewBag.EventTypes as string[]
+        ?? Array.Empty<string>();
+
+    var selectedEventType =
+        ViewBag.SelectedEventType as string;
+
+    var currentDate = DateTime.Now;
+
+    var ongoingEvents = Model
+        .Where(eventItem =>
+            eventItem.StartDate <= currentDate &&
+            (eventItem.EndDate ?? eventItem.StartDate) >= currentDate)
+        .OrderBy(eventItem => eventItem.StartDate)
+        .ToList();
+
+    var upcomingEvents = Model
+        .Where(eventItem => eventItem.StartDate > currentDate)
+        .OrderBy(eventItem => eventItem.StartDate)
+        .ToList();
+
+    var pastEvents = Model
+        .Where(eventItem =>
+            (eventItem.EndDate ?? eventItem.StartDate) < currentDate)
+        .OrderByDescending(eventItem => eventItem.StartDate)
+        .ToList();
+}
+
+<!-- Sayfa başlığı -->
+<section class="about-hero events-hero corporate-managed-hero about-hero--overview">
+    <div class="container">
+        <h1>Etkinlikler</h1>
+
+        <p>
+            ELSADER tarafından düzenlenen eğitim, seminer,
+            webinar ve sektörel buluşmaları inceleyin.
+        </p>
+    </div>
+</section>
+
+<main class="events-page py-5">
+    <div class="container">
+
+        <!-- Etkinlik kategorileri -->
+        <nav class="mb-4" aria-label="Etkinlik kategorileri">
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-controller="Events"
+                   asp-action="Index"
+                   class="btn rounded-pill px-4
+                          @(selectedEventType == null
+                              ? "event-register-button"
+                              : "btn-outline-secondary")">
+                    Tümü
+                </a>
+
+                @foreach (var eventType in eventTypes)
+                {
+                    var categoryName = eventType switch
+                    {
+                        "Seminer" => "Seminerler",
+                        "Webinar" => "Webinarlar",
+                        "Eğitim" => "Eğitimler",
+                        "Söyleşi" => "Söyleşiler",
+                        _ => eventType
+                    };
+
+                    <a asp-controller="Events"
+                       asp-action="Index"
+                       asp-route-type="@eventType"
+                       class="btn rounded-pill px-4
+                              @(selectedEventType == eventType
+                                  ? "event-register-button"
+                                  : "btn-outline-secondary")">
+                        @categoryName
+                    </a>
+                }
+            </div>
+        </nav>
+
+        @if (Model.Count > 0)
+        {
+            <!-- Tarih Aralığı Filtreleme Barı -->
+            <div class="date-filter-bar">
+                <div class="date-filter-bar__title">
+                    <i class="bi bi-calendar-range" aria-hidden="true"></i>
+                    <span>Tarihe Göre Filtrele</span>
+                </div>
+
+                <div class="date-filter-bar__controls">
+                    <div class="date-filter-bar__field">
+                        <label for="eventFilterStartDate">Başlangıç:</label>
+                        <input type="date" id="eventFilterStartDate" class="date-filter-bar__input" />
+                    </div>
+
+                    <span class="date-filter-bar__divider">-</span>
+
+                    <div class="date-filter-bar__field">
+                        <label for="eventFilterEndDate">Bitiş:</label>
+                        <input type="date" id="eventFilterEndDate" class="date-filter-bar__input" />
+                    </div>
+
+                    <div class="date-filter-bar__actions">
+                        <button type="button" id="eventFilterApplyBtn" class="date-filter-bar__btn">
+                            <i class="bi bi-funnel-fill" aria-hidden="true"></i>
+                            <span>Filtrele</span>
+                        </button>
+
+                        <button type="button" id="eventFilterResetBtn" class="date-filter-bar__reset" style="display: none;">
+                            <i class="bi bi-x-circle" aria-hidden="true"></i>
+                            <span>Temizle</span>
+                        </button>
+
+                        <span id="eventFilterCountBadge" class="date-filter-bar__badge" style="display: none;"></span>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Count == 0)
+        {
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5 text-center">
+                    <div class="event-empty-icon
+                                d-inline-flex
+                                align-items-center
+                                justify-content-center
+                                rounded-circle
+                                mb-4">
+                        <i class="bi bi-calendar-event fs-1"></i>
+                    </div>
+
+                    <h2 class="h3 fw-bold mb-3">
+                        Henüz yayımlanmış etkinlik bulunmuyor
+                    </h2>
+
+                    <p class="text-secondary mb-0 mx-auto event-empty-text">
+                        Yeni eğitim, seminer ve toplantılar
+                        yayımlandığında bu sayfada görüntülenecektir.
+                    </p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Filtreleme Sonucu Boş Uyarısı -->
+            <div id="eventFilterEmptyAlert" class="alert alert-light border rounded-4 text-center py-5 mb-5 shadow-sm" style="display: none;">
+                <i class="bi bi-calendar-x fs-1 text-secondary mb-3 d-block"></i>
+                <h3 class="h5 fw-bold text-dark">Seçilen tarih aralığında etkinlik bulunamadı</h3>
+                <p class="text-secondary mb-3">Farklı bir tarih aralığı belirtebilir veya filtreyi temizleyebilirsiniz.</p>
+                <button type="button" class="btn btn-outline-primary rounded-pill px-4" id="eventFilterEmptyClearBtn">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Tüm Etkinlikleri Göster
+                </button>
+            </div>
+
+            <!-- Devam eden etkinlikler -->
+            @if (ongoingEvents.Count > 0)
+            {
+                <section class="mb-5 event-filter-section" id="secOngoingEvents" aria-labelledby="ongoingEventsTitle">
+                    <div class="mb-4">
+                        <span class="event-section-label">Şu Anda</span>
+                        <h2 id="ongoingEventsTitle" class="fw-bold mb-0">
+                            Devam Eden Etkinlikler
+                        </h2>
+                    </div>
+
+                    <div class="row g-4">
+                        @foreach (var eventItem in ongoingEvents)
+                        {
+                            <div class="col-12 col-md-6 col-lg-4 event-filter-item"
+                                 data-start="@eventItem.StartDate.ToString("yyyy-MM-dd")"
+                                 data-end="@((eventItem.EndDate ?? eventItem.StartDate).ToString("yyyy-MM-dd"))">
+                                <partial name="_EventCard" model="eventItem" />
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+
+            <!-- Yaklaşan etkinlikler -->
+            <section class="mb-5 event-filter-section" id="secUpcomingEvents" aria-labelledby="upcomingEventsTitle">
+                <div class="mb-4">
+                    <span class="event-section-label">Takvim</span>
+                    <h2 id="upcomingEventsTitle" class="fw-bold mb-0">
+                        Yaklaşan Etkinlikler
+                    </h2>
+                </div>
+
+                @if (upcomingEvents.Count == 0)
+                {
+                    <div class="alert alert-light border rounded-4 mb-0">
+                        Şu anda listelenecek yaklaşan etkinlik bulunmuyor.
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-4">
+                        @foreach (var eventItem in upcomingEvents)
+                        {
+                            <div class="col-12 col-md-6 col-lg-4 event-filter-item"
+                                 data-start="@eventItem.StartDate.ToString("yyyy-MM-dd")"
+                                 data-end="@((eventItem.EndDate ?? eventItem.StartDate).ToString("yyyy-MM-dd"))">
+                                <partial name="_EventCard" model="eventItem" />
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+
+            <!-- Geçmiş etkinlikler -->
+            @if (pastEvents.Count > 0)
+            {
+                <section class="event-filter-section" id="secPastEvents" aria-labelledby="pastEventsTitle">
+                    <div class="mb-4">
+                        <span class="event-section-label">Arşiv</span>
+                        <h2 id="pastEventsTitle" class="fw-bold mb-0">
+                            Geçmiş Etkinlikler
+                        </h2>
+                    </div>
+
+                    <div class="row g-4">
+                        @foreach (var eventItem in pastEvents)
+                        {
+                            <div class="col-12 col-md-6 col-lg-4 event-filter-item"
+                                 data-start="@eventItem.StartDate.ToString("yyyy-MM-dd")"
+                                 data-end="@((eventItem.EndDate ?? eventItem.StartDate).ToString("yyyy-MM-dd"))">
+                                <partial name="_EventCard" model="eventItem" />
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+        }
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        (function () {
+            var startDateInput = document.getElementById('eventFilterStartDate');
+            var endDateInput = document.getElementById('eventFilterEndDate');
+            var applyBtn = document.getElementById('eventFilterApplyBtn');
+            var resetBtn = document.getElementById('eventFilterResetBtn');
+            var countBadge = document.getElementById('eventFilterCountBadge');
+            var emptyAlert = document.getElementById('eventFilterEmptyAlert');
+            var emptyClearBtn = document.getElementById('eventFilterEmptyClearBtn');
+
+            var items = document.querySelectorAll('.event-filter-item');
+            var sections = document.querySelectorAll('.event-filter-section');
+
+            if (!startDateInput || !endDateInput || !applyBtn || items.length === 0) return;
+
+            function applyFilter() {
+                var startVal = startDateInput.value;
+                var endVal = endDateInput.value;
+
+                if (!startVal && !endVal) {
+                    resetFilter();
+                    return;
+                }
+
+                var visibleCount = 0;
+
+                items.forEach(function (item) {
+                    var itemStart = item.getAttribute('data-start');
+                    var itemEnd = item.getAttribute('data-end') || itemStart;
+
+                    var matches = true;
+
+                    // Başlangıç tarihi seçildiyse: Etkinliğin bitiş tarihi başlangıçtan önce olamaz
+                    if (startVal && itemEnd < startVal) {
+                        matches = false;
+                    }
+                    // Bitiş tarihi seçildiyse: Etkinliğin başlangıç tarihi bitişten sonra olamaz
+                    if (endVal && itemStart > endVal) {
+                        matches = false;
+                    }
+
+                    if (matches) {
+                        item.style.display = '';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Bölümler içinde görünür eleman kalmadıysa bölüm başlığını gizle
+                sections.forEach(function (sec) {
+                    var secVisible = sec.querySelectorAll('.event-filter-item:not([style*="display: none"])').length;
+                    sec.style.display = secVisible > 0 ? '' : 'none';
+                });
+
+                if (resetBtn) resetBtn.style.display = 'inline-flex';
+                if (countBadge) {
+                    countBadge.style.display = 'inline-flex';
+                    countBadge.textContent = visibleCount + ' etkinlik bulundu';
+                }
+                if (emptyAlert) {
+                    emptyAlert.style.display = visibleCount === 0 ? 'block' : 'none';
+                }
+            }
+
+            function resetFilter() {
+                startDateInput.value = '';
+                endDateInput.value = '';
+
+                items.forEach(function (item) {
+                    item.style.display = '';
+                });
+
+                sections.forEach(function (sec) {
+                    sec.style.display = '';
+                });
+
+                if (resetBtn) resetBtn.style.display = 'none';
+                if (countBadge) countBadge.style.display = 'none';
+                if (emptyAlert) emptyAlert.style.display = 'none';
+            }
+
+            applyBtn.addEventListener('click', applyFilter);
+            if (resetBtn) resetBtn.addEventListener('click', resetFilter);
+            if (emptyClearBtn) emptyClearBtn.addEventListener('click', resetFilter);
+
+            startDateInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') applyFilter(); });
+            endDateInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') applyFilter(); });
+        })();
+    </script>
+}

@@ -1,0 +1,19 @@
+@model CorporateContentSection
+@{
+    ViewData["Title"] = "İçerik Bölümünü Düzenle";
+}
+
+<section class="admin-module corporate-admin-form-page">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">@ViewBag.PageTitle</span>
+            <h1>İçerik Bölümünü Düzenle</h1>
+            <p>Başlık, metin, görsel, sıralama ve yayın durumunu güncelleyin.</p>
+        </div>
+    </div>
+    <form asp-action="EditSection" asp-route-id="@Model.Id" method="post" class="corporate-admin-form">
+        <partial name="_SectionForm" model="Model" />
+    </form>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

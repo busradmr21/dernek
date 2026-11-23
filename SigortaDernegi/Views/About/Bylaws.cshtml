@@ -1,99 +1,128 @@
-﻿@{
-    ViewData["Title"] = "Tüzük ve Etik İlkeler";
+@model SigortaDernegi.ViewModels.CorporatePageViewModel
+@{
+    ViewData["Title"] = Model.Page.MenuTitle;
+
+    var introSection = Model.Sections.FirstOrDefault(section => section.SectionKey == "intro");
+    var bylawsSection = Model.Sections.FirstOrDefault(section => section.SectionKey == "bylaws-text");
+    var ethicsSection = Model.Sections.FirstOrDefault(section => section.SectionKey == "ethics-text");
+    var documentSection = Model.Sections.FirstOrDefault(section => section.SectionKey == "document");
+    var documentUrl = string.IsNullOrWhiteSpace(documentSection?.ImageUrl)
+        ? "/documents/elsader-dernek-tuzugu-ve-etik-ilkeler.pdf"
+        : Url.Content(documentSection.ImageUrl);
 }
 
-<div class="container py-3">
-    <!-- Sayfa Başlığı -->
-    <div class="text-center mb-5">
-        <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-2">Mevzuat & Standartlar</span>
-        <h1 class="fw-bold text-dark display-6">Dernek Tüzüğü ve Etik İlkeler</h1>
-        <p class="text-muted col-md-8 mx-auto">
-            Hi Sigorta üyelerinin mesleki faaliyetlerinde uymakla yükümlü olduğu temel kurallar, etik değerler ve dernek tüzüğü.
-        </p>
-    </div>
+@functions {
+    private static string GetActionName(string pageKey) => pageKey switch
+    {
+        "about" => "Index",
+        "bylaws" => "Bylaws",
+        "legislation" => "Legislation",
+        "board" => "Board",
+        "committees" => "Committees",
+        _ => "Index"
+    };
+}
 
-    <div class="row g-4">
-       <!-- Sol Menü / Kısayollar -->
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 p-3 sticky-top" style="top: 20px;">
-            <h6 class="fw-bold text-dark mb-3 border-bottom pb-2">Hızlı Erişim</h6>
-            <div class="list-group list-group-flush small">
-                <a href="#tuzuk" class="list-group-item list-group-item-action fw-semibold border-0 text-primary">
-                    <i class="bi bi-file-text me-2"></i>Dernek Tüzüğü Özeti
-                </a>
-                <a href="#etik" class="list-group-item list-group-item-action fw-semibold border-0 text-primary">
-                    <i class="bi bi-patch-check me-2"></i>Saha Uzmanı Etik Kuralları
-                </a>
-                <a href="#gizlilik" class="list-group-item list-group-item-action fw-semibold border-0 text-primary">
-                    <i class="bi bi-shield-lock me-2"></i>Sır Saklama & KVKK
-                </a>
+<section class="about-hero corporate-managed-hero about-hero--overview">
+    <div class="container">
+        <h1>@Model.Page.HeroTitle</h1>
+        @if (!string.IsNullOrWhiteSpace(Model.Page.HeroDescription))
+        {
+            <p>@Model.Page.HeroDescription</p>
+        }
+    </div>
+</section>
+
+<main class="corporate-bylaws-page">
+    <div class="container">
+        <div class="row g-4 g-xl-5 align-items-start">
+            <aside class="col-12 col-lg-3">
+                <nav class="corporate-managed-nav" aria-label="Kurumsal sayfalar">
+                    <span class="corporate-managed-nav__title">Kurumsal</span>
+                    @foreach (var navigationPage in Model.NavigationPages)
+                    {
+                        var actionName = GetActionName(navigationPage.PageKey);
+                        <a asp-area=""
+                           asp-controller="About"
+                           asp-action="@actionName"
+                           class="@(navigationPage.Id == Model.Page.Id ? "is-active" : null)">
+                            <span>@navigationPage.MenuTitle</span>
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    }
+                </nav>
+            </aside>
+
+            <div class="col-12 col-lg-9">
+                @if (introSection is not null)
+                {
+                    <section class="corporate-bylaws-intro">
+                        @if (!string.IsNullOrWhiteSpace(introSection.Eyebrow))
+                        {
+                            <span class="corporate-bylaws-eyebrow">@introSection.Eyebrow</span>
+                        }
+                        <h2>@introSection.Title</h2>
+                        <div class="corporate-bylaws-richtext">@Html.Raw(introSection.ContentHtml)</div>
+                    </section>
+                }
+
+                @if (bylawsSection is not null)
+                {
+                    <section class="corporate-bylaws-document">
+                        @if (!string.IsNullOrWhiteSpace(bylawsSection.Eyebrow))
+                        {
+                            <span class="corporate-bylaws-eyebrow">@bylawsSection.Eyebrow</span>
+                        }
+                        <h2>@bylawsSection.Title</h2>
+                        <div class="corporate-bylaws-richtext corporate-bylaws-statute-text">
+                            @Html.Raw(bylawsSection.ContentHtml)
+                        </div>
+                    </section>
+                }
+
+                @if (ethicsSection is not null)
+                {
+                    <section class="corporate-bylaws-ethics">
+                        @if (!string.IsNullOrWhiteSpace(ethicsSection.Eyebrow))
+                        {
+                            <span class="corporate-bylaws-eyebrow">@ethicsSection.Eyebrow</span>
+                        }
+                        <h2>@ethicsSection.Title</h2>
+                        <div class="corporate-bylaws-richtext corporate-bylaws-ethics-text">
+                            @Html.Raw(ethicsSection.ContentHtml)
+                        </div>
+                    </section>
+                }
+
+                @if (documentSection is not null)
+                {
+                    <section class="corporate-bylaws-pdf" aria-labelledby="bylaws-document-title">
+                        <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i>
+                        <div class="corporate-bylaws-pdf__content">
+                            <h2 id="bylaws-document-title">@documentSection.Title</h2>
+                            @if (!string.IsNullOrWhiteSpace(documentSection.ContentHtml))
+                            {
+                                <div>@Html.Raw(documentSection.ContentHtml)</div>
+                            }
+                        </div>
+                        <div class="corporate-bylaws-pdf__actions">
+                            <a class="btn btn-primary" href="@documentUrl" target="_blank" rel="noopener">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                                Görüntüle
+                            </a>
+                            <a class="btn btn-outline-primary" href="@documentUrl" download>
+                                <i class="bi bi-download" aria-hidden="true"></i>
+                                İndir
+                            </a>
+                            <a class="btn btn-outline-secondary" href="@documentUrl#print" target="_blank" rel="noopener">
+                                <i class="bi bi-printer" aria-hidden="true"></i>
+                                Yazdır
+                            </a>
+                        </div>
+                    </section>
+                    <p class="corporate-bylaws-note">Tüzük metni, genel kurul kararları ve yürürlükteki mevzuat doğrultusunda güncellenir.</p>
+                }
             </div>
         </div>
     </div>
-
-    <!-- Sağ İçerik Alanı -->
-    <div class="col-md-8">
-        <!-- Tüzük Bölümü -->
-        <div id="tuzuk" class="mb-5 pt-2">
-            <h4 class="fw-bold text-dark mb-3"><i class="bi bi-file-text text-warning me-2"></i>Dernek Tüzüğü Özeti</h4>
-            <p class="text-muted lh-lg">
-                Hi Sigorta Derneği, sigorta araştırmacıları ve uzmanlarının mesleki standartlarını yükseltmek, saha inceleme süreçlerinde etik ve hukuki kuralları hâkim kılmak amacıyla kurulmuştur.
-            </p>
-        </div>
-
-        <!-- Etik Kurallar Bölümü -->
-        <div id="etik" class="mb-5 pt-2">
-            <h4 class="fw-bold text-dark mb-3"><i class="bi bi-patch-check text-warning me-2"></i>Saha Uzmanı Etik Kuralları</h4>
-            <p class="text-muted lh-lg">
-                Araştırmacılar; tarafsızlık, şeffaflık, dürüstlük ve mesleki bağımsızlık ilkelerine bağlı kalarak saha çalışmalarını yürütür.
-            </p>
-        </div>
-
-        <!-- Sır Saklama & KVKK Bölümü (Hedef Alan) -->
-        <div id="gizlilik" class="mb-5 pt-2">
-            <h4 class="fw-bold text-dark mb-3"><i class="bi bi-shield-lock text-warning me-2"></i>Sır Saklama & KVKK</h4>
-            <p class="text-muted lh-lg">
-                Sigorta araştırmacıları, saha incelemeleri ve veri toplama süreçlerinde elde ettikleri tüm kişisel verileri 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) uyarınca korumakla yükümlüdür. Elde edilen bilgi ve belgeler üçüncü kişilerle paylaşılamaz ve ticari sır kapsamında gizli tutulur.
-            </p>
-        </div>
-    </div>
-</div>
-        <!-- Sağ İçerik -->
-        <div class="col-md-8">
-            <!-- Tüzük Kartı -->
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" id="tuzuk">
-                <h4 class="fw-bold text-dark border-bottom pb-2 mb-3">
-                    <i class="bi bi-journal-bookmark text-warning me-2"></i>Dernek Tüzüğü
-                </h4>
-                <p class="text-muted small lh-lg">
-                    Hi Sigorta (Sigorta Araştırmacıları ve Uzmanları Derneği), 5253 sayılı Dernekler Kanunu'na uygun olarak kurulmuştur. Derneğin amacı; sigorta sektöründe hasar inceleme, risk tespiti ve suistimal araştırması yapan kişileri tek çatı altında toplamak, mesleki standartları yükseltmektir.
-                </p>
-                <div class="alert alert-light border rounded-3 small text-muted">
-                    <i class="bi bi-download me-2 text-primary"></i>
-                    Dernek tüzüğünün tamamını PDF formatında indirmek için <a href="#" class="fw-bold text-primary">buraya tıklayınız</a>.
-                </div>
-            </div>
-
-            <!-- Etik İlkeler Kartı -->
-            <div class="card border-0 shadow-sm rounded-4 p-4" id="etik">
-                <h4 class="fw-bold text-dark border-bottom pb-2 mb-3">
-                    <i class="bi bi-award text-primary me-2"></i>Mesleki Etik İlkeler
-                </h4>
-                <ul class="list-unstyled lh-lg text-muted small">
-                    <li class="mb-2">
-                        <strong class="text-dark"><i class="bi bi-check-circle-fill text-success me-2"></i>1. Tarafsızlık ve Doğruluk:</strong> 
-                        Saha araştırmacıları elde ettikleri bulguları hiçbir baskı altında kalmadan, objektif ve somut delillere dayanarak raporlar.
-                    </li>
-                    <li class="mb-2">
-                        <strong class="text-dark"><i class="bi bi-check-circle-fill text-success me-2"></i>2. Gizlilik ve Bilgi Güvenliği:</strong> 
-                        İnceleme sürecinde elde edilen sigortalı ve şirket bilgileri üçüncü şahıslarla paylaşılamaz.
-                    </li>
-                    <li class="mb-2">
-                        <strong class="text-dark"><i class="bi bi-check-circle-fill text-success me-2"></i>3. Çıkar Çatışmasının Önlenmesi:</strong> 
-                        Uzmanlar, doğrudan veya dolaylı menfaat ilişkisi bulunan dosyalarda inceleme görevi üstlenemezler.
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
+</main>

@@ -1,0 +1,29 @@
+@using System.Globalization
+@model IReadOnlyList<AssociationEvent>
+@{
+    ViewData["Title"] = "Etkinlikler";
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+    var canAdd = await RolePermissionService.HasPermissionAsync(User, ManagementArea.HomeUpdates, PermissionActionType.Add);
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.HomeUpdates, PermissionActionType.Edit);
+    var canApprove = await RolePermissionService.HasPermissionAsync(User, ManagementArea.HomeUpdates, PermissionActionType.Approve);
+    var canDelete = await RolePermissionService.HasPermissionAsync(User, ManagementArea.HomeUpdates, PermissionActionType.Delete);
+}
+<section class="admin-module content-admin-page">
+    <div class="admin-module__header"><div><span class="admin-module__eyebrow">Ana Sayfa Akışı</span><h1>Etkinlikler</h1><p>Aktif ve tarihi geçmemiş etkinliklerden öne çıkarılanlara öncelik verilerek ilk üç kayıt ana sayfada gösterilir.</p></div>@if (canAdd) { <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Yeni Etkinlik</a> }</div>
+    @if (TempData["SuccessMessage"] is string message) { <div class="admin-feedback admin-feedback--success"><i class="bi bi-check-circle-fill"></i><span>@message</span></div> }
+    <div class="content-admin-list">
+        @foreach (var eventItem in Model)
+        {
+            <article class="content-admin-card">
+                <img src="@(string.IsNullOrWhiteSpace(eventItem.ImageUrl) ? "/images/events/event-seminer.jpg" : Url.Content(eventItem.ImageUrl))" alt="" />
+                <div class="content-admin-card__body"><div class="content-admin-card__meta"><span class="content-admin-type">@(eventItem.EventType ?? "Etkinlik")</span><time>@eventItem.StartDate.ToString("dd MMMM yyyy HH:mm", culture)</time></div><h2>@eventItem.Title</h2><p>@eventItem.Summary</p></div>
+                <span class="admin-status-button @(eventItem.IsActive ? "admin-status-button--active" : "admin-status-button--passive")">@(eventItem.IsActive ? "Yayında" : "Pasif")</span>
+                <div class="content-admin-card__actions">
+                    @if (canEdit) { <a asp-action="Edit" asp-route-id="@eventItem.Id" class="btn btn-outline-secondary"><i class="bi bi-pencil-square"></i> Düzenle</a> }
+                    @if (canApprove) { <form asp-action="ToggleStatus" asp-route-id="@eventItem.Id" method="post"><button type="submit" class="btn btn-outline-secondary"><i class="bi @(eventItem.IsActive ? "bi-eye-slash" : "bi-eye")"></i></button></form> }
+                    @if (canDelete) { <form asp-action="Delete" asp-route-id="@eventItem.Id" method="post" onsubmit="return confirm('Bu etkinliği kalıcı olarak silmek istediğinize emin misiniz?');"><button type="submit" class="content-admin-delete" aria-label="@eventItem.Title etkinliğini sil"><i class="bi bi-trash3"></i></button></form> }
+                </div>
+            </article>
+        }
+    </div>
+</section>

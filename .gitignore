@@ -29,6 +29,12 @@ App_Data/
 *.local.json.user
 serviceDependencies.local.json
 
+# Temporary generation folders
+__pycache__/
+*.pyc
+.docx-work/rendered*/
+.docx-work/__pycache__/
+
 # OS and editor files
 .DS_Store
 Thumbs.db

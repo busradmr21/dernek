@@ -1,0 +1,95 @@
+@model SigortaDernegi.ViewModels.CorporatePageViewModel
+
+@functions {
+    private static string GetActionName(string pageKey) => pageKey switch
+    {
+        "about" => "Index",
+        "bylaws" => "Bylaws",
+        "legislation" => "Legislation",
+        "board" => "Board",
+        "committees" => "Committees",
+        _ => "Index"
+    };
+}
+
+<section class="about-hero corporate-managed-hero about-hero--overview @(Model.Page.PageKey == "about" ? "about-hero--about" : null)">
+    <div class="container">
+        <h1>@Model.Page.HeroTitle</h1>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Page.HeroDescription))
+        {
+            <p>@Model.Page.HeroDescription</p>
+        }
+
+    </div>
+</section>
+
+@if (Model.Page.PageKey == "about")
+{
+    <partial name="_AboutOverview" model="Model" />
+}
+else
+{
+<main class="corporate-managed-page">
+    <div class="container">
+        <div class="row g-4 g-xl-5 align-items-start">
+            <aside class="col-12 col-lg-3">
+                <nav class="corporate-managed-nav" aria-label="Kurumsal sayfalar">
+                    <span class="corporate-managed-nav__title">Kurumsal</span>
+                    @foreach (var navigationPage in Model.NavigationPages)
+                    {
+                        var actionName = GetActionName(navigationPage.PageKey);
+                        <a asp-area=""
+                           asp-controller="About"
+                           asp-action="@actionName"
+                           class="@(navigationPage.Id == Model.Page.Id ? "is-active" : null)">
+                            <span>@navigationPage.MenuTitle</span>
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    }
+                </nav>
+            </aside>
+
+            <div class="col-12 col-lg-9">
+                @if (Model.Sections.Count == 0)
+                {
+                    <div class="corporate-managed-empty">
+                        <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+                        <p>Bu sayfanın içeriği yakında eklenecek.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="corporate-managed-grid">
+                        @foreach (var contentSection in Model.Sections)
+                        {
+                            <article class="corporate-managed-card">
+                                @if (!string.IsNullOrWhiteSpace(contentSection.ImageUrl))
+                                {
+                                    <img src="@Url.Content(contentSection.ImageUrl)"
+                                         alt="@contentSection.Title"
+                                         class="corporate-managed-card__image" />
+                                }
+
+                                <div class="corporate-managed-card__body">
+                                    @if (!string.IsNullOrWhiteSpace(contentSection.Eyebrow))
+                                    {
+                                        <span class="corporate-managed-card__eyebrow">@contentSection.Eyebrow</span>
+                                    }
+                                    <h2>@contentSection.Title</h2>
+                                    @if (!string.IsNullOrWhiteSpace(contentSection.ContentHtml))
+                                    {
+                                        <div class="corporate-managed-card__content">
+                                            @Html.Raw(contentSection.ContentHtml)
+                                        </div>
+                                    }
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</main>
+}

@@ -1,0 +1,155 @@
+@model IReadOnlyList<RelatedInstitution>
+
+@{
+    ViewData["Title"] = "Kurum Kartları";
+    var activeCount = Model.Count(item => item.IsActive);
+    var canAdd = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Add);
+    var canEdit = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Edit);
+    var canApprove = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Approve);
+    var canDelete = await RolePermissionService.HasPermissionAsync(User, ManagementArea.SiteContent, PermissionActionType.Delete);
+}
+
+<section class="admin-module">
+    <div class="admin-module__header">
+        <div>
+            <span class="admin-module__eyebrow">Ana Sayfa Yönetimi</span>
+            <h1>Kurum Kartları</h1>
+            <p>
+                Ana sayfadaki hareketli kurum şeridini, bağlantıları,
+                yayın durumunu ve gösterim sırasını buradan yönetin.
+            </p>
+        </div>
+
+        @if (canAdd)
+        {
+            <a asp-area="Admin"
+               asp-controller="RelatedInstitutions"
+               asp-action="Create"
+               class="btn btn-primary">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                Yeni Kurum Kartı
+            </a>
+        }
+    </div>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="admin-feedback admin-feedback--success" role="status">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+            <span>@successMessage</span>
+        </div>
+    }
+
+    <div class="admin-summary-grid">
+        <article class="admin-module__summary">
+            <i class="bi bi-buildings" aria-hidden="true"></i>
+            <div><span>Toplam Kart</span><strong>@Model.Count</strong></div>
+        </article>
+
+        <article class="admin-module__summary">
+            <i class="bi bi-broadcast" aria-hidden="true"></i>
+            <div><span>Yayındaki Kart</span><strong>@activeCount</strong></div>
+        </article>
+
+        <article class="admin-module__summary">
+            <i class="bi bi-eye-slash" aria-hidden="true"></i>
+            <div><span>Pasif Kart</span><strong>@(Model.Count - activeCount)</strong></div>
+        </article>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="admin-module__empty">
+            <i class="bi bi-buildings" aria-hidden="true"></i>
+            <h2>Henüz kurum kartı eklenmemiş</h2>
+            <p>Ana sayfada göstermek için ilk kurum kartınızı oluşturabilirsiniz.</p>
+        </div>
+    }
+    else
+    {
+        <div class="admin-module__table-wrapper admin-institutions-table-wrapper">
+            <table class="table align-middle mb-0 admin-institutions-table">
+                <thead>
+                    <tr>
+                        <th>Kısaltma</th>
+                        <th>Kurum ve Bağlantı</th>
+                        <th>Sıra</th>
+                        <th>Durum</th>
+                        <th class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var institution in Model)
+                    {
+                        <tr class="admin-institution-row">
+                            <td><span class="institution-admin-mark">@institution.Abbreviation</span></td>
+                            <td>
+                                <div class="institution-admin-content">
+                                    <strong>@institution.Name</strong>
+                                    <a href="@institution.WebsiteUrl"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
+                                        @institution.WebsiteUrl
+                                        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            <td><strong>@institution.DisplayOrder</strong></td>
+                            <td>
+                                @if (canApprove)
+                                {
+                                    <form asp-area="Admin"
+                                          asp-controller="RelatedInstitutions"
+                                          asp-action="ToggleStatus"
+                                          asp-route-id="@institution.Id"
+                                          method="post">
+                                        <button type="submit"
+                                                class="admin-status-button @(institution.IsActive ? "admin-status-button--active" : "admin-status-button--passive")"
+                                                title="Yayın durumunu değiştir">
+                                            <i class="bi @(institution.IsActive ? "bi-eye-fill" : "bi-eye-slash-fill")"
+                                               aria-hidden="true"></i>
+                                            @(institution.IsActive ? "Yayında" : "Pasif")
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="admin-status-button @(institution.IsActive ? "admin-status-button--active" : "admin-status-button--passive")">
+                                        @(institution.IsActive ? "Yayında" : "Pasif")
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <div class="admin-table-actions">
+                                    @if (canEdit)
+                                    {
+                                        <a asp-area="Admin"
+                                           asp-controller="RelatedInstitutions"
+                                           asp-action="Edit"
+                                           asp-route-id="@institution.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil" aria-hidden="true"></i>
+                                            Düzenle
+                                        </a>
+                                    }
+
+                                    @if (canDelete)
+                                    {
+                                        <a asp-area="Admin"
+                                           asp-controller="RelatedInstitutions"
+                                           asp-action="Delete"
+                                           asp-route-id="@institution.Id"
+                                           class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                            Sil
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

@@ -1,0 +1,135 @@
+@model SigortaDernegi.ViewModels.MemberContactViewModel
+
+@{
+    ViewData["Title"] = $"{Model.MemberName} ile İletişim";
+}
+
+<section class="about-hero directory-contact-hero corporate-managed-hero about-hero--overview">
+    <div class="container">
+        <h1>@Model.MemberName ile iletişime geçin</h1>
+        <p>
+            Üyenin e-posta adresi gizli tutulur. Mesajınız hedef üyenin güvenli
+            paneline ve denetim amacıyla dernek yönetimine iletilir.
+        </p>
+    </div>
+</section>
+
+<main class="member-contact-page">
+    <div class="container">
+        @if (TempData["SuccessMessage"] is string successMessage)
+        {
+            <div class="alert alert-success border-0 shadow-sm rounded-4 d-flex align-items-start gap-3 p-4 mb-4" role="alert">
+                <i class="bi bi-check-circle-fill fs-3" aria-hidden="true"></i>
+                <div>
+                    <strong class="d-block mb-1">Mesajınız alındı</strong>
+                    <span>@successMessage</span>
+                </div>
+            </div>
+        }
+
+        <div class="member-contact-layout">
+            <aside class="member-contact-recipient" aria-labelledby="recipientName">
+                <div class="member-contact-recipient__icon" aria-hidden="true">
+                    <i class="bi @(Model.MemberType == "Kurumsal" ? "bi-buildings" : "bi-person")"></i>
+                </div>
+                <span>@Model.MemberType Üye</span>
+                <h2 id="recipientName">@Model.MemberName</h2>
+                <dl>
+                    <div>
+                        <dt>Uzmanlık</dt>
+                        <dd>@Model.Specialty</dd>
+                    </div>
+                    <div>
+                        <dt>Şehir</dt>
+                        <dd>@Model.City</dd>
+                    </div>
+                </dl>
+                <div class="member-contact-recipient__privacy">
+                    <i class="bi bi-shield-lock" aria-hidden="true"></i>
+                    <p>
+                        Üyenin e-posta adresi sizinle paylaşılmaz ve sayfa
+                        kaynağında yayımlanmaz.
+                    </p>
+                </div>
+            </aside>
+
+            <section class="member-contact-form" aria-labelledby="memberContactFormTitle">
+                <span class="contact-section-label">Mesaj Formu</span>
+                <h2 id="memberContactFormTitle">Mesajınızı yazın</h2>
+                <p>Zorunlu alanlar yıldız (*) ile gösterilmiştir.</p>
+
+                <form asp-controller="Membership" asp-action="ContactMember" method="post">
+                    <input asp-for="MemberId" type="hidden" />
+                    <input asp-for="CaptchaToken" type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-4"></div>
+
+                    <div class="visually-hidden" aria-hidden="true">
+                        <label asp-for="Website">Web sitesi</label>
+                        <input asp-for="Website" tabindex="-1" autocomplete="off" />
+                    </div>
+
+                    <div class="member-contact-form__grid">
+                        <div>
+                            <label asp-for="FullName" class="form-label">Adınız Soyadınız *</label>
+                            <input asp-for="FullName" class="form-control" autocomplete="name" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div>
+                            <label asp-for="Email" class="form-label">E-posta Adresiniz *</label>
+                            <input asp-for="Email" class="form-control" autocomplete="email" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="member-contact-form__wide">
+                            <label asp-for="Subject" class="form-label">Konu *</label>
+                            <input asp-for="Subject" class="form-control" />
+                            <span asp-validation-for="Subject" class="text-danger small"></span>
+                        </div>
+                        <div class="member-contact-form__wide">
+                            <label asp-for="Message" class="form-label">Mesajınız *</label>
+                            <textarea asp-for="Message" class="form-control" rows="6"></textarea>
+                            <span asp-validation-for="Message" class="text-danger small"></span>
+                        </div>
+                        <div class="member-contact-form__captcha">
+                            <label asp-for="CaptchaAnswer" class="form-label">
+                                Güvenlik Sorusu: @Model.CaptchaQuestion *
+                            </label>
+                            <input asp-for="CaptchaAnswer"
+                                   class="form-control"
+                                   inputmode="numeric"
+                                   autocomplete="off" />
+                            <span asp-validation-for="CaptchaAnswer" class="text-danger small"></span>
+                        </div>
+                        <div class="member-contact-form__wide">
+                            <div class="form-check">
+                                <input asp-for="HasReadKvkkNotice" class="form-check-input" />
+                                <label asp-for="HasReadKvkkNotice" class="form-check-label">
+                                    <a asp-controller="Home" asp-action="Privacy" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>’ni
+                                    okudum ve mesajım kapsamında kişisel verilerimin işlenmesi hakkında bilgi edindim. *
+                                </label>
+                            </div>
+                            <span asp-validation-for="HasReadKvkkNotice" class="text-danger small d-block"></span>
+                        </div>
+                    </div>
+
+                    <div class="member-contact-form__actions">
+                        <a asp-controller="Membership"
+                           asp-action="Directory"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i>
+                            Rehbere Dön
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            Mesajı Gönder
+                            <i class="bi bi-send-check"></i>
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

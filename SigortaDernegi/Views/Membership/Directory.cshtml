@@ -1,124 +1,263 @@
-﻿@{
+@model IReadOnlyList<SigortaDernegi.Models.MemberProfile>
+
+@{
     ViewData["Title"] = "Uzman ve Üye Rehberi";
+
+    var specialties =
+        ViewBag.Specialties as IEnumerable<string>
+        ?? Enumerable.Empty<string>();
+
+    var cities =
+        ViewBag.Cities as IEnumerable<string>
+        ?? Enumerable.Empty<string>();
+
+    string? selectedSpecialty = ViewBag.SelectedSpecialty;
+    string? selectedCity = ViewBag.SelectedCity;
 }
 
-<div class="container py-3">
-    <!-- Sayfa Başlığı -->
-    <div class="text-center mb-5">
-        <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-2">Sektörel Doğrulama</span>
-        <h1 class="fw-bold text-dark display-6">Hi Sigorta Uzman & Üye Rehberi</h1>
-        <p class="text-muted col-md-8 mx-auto">
-            Hi Sigorta etik ilkelerine bağlı, Dernek Yönetim Kurulu tarafından onaylanmış faal saha araştırmacıları, hasar denetim uzmanları ve kurumsal üye listesi.
+<!-- Sayfa başlığı -->
+<section class="about-hero directory-hero corporate-managed-hero about-hero--overview">
+
+    <div class="container">
+        <h1>Uzman ve Üye Rehberi</h1>
+
+        <p>
+            Yayın izni bulunan faal ELSADER üyelerini uzmanlık
+            alanı ve şehre göre inceleyebilirsiniz.
         </p>
+
     </div>
 
-    <!-- Arama ve Filtreleme Kartı -->
-    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-light">
-        <form class="row g-3">
-            <div class="col-md-5">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" class="form-control border-start-0" placeholder="Üye Adı, Sicil No veya Şirket Ünvanı...">
+</section>
+
+<main class="member-directory-page">
+
+    <div class="container">
+
+        <!-- Arama ve filtreleme -->
+        <form asp-controller="Membership"
+              asp-action="Directory"
+              method="get"
+              class="directory-filter">
+
+            <div class="directory-filter__group directory-filter__group--search">
+
+                <label for="directorySearch">
+                    Üye veya kurum adı
+                </label>
+
+                <div class="directory-filter__input">
+
+                    <i class="bi bi-search"
+                       aria-hidden="true"></i>
+
+                    <input id="directorySearch"
+                           type="search"
+                           name="search"
+                           value="@ViewBag.Search"
+                           placeholder="Üye veya kurum adı" />
+
                 </div>
+
             </div>
-            <div class="col-md-3">
-                <select class="form-select">
-                    <option value="">Tüm Uzmanlık Alanları</option>
-                    <option value="1">Hasar İnceleme ve Denetim</option>
-                    <option value="2">Saha Araştırması & Suistimal</option>
-                    <option value="3">Oto & Kasko Hasarları</option>
-                    <option value="4">Yangın & Mühendislik</option>
+
+            <div class="directory-filter__group">
+
+                <label for="specialtyFilter">
+                    Uzmanlık alanı
+                </label>
+
+                <select id="specialtyFilter"
+                        name="specialty">
+
+                    <option value="">
+                        Tüm uzmanlık alanları
+                    </option>
+
+                    @foreach (var specialty in specialties)
+                    {
+                            <option value="@specialty"
+                                    selected="@(selectedSpecialty == specialty)">
+                            @specialty
+                            </option>
+                    }
+
                 </select>
+
             </div>
-            <div class="col-md-2">
-                <select class="form-select">
-                    <option value="">Tüm Şehirler</option>
-                    <option value="34">İstanbul</option>
-                    <option value="06">Ankara</option>
-                    <option value="35">İzmir</option>
-                    <option value="16">Bursa</option>
+
+            <div class="directory-filter__group">
+
+                <label for="cityFilter">
+                    Şehir
+                </label>
+
+                <select id="cityFilter"
+                        name="city">
+
+                    <option value="">
+                        Tüm şehirler
+                    </option>
+
+                    @foreach (var city in cities)
+                    {
+                            <option value="@city"
+                                    selected="@(selectedCity == city)">
+                            @city
+                            </option>
+                    }
+
                 </select>
+
             </div>
-            <div class="col-md-2">
-                <button type="button" class="btn btn-warning w-100 fw-bold text-dark">
-                    <i class="bi bi-funnel me-1"></i> Filtrele
-                </button>
-            </div>
+
+            <button type="submit"
+                    class="directory-filter__button">
+
+                <i class="bi bi-funnel"
+                   aria-hidden="true"></i>
+
+                <span>Filtrele</span>
+
+            </button>
+
+            <a asp-controller="Membership"
+               asp-action="Directory"
+               class="directory-filter__clear">
+                Temizle
+            </a>
+
         </form>
+
+        <!-- Sonuç başlığı -->
+        <div class="directory-results-heading">
+
+            <div>
+                <span>Rehber Sonuçları</span>
+                <h2>ELSADER Üyeleri</h2>
+            </div>
+
+            <strong>
+                @Model.Count kayıt
+            </strong>
+
+        </div>
+
+        @if (Model.Count == 0)
+        {
+                <!-- Henüz üye yoksa -->
+                <div class="directory-empty">
+
+                    <div class="directory-empty__icon"
+                         aria-hidden="true">
+                        <i class="bi bi-people"></i>
+                    </div>
+
+                    <h2>Gösterilecek üye bulunamadı</h2>
+
+                    <p>
+                        Arama ölçütlerinize uygun veya yayın izni
+                        tamamlanmış bir üye profili henüz bulunmuyor.
+                    </p>
+
+                    <a asp-controller="Membership"
+                       asp-action="Directory">
+                        Filtreleri temizle
+                    </a>
+
+                </div>
+        }
+        else
+        {
+                <!-- Üye kartları -->
+                <div class="member-directory-grid">
+
+                @foreach (var member in Model)
+                {
+                            <article class="member-directory-card">
+
+                                <div class="member-directory-card__top">
+
+                                    <div class="member-directory-card__avatar"
+                                         aria-hidden="true">
+
+                                @if (member.MemberType == "Kurumsal")
+                                {
+                                                <i class="bi bi-buildings"></i>
+                                }
+                                else
+                                {
+                                                <i class="bi bi-person"></i>
+                                }
+
+                                    </div>
+
+                                    <div>
+
+                                        <span class="member-directory-card__type">
+                                    @member.MemberType Üye
+                                        </span>
+
+                                        <h3>@member.DisplayName</h3>
+
+                                    </div>
+
+                                </div>
+
+                                <dl class="member-directory-card__details">
+
+                                    <div>
+                                        <dt>Uzmanlık</dt>
+                                        <dd>@member.Specialty</dd>
+                                    </div>
+
+                                    <div>
+                                        <dt>Şehir</dt>
+                                        <dd>
+                                    @member.City
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                       member.Region))
+                                    {
+                                                    <span> / @member.Region</span>
+                                    }
+                                        </dd>
+                                    </div>
+
+                                </dl>
+
+                        @if (!string.IsNullOrWhiteSpace(
+                           member.ShortDescription))
+                        {
+                                        <p class="member-directory-card__description">
+                                @member.ShortDescription
+                                        </p>
+                        }
+
+                                <div class="member-directory-card__footer">
+
+                                    <span>
+                                        <i class="bi bi-patch-check-fill"
+                                           aria-hidden="true"></i>
+
+                                        Faal Üye
+                                    </span>
+
+                                    <a asp-controller="Membership"
+                                       asp-action="ContactMember"
+                                       asp-route-id="@member.Id">
+                                        İletişime Geç
+                                        <i class="bi bi-envelope"></i>
+                                    </a>
+
+                                </div>
+
+                            </article>
+                }
+
+                </div>
+        }
+
     </div>
 
-    <!-- Üye Liste Kartları -->
-    <div class="row g-4">
-        <!-- Örnek Kart 1: Bireysel Uzman -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4 me-3" style="width: 55px; height: 55px;">
-                        AY
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-0 text-dark">Ahmet YILMAZ</h6>
-                        <small class="text-muted"><i class="bi bi-shield-check text-success me-1"></i>Onaylı Uzman</small>
-                    </div>
-                </div>
-                <div class="small lh-lg mb-3">
-                    <div><strong>Sicil No:</strong> <span class="badge bg-secondary">HS-2024-089</span></div>
-                    <div><strong>Uzmanlık:</strong> Saha Araştırması & Suistimal Tespiti</div>
-                    <div><strong>Bölge / Şehir:</strong> İstanbul (Marmara Bölgesi)</div>
-                </div>
-                <div class="mt-auto border-top pt-2 d-flex justify-content-between align-items-center">
-                    <span class="badge bg-success-subtle text-success border border-success-subtle">Faal Üye</span>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Detay / İletişim</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Örnek Kart 2: Kurumsal Üye -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="bg-dark text-warning rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4 me-3" style="width: 55px; height: 55px;">
-                        <i class="bi bi-building"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-0 text-dark">Lider Sigorta Araştırma A.Ş.</h6>
-                        <small class="text-muted"><i class="bi bi-patch-check-fill text-warning me-1"></i>Kurumsal Üye</small>
-                    </div>
-                </div>
-                <div class="small lh-lg mb-3">
-                    <div><strong>Sicil No:</strong> <span class="badge bg-secondary">HS-K-2023-012</span></div>
-                    <div><strong>Faaliyet:</strong> Hasar Denetimi & Risk İnceleme</div>
-                    <div><strong>Merkez:</strong> Ankara</div>
-                </div>
-                <div class="mt-auto border-top pt-2 d-flex justify-content-between align-items-center">
-                    <span class="badge bg-success-subtle text-success border border-success-subtle">Faal Üye</span>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Detay / İletişim</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Örnek Kart 3: Bireysel Uzman -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4 me-3" style="width: 55px; height: 55px;">
-                        MÇ
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-0 text-dark">Mehmet ÇELİK</h6>
-                        <small class="text-muted"><i class="bi bi-shield-check text-success me-1"></i>Onaylı Uzman</small>
-                    </div>
-                </div>
-                <div class="small lh-lg mb-3">
-                    <div><strong>Sicil No:</strong> <span class="badge bg-secondary">HS-2025-104</span></div>
-                    <div><strong>Uzmanlık:</strong> Oto & Kasko Hasarları Denetimi</div>
-                    <div><strong>Bölge / Şehir:</strong> İzmir (Ege Bölgesi)</div>
-                </div>
-                <div class="mt-auto border-top pt-2 d-flex justify-content-between align-items-center">
-                    <span class="badge bg-success-subtle text-success border border-success-subtle">Faal Üye</span>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Detay / İletişim</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+</main>

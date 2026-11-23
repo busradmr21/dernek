@@ -1,0 +1,45 @@
+@model CorporateContentSection
+
+<input asp-for="Id" type="hidden" />
+<input asp-for="CorporatePageId" type="hidden" />
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="corporate-admin-form__grid">
+    <div class="corporate-admin-field">
+        <label asp-for="Eyebrow">Üst küçük başlık</label>
+        <input asp-for="Eyebrow" class="form-control" placeholder="Örnek: Misyonumuz" />
+        <span asp-validation-for="Eyebrow" class="text-danger"></span>
+    </div>
+    <div class="corporate-admin-field">
+        <label asp-for="Title">Bölüm başlığı</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="corporate-admin-field corporate-admin-field--wide">
+        <label asp-for="ContentHtml">İçerik</label>
+        <textarea asp-for="ContentHtml" class="form-control corporate-content-editor" rows="12"></textarea>
+        <span asp-validation-for="ContentHtml" class="text-danger"></span>
+        <small>Paragraf için &lt;p&gt;...&lt;/p&gt;, liste için &lt;ul&gt;&lt;li&gt;...&lt;/li&gt;&lt;/ul&gt; kullanabilirsiniz.</small>
+    </div>
+    <div class="corporate-admin-field corporate-admin-field--wide">
+        <label asp-for="ImageUrl">Görsel veya belge adresi (isteğe bağlı)</label>
+        <input asp-for="ImageUrl" class="form-control" placeholder="/images/ornek.jpg veya /documents/ornek.pdf" />
+        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    </div>
+    <div class="corporate-admin-field">
+        <label asp-for="DisplayOrder">Gösterim sırası</label>
+        <input asp-for="DisplayOrder" class="form-control" min="0" />
+    </div>
+    <label class="corporate-admin-switch">
+        <input asp-for="IsActive" />
+        <span><strong>Bölüm yayında</strong><small>Kapatılırsa bu bölüm sitede görünmez.</small></span>
+    </label>
+</div>
+
+<div class="corporate-admin-form__actions">
+    <button type="submit" class="btn btn-primary">
+        <i class="bi bi-check-lg" aria-hidden="true"></i>
+        Kaydet
+    </button>
+    <a asp-action="Sections" asp-route-pageId="@Model.CorporatePageId" class="btn btn-outline-secondary">İptal</a>
+</div>

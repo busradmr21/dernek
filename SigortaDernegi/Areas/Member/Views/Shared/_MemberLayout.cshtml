@@ -1,0 +1,110 @@
+@{
+    var pageTitle = ViewData["Title"]?.ToString() ?? "Üye Paneli";
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@pageTitle - ELSADER Üye Paneli</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/member-portal.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="member-portal-body">
+    <aside class="offcanvas-lg offcanvas-start member-sidebar"
+           tabindex="-1"
+           id="memberSidebar"
+           aria-labelledby="memberSidebarTitle">
+        <div class="offcanvas-header member-sidebar__mobile-header">
+            <h2 class="offcanvas-title fs-5" id="memberSidebarTitle">ELSADER Üye Paneli</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#memberSidebar" aria-label="Menüyü kapat"></button>
+        </div>
+
+        <div class="offcanvas-body member-sidebar__body">
+            <a class="member-brand" asp-area="Member" asp-controller="Dashboard" asp-action="Index">
+                <img src="~/images/hisad-logo-mark.png" alt="" asp-append-version="true" />
+                <span><strong>ELSADER</strong><small>Üye Paneli</small></span>
+            </a>
+
+            <nav class="member-navigation" aria-label="Üye paneli menüsü">
+                <span class="member-navigation__label">Üyelik</span>
+                <a class="member-navigation__link @(currentController == "Dashboard" ? "member-navigation__link--active" : null)"
+                   asp-area="Member" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-grid-1x2"></i><span>Genel Bakış</span>
+                </a>
+                <a class="member-navigation__link @(currentController == "Profile" ? "member-navigation__link--active" : null)"
+                   asp-area="Member" asp-controller="Profile" asp-action="Index">
+                    <i class="bi bi-person-vcard"></i><span>Profil Bilgilerim</span>
+                </a>
+                <a class="member-navigation__link @(currentController == "Messages" ? "member-navigation__link--active" : null)"
+                   asp-area="Member" asp-controller="Messages" asp-action="Index">
+                    <i class="bi bi-envelope-paper"></i><span>Mesajlarım</span>
+                </a>
+                <a class="member-navigation__link @(currentController == "Dues" && currentAction == "Index" ? "member-navigation__link--active" : null)"
+                   asp-area="Member" asp-controller="Dues" asp-action="Index">
+                    <i class="bi bi-wallet2"></i><span>Aidatlarım</span>
+                </a>
+                <a class="member-navigation__link @(currentController == "Dues" && (currentAction == "Payments" || currentAction == "PaymentReceipt") ? "member-navigation__link--active" : null)"
+                   asp-area="Member" asp-controller="Dues" asp-action="Payments">
+                    <i class="bi bi-clock-history"></i><span>Ödeme Geçmişim</span>
+                </a>
+                <a class="member-navigation__link"
+                   asp-area="" asp-controller="Home" asp-action="Donate">
+                    <i class="bi bi-heart"></i><span>Bağış Yap</span>
+                </a>
+
+                <span class="member-navigation__label">İçerikler</span>
+                <a class="member-navigation__link" asp-area="" asp-controller="News" asp-action="Announcements">
+                    <i class="bi bi-megaphone"></i><span>Duyurular</span>
+                </a>
+                <a class="member-navigation__link" asp-area="" asp-controller="Events" asp-action="Index">
+                    <i class="bi bi-calendar-event"></i><span>Etkinlikler</span>
+                </a>
+
+                <span class="member-navigation__label">Hesabım</span>
+                <a class="member-navigation__link @(currentController == "Account" ? "member-navigation__link--active" : null)"
+                   asp-area="Member" asp-controller="Account" asp-action="Security">
+                    <i class="bi bi-shield-lock"></i><span>Hesap Güvenliği</span>
+                </a>
+                <a class="member-navigation__link" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-box-arrow-up-right"></i><span>Siteye Dön</span>
+                </a>
+            </nav>
+
+            <div class="member-sidebar__account">
+                <div><i class="bi bi-person-circle"></i><span><small>Giriş hesabı</small><strong>@User.Identity?.Name</strong></span></div>
+                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                    <button type="submit"><i class="bi bi-box-arrow-right"></i> Güvenli Çıkış</button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <div class="member-workspace">
+        <header class="member-topbar">
+            <button class="member-menu-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#memberSidebar" aria-controls="memberSidebar">
+                <i class="bi bi-list"></i><span>Menü</span>
+            </button>
+            <div><span>ELSADER Üye Alanı</span><strong>@pageTitle</strong></div>
+            <a asp-area="" asp-controller="Home" asp-action="Index" aria-label="Ana siteye git"><i class="bi bi-house-door"></i></a>
+        </header>
+
+        <main class="member-main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,112 @@
+@using System.Globalization
+@model SigortaDernegi.Models.AssociationEvent
+
+@{
+    var culture = new CultureInfo("tr-TR");
+    var currentDate = DateTime.Now;
+    var endDate = Model.EndDate ?? Model.StartDate;
+
+    var isPast = endDate < currentDate;
+    var isOngoing =
+        Model.StartDate <= currentDate &&
+        endDate >= currentDate;
+
+    var startDay = Model.StartDate.ToString("dd");
+    var startMonth = Model.StartDate.ToString("MMM", culture).ToUpper(culture).Replace(".", "");
+}
+
+<article class="event-card-modern">
+    <div class="event-card__media">
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl"
+                 alt="@Model.Title"
+                 class="event-card__img"
+                 loading="lazy" />
+        }
+        else
+        {
+            <div class="event-card__placeholder">
+                <i class="bi bi-calendar2-event" aria-hidden="true"></i>
+            </div>
+        }
+
+        <!-- Sol Üst: Şık Takvim Damgası -->
+        <div class="event-card__date-stamp" aria-label="@Model.StartDate.ToString("dd MMMM yyyy", culture)">
+            <span class="event-card__stamp-day">@startDay</span>
+            <span class="event-card__stamp-month">@startMonth</span>
+        </div>
+
+        <!-- Sağ Üst: Durum ve Format Rozetleri -->
+        <div class="event-card__floating-badges">
+            @if (isOngoing)
+            {
+                <span class="event-badge event-badge--ongoing">
+                    <span class="event-badge__dot"></span> Devam Ediyor
+                </span>
+            }
+            else if (isPast)
+            {
+                <span class="event-badge event-badge--past">
+                    Tamamlandı
+                </span>
+            }
+
+            @if (Model.IsOnline)
+            {
+                <span class="event-badge event-badge--online">
+                    <i class="bi bi-camera-video" aria-hidden="true"></i> Çevrim İçi
+                </span>
+            }
+        </div>
+    </div>
+
+    <div class="event-card__body">
+        <div class="event-card__type-row">
+            <span class="event-card__type-pill">
+                <i class="bi bi-bookmark-fill" aria-hidden="true"></i>
+                @(Model.EventType ?? "Etkinlik")
+            </span>
+        </div>
+
+        <h3 class="event-card__title">
+            <a asp-controller="Events"
+               asp-action="Detail"
+               asp-route-id="@Model.Id"
+               title="@Model.Title">
+                @Model.Title
+            </a>
+        </h3>
+
+        <p class="event-card__summary">
+            @Model.Summary
+        </p>
+
+        <div class="event-card__meta-bar">
+            <div class="event-card__meta-item">
+                <i class="bi bi-calendar3" aria-hidden="true"></i>
+                @if (Model.EndDate.HasValue && Model.EndDate.Value.Date != Model.StartDate.Date)
+                {
+                    <span>@Model.StartDate.ToString("dd MMM", culture) - @Model.EndDate.Value.ToString("dd MMM yyyy", culture)</span>
+                }
+                else
+                {
+                    <span>@Model.StartDate.ToString("dd MMMM yyyy", culture)</span>
+                }
+            </div>
+
+            <div class="event-card__meta-item">
+                <i class="bi @(Model.IsOnline ? "bi-laptop" : "bi-geo-alt")" aria-hidden="true"></i>
+                <span>@(Model.IsOnline ? "Zoom / Çevrim içi" : (Model.Location ?? "Konum duyurulacak"))</span>
+            </div>
+        </div>
+
+        <a asp-controller="Events"
+           asp-action="Detail"
+           asp-route-id="@Model.Id"
+           class="event-card__btn">
+            <span>Ayrıntıları İncele</span>
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </a>
+    </div>
+</article>
